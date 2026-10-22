@@ -18,10 +18,10 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Build runtime image
         run: docker build --build-arg VCS_REF="$GITHUB_SHA" -f docker/Dockerfile -t hakoon-ci:"$GITHUB_SHA" .
       - name: Test runtime configuration, routes and media proxy
