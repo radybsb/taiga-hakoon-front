@@ -1,0 +1,82 @@
+.backlog-bulk-options.move-to-sprint
+    button.btn-icon.bulk-toolbar-button(
+        type="button"
+        variant="secondary"
+        ng-if="project.is_epics_activated && bulk.permitted('epic')"
+        ng-disabled="bulk.busy"
+        ng-click="bulk.start('epic')"
+        title="{{'US.RELATE_TO_EPIC' | translate}}"
+        aria-label="{{'US.RELATE_TO_EPIC' | translate}}"
+    )
+        tg-svg(svg-icon="icon-epics")
+    button.btn-icon.bulk-toolbar-button(
+        type="button"
+        variant="secondary"
+        ng-if="bulk.permitted('tag')"
+        ng-disabled="bulk.busy"
+        ng-click="bulk.start('tag')"
+        title="{{'COMMON.TAGS.ADD' | translate}}"
+        aria-label="{{'COMMON.TAGS.ADD' | translate}}"
+    )
+        tg-svg(svg-icon="icon-tag-plus")
+    button.btn-icon.bulk-toolbar-button(
+        type="button"
+        variant="secondary"
+        ng-if="bulk.permitted('assigned')"
+        ng-disabled="bulk.busy"
+        ng-click="bulk.start('assigned')"
+        title="{{'BACKLOG.BULK.ADD_ASSIGNED' | translate}}"
+        aria-label="{{'BACKLOG.BULK.ADD_ASSIGNED' | translate}}"
+    )
+        tg-svg(svg-icon="icon-user-plus")
+    button.btn-icon.bulk-toolbar-button.e2e-bulk-options(
+        type="button"
+        variant="secondary"
+        ng-click="bulk.toggle()"
+        ng-disabled="bulk.busy"
+        title="Options"
+        aria-label="Options"
+        aria-haspopup="true"
+        aria-expanded="{{bulk.open}}"
+    )
+        tg-svg(svg-icon="icon-arrow-down")
+    .backlog-bulk-popup(ng-if="bulk.open" ng-click="$event.stopPropagation()" aria-busy="{{bulk.busy}}")
+        p.bulk-selection(ng-if="!bulk.message") {{'BACKLOG.BULK.SELECTED' | translate:{count: bulk.ids.length} }}
+        p(ng-if="bulk.busy" translate="BACKLOG.BULK.WORKING" role="status")
+        .bulk-result(ng-if="bulk.message" role="status")
+            p {{bulk.message}}
+            button.btn-small(type="button" ng-if="bulk.failed.length" ng-disabled="bulk.busy" ng-click="bulk.retry()" translate="BACKLOG.BULK.RETRY")
+            button.btn-small(type="button" ng-disabled="bulk.busy" ng-click="bulk.open=false" translate="COMMON.CLOSE")
+        ul.bulk-actions(ng-if="!bulk.panel && !bulk.message")
+            li(ng-if="bulk.permitted('status')")
+                button(type="button" ng-disabled="bulk.busy" ng-click="bulk.show('status')")
+                    tg-svg(svg-icon="icon-set-status")
+                    span(translate="BACKLOG.BULK.SET_STATUS")
+            li(ng-if="bulk.permitted('sprint')")
+                button(type="button" ng-disabled="bulk.busy" ng-click="bulk.show('sprint')")
+                    tg-svg(svg-icon="icon-add-to-sprint")
+                    span(translate="BACKLOG.BULK.MOVE_TO_SPRINT")
+            li(ng-if="bulk.permitted('delete')")
+                button(type="button" ng-disabled="bulk.busy" ng-click="bulk.remove()")
+                    tg-svg.bulk-delete-icon(svg-icon="icon-trash")
+                    span(translate="BACKLOG.BULK.DELETE_STORIES")
+        .bulk-panel(ng-if="bulk.panel && !bulk.message")
+            button.bulk-back(type="button" ng-disabled="bulk.busy" ng-click="bulk.panel=null" translate="BACKLOG.BULK.BACK")
+            div(ng-if="bulk.panel=='status' && !bulk.busy" tg-backlog-bulk-status)
+            tg-tag-line-common(
+                ng-if="bulk.panel=='tag' && !bulk.busy"
+                auto-open
+                tags="bulk.tags"
+                project="project"
+                permissions="modify_us"
+                loading-add-tag="bulk.busy"
+                on-add-tag="bulk.addTag(name, color)"
+            )
+            .bulk-sprints(ng-if="bulk.panel=='sprint'")
+                p(ng-if="bulk.loadingSprints" translate="BACKLOG.BULK.LOADING")
+                p(ng-if="!bulk.loadingSprints && !bulk.sprints.length" translate="BACKLOG.BULK.NO_SPRINTS")
+                ul.pop-status.bulk-sprint-list(ng-if="!bulk.loadingSprints")
+                    li(ng-repeat="sprint in bulk.sprints track by sprint.id")
+                        button(type="button" ng-disabled="bulk.busy" ng-click="bulk.execute('sprint', sprint.id)")
+                            span.item-text {{sprint.name}}
+                            small {{sprint.estimated_start}}

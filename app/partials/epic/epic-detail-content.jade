@@ -1,0 +1,93 @@
+include epic-metadata
+
+div.main.detail
+    .detail-header-container(ng-class="{blocked: epic.is_blocked}")
+        .detail-header(ng-init="storyPopupActions = {}")
+            tg-detail-header(
+                item="epic"
+                section-name="sectionName"
+                project="project"
+                required-perm="modify_epic"
+                ng-if="project && epic"
+                format="text"
+            )
+
+            tg-detail-nav(item="epic" ng-if="!detailPopup")
+
+            .story-status(ng-if="(detailPopup || detailPage)")
+                +epicStatus()
+
+            .story-context
+                .epic-selector
+                    span.epic-selector-text {{'EPIC.EPIC_COLOR' | translate}}
+                    tg-color-selector.color-selector(
+                        is-color-required="true"
+                        init-color="epic.color"
+                        on-select-color="ctrl.onSelectColor(color)"
+                        required-perm="modify_epic"
+                    )
+                .story-context-actions(ng-if="(detailPopup || detailPage)")
+                    .story-context-settings
+                        +epicSettings()
+
+            +epicMetadata(true)
+
+            .subheader
+                tg-tag-line.tags-block(
+                    ng-if="epic && project"
+                    project="project"
+                    item="epic"
+                    permissions="modify_epic"
+                )
+                tg-created-by-display.ticket-created-by(ng-model="epic")
+
+
+    .detail-content(ng-if="attachmentsReady")
+        section.duty-content
+            tg-item-wysiwyg(
+                type="epic",
+                model="epic",
+                required-perm="modify_epic"
+            )
+
+        // Custom Fields
+        tg-custom-attributes-values(
+            ng-model="epic"
+            type="epic"
+            project="project"
+            required-edition-perm="modify_epic"
+        )
+
+        tg-attachments-full(
+            obj-id="epic.id"
+            type="epic",
+            project-id="projectId"
+            edit-permission = "modify_epic"
+        )
+
+        tg-related-userstories(
+            project="immutableProject"
+            userstories="userstories"
+            epic="immutableEpic"
+        )
+
+        tg-history-section(
+            ng-if="epic && !(detailPopup || detailPage)"
+            type="epic"
+            name="epic"
+            id="epic.id"
+            project="project"
+        )
+
++epicMetadata(false)
+
+aside.story-discussion(ng-if="(detailPopup || detailPage)")
+    tg-history-section(
+        ng-if="epic"
+        type="epic"
+        name="epic"
+        id="epic.id"
+        project="project"
+    )
+
+div.lightbox.lightbox-block(tg-lb-block, ng-model="epic", title="EPIC.LIGHTBOX_TITLE_BLOKING_EPIC")

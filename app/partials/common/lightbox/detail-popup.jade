@@ -1,0 +1,13 @@
+tg-lightbox-close
+.task-popup-content
+    p(ng-if="(!detailReady || !attachmentsReady) && !loadFailed" translate="COMMON.LOADING" role="status")
+    p(ng-if="loadFailed" translate="ERROR.TEXT1" role="alert")
+    .wrapper(ng-if="detailReady && attachmentsReady" ng-switch="popupType")
+        .detail-popup-body.story-popup-body(ng-switch-when="us")
+            include ../../us/us-detail-content
+        .detail-popup-body.story-popup-body(ng-switch-when="issue")
+            include ../../issue/issues-detail-content
+        .detail-popup-body.story-popup-body(ng-switch-when="epic")
+            include ../../epic/epic-detail-content
+        .detail-popup-body.story-popup-body(ng-switch-when="task")
+            include ../../task/task-detail-content

@@ -1,0 +1,20 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+doctype html
+
+div.error-main(tg-modern-workspace="error")
+    div.error-container(role="region" aria-labelledby="error-heading")
+        p.error-code 403
+        tg-svg.error-symbol(svg-icon="icon-private")
+        h1#error-heading.logo(translate="ERROR.PERMISSION_DENIED")
+        p(translate="ERROR.PERMISSION_DENIED_TEXT")
+        a.error-home(
+            href="/"
+            title=""
+            translate="COMMON.GO_HOME"
+        )

@@ -1,0 +1,88 @@
+mixin storyMetadata(inHeader)
+    sidebar.sidebar.ticket-data(ng-if=inHeader ? "(detailPopup || detailPage)" : "!(detailPopup || detailPage)" class=inHeader ? "story-metadata" : "" ng-init="storyPopupActions = storyPopupActions || {}")
+
+        if !inHeader
+            +storyStatus()
+
+        section.ticket-section.ticket-estimation(
+            tg-us-estimation
+            ng-model="us"
+        )
+
+        section.ticket-section.ticket-assigned-users(
+            tg-assigned-users
+            ng-model="us"
+            compact-users="(detailPopup || detailPage)"
+            compact-actions="storyPopupActions"
+            required-perm="modify_us"
+        )
+
+        section.ticket-section.ticket-watchers(
+            tg-watchers
+            item="us"
+            active-users="activeUsers"
+            on-watch="ctrl.onWatch"
+            on-unwatch="ctrl.onUnwatch"
+            compact-users="(detailPopup || detailPage)"
+            compact-actions="storyPopupActions"
+            required-perm="modify_us"
+        )
+
+        section.ticket-section.ticket-to-tribe(ng-if="tribeEnabled && !us.tribe_gig")
+            tg-tribe-button(
+                us-id="us.id"
+                project-slug="project.slug"
+            )
+            a.tribe-more-info(
+                href=""
+                title="{{'US.TRIBE.PUBLISH_TITLE' | translate}}"
+                ng-click="ctrl.onTribeInfo()"
+            ) {{'US.TRIBE.PUBLISH_INFO' | translate}}
+
+        if !inHeader
+            +storySettings()
+
+mixin storyStatus()
+    section.ticket-header
+        span.ticket-title(
+            tg-us-status-display
+            ng-model="us"
+        )
+        span.detail-status(
+            tg-us-status-button
+            ng-model="us"
+        )
+
+
+mixin storySettings()
+    section.ticket-section.ticket-detail-settings
+        .story-people-actions(ng-if="(detailPopup || detailPage)")
+            button.btn-icon(type="button" ng-if="storyPopupActions.canWatch" ng-click="us.is_watcher ? storyPopupActions.unwatch() : storyPopupActions.watch()" ng-class="{'active': us.is_watcher}" title="{{(us.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-label="{{(us.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-pressed="{{!!us.is_watcher}}")
+                tg-svg(svg-icon="{{us.is_watcher ? 'icon-unwatch' : 'icon-watch'}}")
+        tg-due-date(
+            due-date="us.due_date"
+            format="button"
+            is-closed="us.is_closed"
+            item="us"
+            obj-type="us"
+            tg-check-permission="modify_us"
+        )
+        tg-us-team-requirement-button(
+            ng-model="us"
+            tg-check-permission="modify_us"
+        )
+        tg-us-client-requirement-button(
+            ng-model="us"
+            tg-check-permission="modify_us"
+        )
+        tg-block-button(
+            tg-check-permission="modify_us"
+            ng-model="us"
+        )
+        tg-delete-button(
+            ng-if="!detailPopup"
+            tg-check-permission="delete_us"
+            on-delete-title="{{'Delete User Story' | translate}}"
+            on-delete-go-to-url="onDeleteGoToUrl"
+            ng-model="us"
+        )

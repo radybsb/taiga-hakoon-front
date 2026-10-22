@@ -1,0 +1,75 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+form.register-form
+    p.form-header(translate="REGISTER_FORM.TITLE")
+    fieldset
+        label.auth-field-label(for="invitation-register-form-username") Username
+        input(
+            type="text"
+            autocorrect="off"
+            autocapitalize="none"
+            id="invitation-register-form-username"
+            autocomplete="username"
+            name="username"
+            ng-model="dataRegister.username"
+            data-required="true"
+            data-maxlength="255"
+            data-regexp="^[\\w.-]+$"
+            placeholder="{{'REGISTER_FORM.PLACEHOLDER_NAME' | translate}}"
+        )
+
+    fieldset
+        label.auth-field-label(for="invitation-register-form-full_name") Full name
+        input(
+            type="text"
+            id="invitation-register-form-full_name"
+            autocomplete="name"
+            name="full_name"
+            ng-model="dataRegister.full_name"
+            data-required="true"
+            data-maxlength="256"
+            placeholder="{{'REGISTER_FORM.PLACEHOLDER_FULL_NAME' | translate}}"
+        )
+
+    fieldset
+        label.auth-field-label(for="invitation-register-form-email") Email
+        input(
+            type="email"
+            id="invitation-register-form-email"
+            autocomplete="email"
+            name="email"
+            ng-model="dataRegister.email"
+            data-required="true"
+            data-maxlength="255"
+            placeholder="{{'REGISTER_FORM.PLACEHOLDER_EMAIL' | translate}}"
+        )
+
+    fieldset
+        label.auth-field-label(for="invitation-register-form-password") Password
+        input(
+            type="password"
+            id="invitation-register-form-password"
+            autocomplete="new-password"
+            name="password"
+            tg-capslock
+            ng-model="dataRegister.password"
+            data-required="true"
+            placeholder="{{'REGISTER_FORM.PLACEHOLDER_PASSWORD' | translate}}"
+        )
+
+    //- Only displays terms notice when terms plugin is loaded.
+    tg-terms-of-service-and-privacy-policy-notice(target="dataRegister.accepted_terms")
+
+    fieldset
+        button.btn-small.full(
+            variant="primary"
+            type="submit"
+            ng-disabled="dataRegister.accepted_terms == false"
+            title="{{'REGISTER_FORM.ACTION_SIGN_UP' | translate}}"
+            translate="REGISTER_FORM.ACTION_SIGN_UP"
+        )

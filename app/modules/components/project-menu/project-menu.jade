@@ -1,0 +1,14 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+.sticky-project-menu(ng-if="vm.project" ng-class="{'mobile-menu-open': mobileMenuOpen}")
+    button.mobile-project-menu-toggle(type="button" ng-click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle project navigation" ng-attr-aria-expanded="{{!!mobileMenuOpen}}")
+        tg-svg(svg-icon="icon-list")
+    tg-legacy-loader(
+        ng-class="{'menu-fixed': vm.fixed}",
+        tg-load-element="vm.projectMenu"
+    )

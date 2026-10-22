@@ -1,0 +1,95 @@
+mixin issueStatus()
+    section.ticket-header
+        span.ticket-title(
+            tg-issue-status-display
+            ng-model="issue"
+        )
+        span.detail-status(
+            tg-issue-status-button
+            ng-model="issue"
+        )
+
+
+mixin issueSettings()
+    section.ticket-section.ticket-detail-settings
+        .story-people-actions(ng-if="(detailPopup || detailPage)")
+            button.btn-icon(type="button" ng-if="storyPopupActions.canWatch" ng-click="issue.is_watcher ? storyPopupActions.unwatch() : storyPopupActions.watch()" ng-class="{'active': issue.is_watcher}" title="{{(issue.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-label="{{(issue.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-pressed="{{!!issue.is_watcher}}")
+                tg-svg(svg-icon="{{issue.is_watcher ? 'icon-unwatch' : 'icon-watch'}}")
+        tg-due-date(
+            due-date="issue.due_date"
+            format="button"
+            is-closed="issue.is_closed"
+            item="issue"
+            obj-type="issue"
+            tg-check-permission="modify_issue"
+        )
+        tg-promote-to-us-button(
+            tg-check-permission="add_us",
+            ng-model="issue"
+        )
+        tg-assign-sprint-to-issue-button(
+            tg-check-permission="view_milestones"
+            ng-model="issue"
+            ng-if="project.is_backlog_activated"
+        )
+        tg-block-button(
+            tg-check-permission="modify_issue",
+            ng-model="issue"
+        )
+        tg-delete-button(
+            ng-if="!detailPopup"
+            tg-check-permission="delete_issue",
+            on-delete-title="{{'ISSUES.ACTION_DELETE' | translate}}",
+            on-delete-go-to-url="onDeleteGoToUrl",
+            ng-model="issue"
+        )
+
+
+mixin issueMetadata(inHeader)
+    sidebar.sidebar.ticket-data(ng-if=inHeader ? "(detailPopup || detailPage)" : "!(detailPopup || detailPage)" class=inHeader ? "story-metadata" : "" ng-init="storyPopupActions = storyPopupActions || {}")
+        if !inHeader
+            +issueStatus()
+        if !inHeader
+            +issueClassification()
+        section.ticket-section.ticket-assigned-users(
+            tg-assigned-users
+            compact-users="(detailPopup || detailPage)"
+            ng-model="issue"
+            required-perm="modify_issue"
+        )
+
+        section.ticket-section.ticket-watchers(
+            tg-watchers
+            compact-users="(detailPopup || detailPage)"
+            compact-actions="storyPopupActions"
+            item="issue"
+            active-users="activeUsers"
+            on-watch="ctrl.onWatch"
+            on-unwatch="ctrl.onUnwatch"
+            required-perm="modify_issue"
+        )
+
+        section.ticket-section.upvote-btn(
+            tg-vote-button
+            item="issue"
+            on-upvote="ctrl.onUpvote"
+            on-downvote="ctrl.onDownvote"
+        )
+
+        if !inHeader
+            +issueSettings()
+
+mixin issueClassification()
+    section.ticket-section.ticket-data-container
+        div.ticket-status(
+            tg-issue-type-button
+            ng-model="issue"
+        )
+        div.ticket-status(
+            tg-issue-severity-button
+            ng-model="issue"
+        )
+        div.ticket-status(
+            tg-issue-priority-button
+            ng-model="issue"
+        )

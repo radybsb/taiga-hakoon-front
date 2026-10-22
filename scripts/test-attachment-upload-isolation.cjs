@@ -1,0 +1,24 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+process.chdir(path.resolve(__dirname,'..'));
+const {JSDOM}=require('jsdom'),coffee=require('coffeescript');
+const dom=new JSDOM('<body></body>',{runScripts:'outside-only'}),w=dom.window;
+w.Immutable=require('immutable');w.taiga={Service:class{},defineImmutableProperty:(obj,key,get)=>Object.defineProperty(obj,key,{get})};
+w.eval(fs.readFileSync('node_modules/angular/angular.js','utf8'));
+const app=w.angular.module('taigaComponents',[]),uploads=[],loads=[],signals=[];
+app.factory('tgAttachmentsService',['$q',q=>({types:[],validate:()=>true,upload:file=>{const d=q.defer();uploads.push({file,d});return d.promise;},list:(type,id)=>{const d=q.defer();loads.push({id,d});return d.promise;}})]);
+w.eval(coffee.compile(fs.readFileSync('app/modules/components/attachments-full/attachments-full.service.coffee','utf8')));
+const injector=w.angular.injector(['ng','taigaComponents']),root=injector.get('$rootScope'),service=injector.get('tgAttachmentsFullService');
+root.$on('attachment:saved',(event,detail)=>signals.push(detail));
+const tick=()=>root.$digest(),files=data=>w.Immutable.fromJS(data);
+function load(id,data=[]){service.loadAttachments('us',id,1);loads.at(-1).d.resolve(files(data));tick();}
+load(1);const a={name:'same.png'};service.addAttachment(1,1,'us',a);tick();const queueA=service.uploadingAttachments;assert.equal(queueA.length,1);
+load(2,[{id:20,name:'B.png'}]);assert.equal(service.uploadingAttachments.length,0);
+uploads[0].d.resolve(files({id:10,name:'server-renamed.png'}));tick();assert.equal(queueA.length,0);assert.equal(service.attachments.first().getIn(['file','id']),20);assert.equal(signals[0].item.id,1);
+load(1,[{id:10,name:'server-renamed.png'}]);assert.equal(service.uploadingAttachments.length,0);
+const first={name:'same.png'},second={name:'same.png'};service.addAttachment(1,1,'us',first);service.addAttachment(1,1,'us',second);tick();assert.equal(service.uploadingAttachments.length,2);
+uploads[1].d.resolve(files({id:11,name:'normalized-1.png'}));tick();assert.equal(service.uploadingAttachments.length,1);assert.equal(service.uploadingAttachments[0],second);
+uploads[2].d.resolve(files({id:12,name:'normalized-2.png'}));tick();assert.equal(service.uploadingAttachments.length,0);assert.equal(service.attachments.size,3);
+let rejected=false;service.addAttachment(1,1,'us',{name:'failed.png'}).catch(()=>rejected=true);uploads[3].d.reject(new Error('Network failure'));tick();assert(rejected);assert.equal(service.uploadingAttachments.length,0);
+service.loadAttachments('us',1,1);const stale=loads.at(-1);load(2,[{id:20,name:'B.png'}]);stale.d.resolve(files([{id:999}]));tick();assert.equal(service.attachments.first().getIn(['file','id']),20);
+load(1);service.loadAttachments('us',1,1);const beforeUpload=loads.at(-1);service.addAttachment(1,1,'us',{name:'new.png'});uploads[4].d.resolve(files({id:13,name:'new.png'}));tick();beforeUpload.d.resolve(files([]));tick();assert.equal(service.attachments.size,1);assert.equal(service.attachments.first().getIn(['file','id']),13);
+dom.window.close();console.log('PASS: uploads are isolated per item, normalized/duplicate names clean up by file identity, rejected uploads settle, late uploads cannot enter another story and stale lists cannot replace new attachments');

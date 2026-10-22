@@ -1,0 +1,16 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+doctype html
+
+div.error-main(tg-modern-workspace="error")
+    div.error-container(role="region" aria-labelledby="error-heading")
+        p.error-code 404
+        tg-svg.error-symbol(svg-icon="icon-search")
+        h1#error-heading.logo(translate="ERROR.NOT_FOUND")
+        p(translate="ERROR.NOT_FOUND_TEXT")
+        a.error-home(href="/", translate="COMMON.GO_HOME")

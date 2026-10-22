@@ -1,0 +1,44 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+.attribute(ng-if="issuesEnabled")
+    tg-svg(
+        svg-icon="icon-briefcase",
+        ng-style="{'opacity': 0.35 + 0.65 * (stats.closed_bugs[userId] || 0)}",
+        ng-class="{'top': stats.closed_bugs[userId] == 1}"
+    )
+
+.attribute(ng-if="tasksEnabled")
+    tg-svg(
+        svg-icon="icon-iocaine",
+        ng-style="{'opacity': 0.35 + 0.65 * (stats.iocaine_tasks[userId] || 0)}",
+        ng-class="{'top': stats.iocaine_tasks[userId] == 1}"
+    )
+
+.attribute(ng-if="wikiEnabled")
+    tg-svg(
+        svg-icon="icon-edit",
+        ng-style="{'opacity': 0.35 + 0.65 * (stats.wiki_changes[userId] || 0)}",
+        ng-class="{'top': stats.wiki_changes[userId] == 1}"
+    )
+
+.attribute(ng-if="issuesEnabled")
+    tg-svg(
+        svg-icon="icon-bug",
+        ng-style="{'opacity': 0.35 + 0.65 * (stats.created_bugs[userId] || 0)}",
+        ng-class="{'top': stats.created_bugs[userId] == 1}"
+    )
+
+.attribute(ng-if="tasksEnabled")
+    tg-svg(
+        svg-icon="icon-task",
+        ng-style="{'opacity': 0.35 + 0.65 * (stats.closed_tasks[userId] || 0)}",
+        ng-class="{'top': stats.closed_tasks[userId] == 1}"
+    )
+
+.attribute
+    span.points(ng-bind="stats.totals[userId]")

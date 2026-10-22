@@ -1,0 +1,28 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+div.wrapper(tg-modern-workspace="auth")
+    div.auth.invitation-main
+        .auth-appearance
+            tg-workspace-theme-toggle
+        div.centered.invitation-container(tg-invitation)
+            h1.auth-title Join your team
+            p.auth-subtitle Sign in or create an account to accept your invitation.
+            a.avatar(href="", tg-bo-title="invitation.invited_by.full_name_display")
+                img(
+                    tg-avatar="invitation.invited_by"
+                    tg-bo-alt="invitation.invited_by.full_name_display"
+                )
+                span.person-name(tg-bo-bind="invitation.invited_by.full_name_display")
+
+            span.invitation-text
+                p(translate="AUTH.INVITED_YOU")
+                p.project-name(tg-bo-bind="invitation.project_name")
+
+            div.invitation-form
+                include ../includes/modules/invitation-login-form
+                include ../includes/modules/invitation-register-form

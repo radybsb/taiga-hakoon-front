@@ -1,0 +1,65 @@
+button.btn-icon.board-background-toggle(type="button" ng-click="background.toggle()" title="Board background" aria-label="Board background" aria-haspopup="dialog" ng-attr-aria-expanded="{{background.open}}")
+    tg-svg(svg-icon="icon-wallpaper")
+.board-background-panel(ng-show="background.open" role="dialog" aria-label="Board background")
+    .board-background-heading
+        button.background-back(type="button" ng-if="background.section" ng-click="background.section = null; background.error = null" aria-label="Back")
+            tg-svg(svg-icon="icon-arrow-left")
+        h3 {{background.section ? (background.section === 'photos' ? 'Photos' : background.section === 'colors' ? 'Colors' : 'Custom') : 'Board background'}}
+        button.background-close(type="button" ng-click="background.open = false" aria-label="Close background picker")
+            tg-svg(svg-icon="icon-close")
+    .background-categories(ng-if="!background.section")
+        button(type="button" ng-click="background.show('photos')")
+            tg-svg(svg-icon="icon-wallpaper")
+            span Photos
+            tg-svg(svg-icon="icon-arrow-right")
+        button(type="button" ng-click="background.show('colors')")
+            span.background-color-icon(aria-hidden="true")
+            span Colors
+            tg-svg(svg-icon="icon-arrow-right")
+        button(type="button" ng-click="background.show('custom')")
+            tg-svg(svg-icon="icon-attachment")
+            span Custom
+            tg-svg(svg-icon="icon-arrow-right")
+    div(ng-show="background.section === 'photos'")
+        form.background-search(ng-submit="background.search()")
+            input(type="search" ng-model="background.query" placeholder="Search Unsplash" aria-label="Search Unsplash" maxlength="100")
+            button(type="submit" ng-disabled="background.loading" aria-label="Search photos")
+                tg-svg(svg-icon="icon-search")
+        p.background-message(ng-if="background.loading" role="status") Loading photos…
+        .background-photo-grid(ng-if="background.photos.length")
+            figure(ng-repeat="photo in background.photos track by photo.id")
+                button(type="button" ng-click="background.choosePhoto(photo)" ng-disabled="background.saving" ng-attr-aria-label="Use {{photo.description}}" ng-attr-title="{{photo.description}}")
+                    img(ng-src="{{photo.thumbnail}}" alt="{{photo.description}}" loading="lazy")
+                figcaption
+                    a(ng-href="{{photo.profile}}" target="_blank" rel="noopener noreferrer") {{photo.author}}
+        p.background-message(ng-if="!background.loading && !background.error && !background.photos.length") No photos found. Try another search.
+        button.background-more(type="button" ng-if="background.more" ng-click="background.loadMore()" ng-disabled="background.loading") Load more
+        p.background-unsplash-terms
+            | By using images from Unsplash, you agree to their 
+            a(href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer") license
+            |  and 
+            a(href="https://unsplash.com/terms" target="_blank" rel="noopener noreferrer") Terms of Service
+    .background-colors(ng-if="background.section === 'colors'")
+        button(type="button" ng-repeat="color in background.colors" ng-style="{'background-image': color.value}" ng-click="background.chooseColor(color)" ng-attr-title="{{color.name}}" ng-attr-aria-label="{{color.name}}" ng-attr-aria-pressed="{{background.current.kind === 'color' && background.current.name === color.name}}")
+            span {{color.name}}
+    .background-custom(ng-show="background.section === 'custom'")
+        label.background-file
+            tg-svg(svg-icon="icon-attachment")
+            span Choose an image
+            input(type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif" aria-label="Choose a background image" ng-disabled="background.uploading")
+        p.background-message JPG, PNG, WebP, AVIF or GIF · Up to 15 MB
+        p.background-message(ng-if="background.uploading" role="status") Preparing image…
+    p.background-error(ng-if="background.error" role="alert") {{background.error}}
+    .background-attribution(ng-if="background.current.kind === 'photo'")
+        | Photo by 
+        a(ng-href="{{background.current.profile}}" target="_blank" rel="noopener noreferrer") {{background.current.author}}
+        |  on 
+        a(href="https://unsplash.com/?utm_source=hakoon_taiga&utm_medium=referral" target="_blank" rel="noopener noreferrer") Unsplash
+    button.background-reset(type="button" ng-if="background.current" ng-click="background.reset()") Remove background
+    p.background-local Saved for this project in this browser.
+
+.board-photo-credit(ng-if="background.current.kind === 'photo'")
+    | Photo by 
+    a(ng-href="{{background.current.profile}}" target="_blank" rel="noopener noreferrer") {{background.current.author}}
+    |  on 
+    a(href="https://unsplash.com/?utm_source=hakoon_taiga&utm_medium=referral" target="_blank" rel="noopener noreferrer") Unsplash

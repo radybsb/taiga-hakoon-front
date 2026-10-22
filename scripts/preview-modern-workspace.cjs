@@ -1,0 +1,23 @@
+// Local visual harness using the production theme, detail templates and sample data.
+const fs=require('fs'), path=require('path'), coffee=require('coffeescript'), jade=require('jade'), lodash=require('lodash');
+process.chdir(path.resolve(__dirname,'..'));
+const index=fs.readFileSync('dist/index.html','utf8');
+const styles=index.match(/href="([^"]*styles\/theme-taiga.css)"/)[1];
+const version='/'+styles.split('/')[0];
+const render=file=>jade.renderFile('app/'+file,{v:version}).replace(/tg-repeat=/g,'ng-repeat=');
+const templates={attachments:render('modules/components/attachments-full/attachments-full.jade'),attachment:render('modules/components/attachment/attachment.jade'),gallery:render('modules/components/attachment/attachment-gallery.jade'),tasks:render('partials/includes/modules/related-tasks.jade'),addButton:render('partials/common/components/add-button.jade'),history:render('modules/history/history.jade'),historyTabs:render('modules/history/history-tabs/history-tabs.jade'),comments:render('modules/history/comments/comments.jade'),comment:render('modules/history/comments/comment.jade'),activities:render('modules/history/history/history.jade'),watchers:render('modules/components/ticket-watchers/ticket-watchers.jade'),dueDate:render('modules/components/due-date/due-date-button.jade')};
+templates.detailHeader=render('modules/components/detail/header/detail-header.jade');
+templates.tag=render('modules/components/tags/tag/tag.jade');
+const roleTemplate=lodash.template(render('partials/common/estimation/us-estimation-points-per-role.jade'));
+templates.estimation=roleTemplate({roles:[{id:1,name:'Design',points:3},{id:2,name:'Development',points:2}],totalPoints:5,editable:true,loading:false});
+templates.pointPicker=lodash.template(render('partials/common/estimation/us-estimation-points.jade'))({points:[0,1,2,3,5,8,13].map(value=>({id:value,name:String(value),selected:value===3})),roleId:1,horizontal:false});
+const tasks=[{id:42,ref:42,subject:'Validate states and interactions',status_extra_info:{color:'#8981e9'},is_closed:false},{id:43,ref:43,subject:'Review light and dark contrast',status_extra_info:{color:'#55bba5'},is_closed:true}];
+const taskRow=lodash.template(render('partials/task/related-task-row.jade'));
+templates.taskRows=Object.fromEntries(tasks.map(task=>[task.id,taskRow({task,perms:{modify_task:true,delete_task:true},emojify:value=>value})]));
+let detail=fs.readFileSync('scripts/fixtures/modern-detail-preview.js','utf8').replace('__COMPONENT_TEMPLATES__',()=>JSON.stringify(templates)).replace('__SAMPLE_TASKS__',()=>JSON.stringify(tasks));
+const values={STYLES:styles,ANGULAR:fs.readFileSync('node_modules/angular/angular.js','utf8'),APPEARANCE:coffee.compile(fs.readFileSync('app/modules/components/kanban-appearance/kanban-appearance.coffee','utf8')),PICKER:JSON.stringify(jade.renderFile('app/modules/components/kanban-appearance/kanban-appearance.jade')),DETAIL_PREVIEW:detail,LOCALE:fs.readFileSync('app/locales/taiga/locale-en.json','utf8'),ICONS:fs.readFileSync('app/svg/sprite.svg','utf8')};
+let html=fs.readFileSync('scripts/fixtures/modern-workspace-preview.html','utf8');
+for(const [key,value] of Object.entries(values)) html=html.replace('__'+key+'__',()=>value.replace(/<\/script/gi, '<\\/script'));
+fs.writeFileSync('dist/modern-workspace-preview.html',html);
+fs.copyFileSync('scripts/fixtures/modern-workspace-sample.svg','dist/modern-workspace-sample.svg');
+console.log('Visual fixture: http://localhost:9001/modern-workspace-preview.html');

@@ -1,0 +1,19 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+ng-container(ng-if="!ctrl.notFoundTasks")
+    .taskboard-empty-icon(aria-hidden="true")
+        tg-svg(svg-icon="icon-task")
+    p.title {{'TASKBOARD.PLACEHOLDER_CARD_TITLE' | translate}}
+    p.text(
+        translate="TASKBOARD.PLACEHOLDER_CARD_TEXT"
+        translate-values="{backlogUrl: ctrl.backToBacklogUrl}"
+    )
+
+ng-container(ng-if="ctrl.notFoundTasks")
+    p.title(translate="TASKBOARD.TASK_NOT_FOUND_TITLE")
+    p(translate="TASKBOARD.TASK_NOT_FOUND_TEXT")

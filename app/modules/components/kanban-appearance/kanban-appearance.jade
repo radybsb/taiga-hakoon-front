@@ -1,0 +1,8 @@
+button.workspace-theme-toggle(
+    type="button"
+    ng-click="appearance.set(appearance.dark ? 'light' : 'dark')"
+    title="{{(appearance.dark ? 'COMMON.APPEARANCE.APPLY_LIGHT' : 'COMMON.APPEARANCE.APPLY_DARK') | translate}}"
+    ng-attr-aria-label="{{(appearance.dark ? 'COMMON.APPEARANCE.APPLY_LIGHT' : 'COMMON.APPEARANCE.APPLY_DARK') | translate}}"
+)
+    svg(viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true")
+        path(ng-attr-d="{{appearance.dark ? 'M16 12a4 4 0 1 0-8 0 4 4 0 0 0 8 0 M12 2v2m0 16v2M2 12h2m16 0h2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42' : 'M20.9 13.1A9 9 0 0 1 10.9 3.1 9 9 0 1 0 20.9 13.1Z'}}")

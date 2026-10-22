@@ -1,0 +1,64 @@
+mixin taskStatus()
+    section.ticket-header
+        span.ticket-title(
+            tg-task-status-display
+            ng-model="task"
+        )
+        span.detail-status(
+            tg-task-status-button
+            ng-model="task"
+        )
+
+
+mixin taskSettings()
+    section.ticket-section.ticket-detail-settings
+        .story-people-actions(ng-if="(detailPopup || detailPage)")
+            button.btn-icon(type="button" ng-if="storyPopupActions.canWatch" ng-click="task.is_watcher ? storyPopupActions.unwatch() : storyPopupActions.watch()" ng-class="{'active': task.is_watcher}" title="{{(task.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-label="{{(task.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-pressed="{{!!task.is_watcher}}")
+                tg-svg(svg-icon="{{task.is_watcher ? 'icon-unwatch' : 'icon-watch'}}")
+        tg-due-date(
+            due-date="task.due_date"
+            format="button"
+            is-closed="task.is_closed"
+            item="task"
+            obj-type="task"
+            tg-check-permission="modify_task"
+        )
+        tg-task-is-iocaine-button(ng-model="task")
+        tg-promote-to-us-button(
+            tg-check-permission="add_us",
+            ng-model="task"
+        )
+        tg-block-button(tg-check-permission="modify_task", ng-model="task")
+        tg-delete-button(
+            ng-if="!taskPopup && !detailPopup"
+            tg-check-permission="delete_task"
+            on-delete-title="{{'TASK.TITLE_DELETE_ACTION' | translate}}"
+            on-delete-go-to-url="onDeleteGoToUrl"
+            ng-model="task"
+        )
+
+
+mixin taskMetadata(inHeader)
+    sidebar.sidebar.ticket-data(ng-if=inHeader ? "(detailPopup || detailPage)" : "!(detailPopup || detailPage)" class=inHeader ? "story-metadata" : "" ng-init="storyPopupActions = storyPopupActions || {}")
+        if !inHeader
+            +taskStatus()
+        section.ticket-section.ticket-assigned-users(
+            tg-assigned-users
+            compact-users="(detailPopup || detailPage)"
+            ng-model="task"
+            required-perm="modify_task"
+        )
+
+        section.ticket-section.ticket-watchers(
+            tg-watchers
+            compact-users="(detailPopup || detailPage)"
+            compact-actions="storyPopupActions"
+            item="task"
+            active-users="activeUsers"
+            on-watch="ctrl.onWatch"
+            on-unwatch="ctrl.onUnwatch"
+            required-perm="modify_task"
+        )
+
+        if !inHeader
+            +taskSettings()

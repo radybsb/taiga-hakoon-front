@@ -1,0 +1,65 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+tg-lightbox-close
+
+form(ng-if="createEditOpen")
+    h2.title(translate="LIGHTBOX.ADD_EDIT_SPRINT.TITLE")
+    fieldset
+        label(for="sprint-name") Sprint name
+        input.sprint-name.e2e-sprint-name(
+            type="text"
+            id="sprint-name"
+            name="name"
+            ng-model="newSprint.name"
+            ng-model-options="{ debounce: 200 }"
+            data-required="true"
+            data-maxlength="500"
+            placeholder="{{'LIGHTBOX.ADD_EDIT_SPRINT.PLACEHOLDER_SPRINT_NAME' | translate}}"
+        )
+        p.last-sprint-name
+
+    fieldset.dates
+        div
+            label(for="sprint-start") Start date
+            input.date-start(
+                type="text"
+                id="sprint-start"
+                name="estimated_start"
+                picker-value="{{newSprint.estimated_start}}"
+                data-required="true"
+                tg-date-selector
+                placeholder="{{'LIGHTBOX.ADD_EDIT_SPRINT.PLACEHOLDER_SPRINT_START' | translate}}"
+            )
+        div
+            label(for="sprint-end") End date
+            input.date-end(
+                type="text"
+                id="sprint-end"
+                name="estimated_finish"
+                picker-value="{{newSprint.estimated_finish}}"
+                data-required="true"
+                tg-date-selector
+                placeholder="{{'LIGHTBOX.ADD_EDIT_SPRINT.PLACEHOLDER_SPRINT_END' | translate}}"
+            )
+
+    .sprint-add-edit-actions
+        button.btn-small.submit-button(
+            type="submit"
+            title="{{'COMMON.SAVE' | translate}}"
+            translate="COMMON.SAVE"
+        )
+
+        button.btn-small.cancel-sprint(type="button" variant="secondary" translate="COMMON.CANCEL")
+
+        button.btn-link.delete-sprint(
+            type="button"
+            tg-check-permission="delete_milestone"
+            title="{{'LIGHTBOX.ADD_EDIT_SPRINT.TITLE_ACTION_DELETE_SPRINT' | translate}}"
+        )
+            tg-svg(svg-icon="icon-trash")
+            span.delete-sprint-text {{'LIGHTBOX.ADD_EDIT_SPRINT.ACTION_DELETE_SPRINT' | translate }}

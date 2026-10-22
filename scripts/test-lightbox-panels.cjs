@@ -1,0 +1,122 @@
+// Run from taiga-front: node scripts/test-lightbox-panels.cjs
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+process.chdir(path.resolve(__dirname, '..'));
+const coffee = require('coffeescript');
+const { JSDOM } = require('jsdom');
+const dom = new JSDOM('<!doctype html><body></body>', {runScripts: 'outside-only'});
+const w = dom.window;
+w.$ = require('jquery')(w);
+w._ = require('lodash');
+w.taiga = {Service: class {}};
+w.eval(fs.readFileSync('node_modules/angular/angular.js', 'utf8'));
+w.angular.module('taigaCommon', []).value('animationFrame', {add: fn => fn()});
+const source = fs.readFileSync('app/coffee/modules/common/lightboxes.coffee', 'utf8');
+const start = source.indexOf('class LightboxService extends');
+const end = source.indexOf('\n\nclass LightboxKeyboardNavigationService', start);
+w.eval(coffee.compile('module = angular.module("taigaCommon")\n' + source.slice(start, end)));
+w.angular.module('taigaEpics', ['taigaCommon']).filter('translate', () => value => value).controller('CreateEpicCtrl', function() {});
+w.$.fn.checksley = () => ({validate: () => true, setErrors: () => {}});
+w.eval(coffee.compile(fs.readFileSync('app/modules/epics/create-epic/create-epic.directive.coffee', 'utf8')));
+const directiveStart=source.indexOf('LightboxDirective =');
+const directiveEnd=source.indexOf('module.directive("lightbox",',directiveStart);
+w.eval(coffee.compile('module = angular.module("taigaCommon")\n'+source.slice(directiveStart,directiveEnd)+source.slice(directiveEnd,source.indexOf('\n',directiveEnd))));
+const injector = w.angular.injector(['ng', 'taigaCommon', 'taigaEpics']);
+const root = injector.get('$rootScope');
+const scope = root.$new();
+scope.message = 'Delete story?';
+const lightbox = injector.get('$compile')('<div class="lightbox lightbox-generic-delete"><!-- anchor --><a class="close">Close</a><form><p>{{message}}</p></form></div>')(scope);
+w.$(w.document.body).append(lightbox);
+const form = lightbox.find('form')[0];
+const service = injector.get('lightboxService');
+service.open(lightbox);
+root.$digest();
+assert(lightbox.hasClass('lightbox-dialog'));
+assert.equal(lightbox.children('.lightbox-panel').length, 1);
+assert.equal(lightbox.find('form')[0], form);
+assert.equal(lightbox.children('.lightbox-panel').find('.close').length, 1);
+assert(lightbox.children('.lightbox-panel')[0].childNodes[0].nodeType === 8);
+scope.message = 'Updated content'; root.$digest();
+assert.equal(lightbox.find('p').text(), 'Updated content');
+service.close(lightbox);
+lightbox.trigger('transitionend'); root.$digest();
+assert(!lightbox.hasClass('open'));
+service.open(lightbox); root.$digest();
+assert.equal(lightbox.find('.lightbox-panel').length, 1);
+assert.equal(lightbox.find('form')[0], form);
+lightbox.find('p').trigger('click'); root.$digest();
+assert(!lightbox.hasClass('close-started'));
+lightbox.children('.lightbox-panel').trigger('click'); root.$digest();
+assert(!lightbox.hasClass('close-started'));
+const gesture=(start,end,cancel=false)=>{
+ start[0].dispatchEvent(new w.MouseEvent('pointerdown',{bubbles:true,button:0}));
+ if(cancel)start[0].dispatchEvent(new w.MouseEvent('pointercancel',{bubbles:true}));
+ end[0].dispatchEvent(new w.MouseEvent('pointerup',{bubbles:true,button:0}));
+ lightbox[0].dispatchEvent(new w.MouseEvent('click',{bubbles:true,button:0}));
+ root.$digest();
+};
+const panel=lightbox.children('.lightbox-panel');
+// jQuery treats a false handler return as preventDefault + stopPropagation.
+// Native pointer defaults must survive so text fields/contenteditables can focus.
+for(const field of ['<div contenteditable="true">Description</div>','<textarea>Comment</textarea>']) {
+ const editor=w.$(field);panel.append(editor);
+ for(const type of ['pointerdown','pointerup','pointercancel']) {
+  let bubbled=false;
+  const listener=()=>{bubbled=true;};
+  w.document.addEventListener(type,listener);
+  const event=new w.MouseEvent(type,{bubbles:true,cancelable:true,button:0});
+  editor[0].dispatchEvent(event);
+  assert.equal(event.defaultPrevented,false, type+' must allow native editing/focus');
+  assert(bubbled,type+' must propagate to document/editor handlers');
+  w.document.removeEventListener(type,listener);
+ }
+}
+
+gesture(lightbox.find('p'),lightbox);assert(!lightbox.hasClass('close-started'),'Dragging from content to backdrop must stay open');
+gesture(lightbox,panel);assert(!lightbox.hasClass('close-started'),'Dragging from backdrop to panel must stay open');
+gesture(lightbox,lightbox,true);assert(!lightbox.hasClass('close-started'),'Cancelled gestures must stay open');
+gesture(lightbox,lightbox);
+assert(lightbox.hasClass('close-started'));
+lightbox.trigger('transitionend'); root.$digest();
+assert(!lightbox.hasClass('open'));
+injector.get('$templateCache').put('epics/create-epic/create-epic.html', require('jade').renderFile('app/modules/epics/create-epic/create-epic.jade'));
+const epic = injector.get('$compile')('<div tg-create-epic class="lightbox lightbox-create-epic"></div>')(root.$new());
+w.$(w.document.body).append(epic);
+root.$digest();
+assert(epic.hasClass('lightbox-dialog'));
+assert(epic.hasClass('open'));
+assert.equal(epic.children('.lightbox-panel').find('.create-epic-container form').length, 1);
+assert.equal(epic.children('.lightbox-panel').find('tg-lightbox-close').length, 1);
+// Nested previews must close independently and preserve the parent's Escape handler.
+const nestedScope=root.$new();
+const parent=w.$('<div class="lightbox"><div>Task</div><div class="lightbox preview"><a class="close">Close preview</a></div></div>');
+w.$('body').append(parent);
+const child=parent.find('.preview');
+let parentCloses=0,childCloses=0;
+service.open(parent,()=>parentCloses++);service.open(child,()=>childCloses++);root.$digest();
+w.$(w.document).trigger(w.$.Event('keydown',{keyCode:27}));root.$digest();
+assert(child.hasClass('close-started'));assert(!parent.hasClass('close-started'));
+child.trigger('transitionend');root.$digest();assert.equal(childCloses,1);assert.equal(parentCloses,0);
+w.$(w.document).trigger(w.$.Event('keydown',{keyCode:27}));root.$digest();
+assert(parent.hasClass('close-started'));
+parent.trigger('transitionend');root.$digest();
+assert.equal(parentCloses,1);
+const closeParent=injector.get('$compile')('<div class="lightbox"><div class="lightbox nested"><a class="close">Close</a></div></div>')(nestedScope);
+w.$('body').append(closeParent);
+const closeChild=closeParent.find('.nested');service.open(closeParent);service.open(closeChild);root.$digest();
+closeChild.find('.close').trigger('click');root.$digest();
+assert(closeChild.hasClass('close-started'));assert(!closeParent.hasClass('close-started'));
+// A confirmation can be earlier in the document than a dynamically added detail.
+const confirmation=w.$('<div class="lightbox lightbox-generic-delete"><p>Delete attachment?</p></div>');
+w.$(w.document.body).prepend(confirmation);
+service.open(confirmation);root.$digest();
+const level=el=>Number(el[0].style.getPropertyValue('--lightbox-stack-level'));
+assert(level(confirmation)>level(closeParent),'Latest confirmation must render above the detail regardless of DOM order');
+assert(!closeParent.hasClass('close-started'));
+service.close(confirmation);confirmation.trigger('transitionend');root.$digest();
+assert(!closeParent.hasClass('close-started'),'Closing confirmation must preserve the task popup');
+service.open(confirmation);root.$digest();assert(level(confirmation)>level(closeParent),'Reopened confirmation must return to the front');
+nestedScope.$destroy();
+scope.$destroy(); dom.window.close();
+console.log('PASS: dialog wrapper, existing DOM/Angular bindings, close button, close and reopen without nesting, backdrop click, inside clicks, drag selection across dialog edges and pointer cancellation');

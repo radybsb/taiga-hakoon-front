@@ -1,0 +1,56 @@
+mixin epicStatus()
+    section.ticket-header
+        span.ticket-title(
+            tg-epic-status-display
+            ng-model="epic"
+        )
+        span.detail-status(
+            tg-epic-status-button
+            ng-model="epic"
+        )
+
+
+mixin epicSettings()
+    section.ticket-section.ticket-detail-settings
+        .story-people-actions(ng-if="(detailPopup || detailPage)")
+            button.btn-icon(type="button" ng-if="storyPopupActions.canWatch" ng-click="epic.is_watcher ? storyPopupActions.unwatch() : storyPopupActions.watch()" ng-class="{'active': epic.is_watcher}" title="{{(epic.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-label="{{(epic.is_watcher ? 'COMMON.WATCH_BUTTON.UNWATCH' : 'COMMON.WATCH_BUTTON.WATCH') | translate}}" ng-attr-aria-pressed="{{!!epic.is_watcher}}")
+                tg-svg(svg-icon="{{epic.is_watcher ? 'icon-unwatch' : 'icon-watch'}}")
+        tg-us-team-requirement-button(ng-model="epic")
+        tg-us-client-requirement-button(ng-model="epic")
+        tg-block-button(
+            tg-check-permission="modify_epic",
+            ng-model="epic"
+        )
+        tg-delete-button(
+            ng-if="!detailPopup"
+            tg-check-permission="delete_epic",
+            on-delete-title="{{'EPIC.ACTION_DELETE' | translate}}",
+            on-delete-go-to-url="onDeleteGoToUrl",
+            ng-model="epic"
+        )
+
+
+mixin epicMetadata(inHeader)
+    sidebar.sidebar.ticket-data(ng-if=inHeader ? "(detailPopup || detailPage)" : "!(detailPopup || detailPage)" class=inHeader ? "story-metadata" : "" ng-init="storyPopupActions = storyPopupActions || {}")
+        if !inHeader
+            +epicStatus()
+        section.ticket-section.ticket-assigned-users(
+            tg-assigned-users
+            compact-users="(detailPopup || detailPage)"
+            ng-model="epic"
+            required-perm="modify_epic"
+        )
+
+        section.ticket-section.ticket-watchers(
+            tg-watchers
+            compact-users="(detailPopup || detailPage)"
+            compact-actions="storyPopupActions"
+            item="epic"
+            active-users="activeUsers"
+            on-watch="ctrl.onWatch"
+            on-unwatch="ctrl.onUnwatch"
+            required-perm="modify_epic"
+        )
+
+        if !inHeader
+            +epicSettings()

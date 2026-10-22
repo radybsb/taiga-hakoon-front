@@ -1,0 +1,35 @@
+// Verify that the visual harness renders the production sections and their view controls.
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {JSDOM,VirtualConsole}=require('jsdom');
+process.chdir(path.resolve(__dirname,'..'));
+const errors=[];
+const consoleOutput=new VirtualConsole();
+consoleOutput.on('jsdomError',error=>errors.push(error));
+const dom=new JSDOM(fs.readFileSync('dist/modern-workspace-preview.html','utf8'),{url:'http://localhost:9001/modern-workspace-preview.html',runScripts:'dangerously',virtualConsole:consoleOutput});
+const w=dom.window, doc=w.document;
+function click(selector){const el=doc.querySelector(selector);assert(el,selector+' must exist');el.dispatchEvent(new w.MouseEvent('click',{bubbles:true,cancelable:true}));}
+click('.kanban-table-options-end .btn-small');
+assert(doc.querySelector('[role="dialog"]'));
+assert.equal(doc.querySelectorAll('.attachment-gallery .single-attachment').length,2);
+click('.view-list');
+assert.equal(doc.querySelectorAll('.attachment-list .single-attachment').length,2);
+assert(!doc.querySelector('.attachment-gallery'));
+click('.view-gallery');
+assert.equal(doc.querySelectorAll('.attachment-gallery .single-attachment').length,2);
+assert.equal(doc.querySelectorAll('.single-related-task').length,2);
+assert(doc.querySelector('.ticket-watchers .ticket-users-action'));
+click('.ticket-watchers .ticket-users-action:last-child');
+assert.match(doc.querySelector('.ticket-watchers').textContent,/Unwatch/);
+assert.equal(doc.querySelector('.due-date-button').getAttribute('title'),'Set due date');
+assert(doc.querySelector('tg-comment-wysiwyg textarea'));
+assert.equal(w.getComputedStyle(doc.querySelector('tg-comment-wysiwyg .wysiwyg')).display,'block');
+click('.e2e-activity-tab');
+assert.equal(doc.querySelectorAll('.activities .activity').length,1);
+assert.match(doc.querySelector('.activities').textContent,/To do.*In progress/);
+click('.e2e-comments-tab');
+assert(doc.querySelector('tg-comment-wysiwyg textarea'));
+assert.equal(errors.length,0,errors.map(error=>error.message).join('\n'));
+dom.window.close();
+console.log('PASS: production attachment list/gallery, related tasks, watcher controls, due date, comment field and activity tabs render in the visual preview');

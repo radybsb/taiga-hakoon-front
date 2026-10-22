@@ -1,0 +1,43 @@
+name: Build, test and publish image
+on:
+  push:
+    branches: [develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: image-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  image:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build runtime image
+        run: docker build --build-arg VCS_REF="$GITHUB_SHA" -f docker/Dockerfile -t hakoon-ci:"$GITHUB_SHA" .
+      - name: Test runtime configuration, routes and media proxy
+        run: node docker/test-image.cjs hakoon-ci:"$GITHUB_SHA"
+      - name: Authenticate to GHCR
+        if: github.event_name != 'pull_request'
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$GHCR_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+      - name: Publish tested image
+        if: github.event_name != 'pull_request'
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          release_tag="sha-$GITHUB_SHA-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+          docker tag hakoon-ci:"$GITHUB_SHA" "$image:$release_tag"
+          docker push "$image:$release_tag"
+          docker tag hakoon-ci:"$GITHUB_SHA" "$image:$GITHUB_REF_NAME"
+          docker push "$image:$GITHUB_REF_NAME"
+          printf '### Image ready\n`%s:%s`\n' "$image" "$release_tag" >> "$GITHUB_STEP_SUMMARY"

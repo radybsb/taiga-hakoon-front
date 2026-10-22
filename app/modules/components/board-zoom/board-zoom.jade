@@ -1,0 +1,7 @@
+.board-zoom.board-zoom-dropdown
+    button.board-zoom-trigger(type="button" ng-click="zoomOpen = !zoomOpen" ng-attr-aria-expanded="{{!!zoomOpen}}")
+        span {{ 'ZOOM.TITLE' | translate }} {{ ('ZOOM.ZOOM-' + (+value + 1)) | translate }}
+        tg-svg(svg-icon="icon-arrow-down")
+    .board-zoom-menu(ng-if="zoomOpen")
+        button.board-zoom-option(type="button" ng-repeat="option in zoomOptions" ng-click="selectZoom(option)" ng-class="{'selected': value == option}" ng-attr-aria-pressed="{{value == option}}")
+            span {{ ('ZOOM.ZOOM-' + (+option + 1)) | translate }}

@@ -1,0 +1,21 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+process.chdir(path.resolve(__dirname,'..'));
+const coffee=require('coffeescript'),{JSDOM}=require('jsdom');
+const dom=new JSDOM('<body></body>',{runScripts:'outside-only'}),w=dom.window;
+w._=require('lodash');w.taiga={debounceLeading:(delay,fn)=>fn,Controller:class{},PageMixin:class{},FiltersMixin:class{},UsFiltersMixin:class{},mixOf:()=>class{}};
+let Controller;w.angular={module:()=>({controller:(name,cls)=>Controller=cls})};
+let source=fs.readFileSync('app/coffee/modules/kanban/main.coffee','utf8');source=source.slice(0,source.indexOf('\n',source.indexOf('module.controller(')));w.eval(coffee.compile(source));
+const host=Object.create(Controller.prototype),handlers={},signals=[];let refresh,fetches=0,filterRefreshes=0,tags=0;
+host.scope={projectId:1,$on:(event,callback)=>handlers[event]=callback};host.rootscope={$broadcast:(...args)=>signals.push(args)};
+host.popupRefresh={listen:(scope,callback)=>refresh=callback};host.q={all:values=>Promise.all(values)};host.confirm={notify:()=>{throw Error('Unexpected error');}};
+let raw=[{id:7,project:1,status:1,attachments:[],tasks:[]}];
+const service=host.kanbanUserstoriesService={userstoriesRaw:raw,getUsModel:id=>raw.find(item=>item.id===id),replaceModel:item=>{raw=raw.map(old=>old.id===item.id?item:old);service.userstoriesRaw=raw;},refreshRawOrder:()=>{},refresh:reset=>assert.equal(reset,false),remove:()=>{},add:()=>{}};
+host.loadUserstoriesParams=()=>({include_attachments:1,include_tasks:1,tags:'selected'});
+host.rs={userstories:{listAll:async(project,params)=>{fetches++;assert.equal(project,1);assert.equal(params.include_attachments,1);assert.equal(params.include_tasks,1);assert.equal(params.tags,'selected');return [{id:7,project:1,status:1,attachments:[{id:9,thumbnail_card_url:'/image.png'}],tasks:[{id:20,subject:'New task'}]}];}}};
+host.refreshTagsColors=async()=>tags++;host.generateFilters=async()=>filterRefreshes++;
+(async()=>{
+ host.initializeEventHandlers();await refresh();assert.equal(fetches,1);assert.equal(raw[0].attachments.length,1);assert.equal(raw[0].tasks[0].subject,'New task');assert.equal(filterRefreshes,1);assert.equal(tags,1);
+ handlers['usform:edit:success']({}, {id:7,project:1,attachments:[],tasks:[]});assert.equal(raw[0].attachments.length,1,'A partial detail model must not erase freshly loaded card data');assert.equal(signals[0][0],'detail-popup:changed');
+ handlers['usform:edit:success']({}, {id:99,project:2});assert.equal(signals.length,1,'Unrelated stories must not schedule a stale replacement');
+ dom.window.close();console.log('PASS: Kanban popup refresh fetches attachments and related tasks, preserves active filters and card state, and rejects stale partial detail replacements');
+})().catch(error=>{console.error(error);dom.window.close();process.exitCode=1;});

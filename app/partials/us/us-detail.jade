@@ -1,0 +1,19 @@
+
+//- This source code is licensed under the terms of the
+//- GNU Affero General Public License found in the LICENSE file in
+//- the root directory of this source tree.
+//-
+//- Copyright (c) 2021-present Kaleidos INC
+
+doctype html
+
+tg-project-archived-warning
+div.wrapper(
+    tg-modern-workspace="detail"
+    ng-controller="UserStoryDetailController as ctrl",
+    ng-init="detailPage=true; section='backlog-kanban'"
+)
+    tg-project-menu
+    .detail-page-shell
+        .detail-popup-body.story-popup-body
+            include us-detail-content

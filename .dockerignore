@@ -1,0 +1,14 @@
+.git
+node_modules
+dist
+dist-*
+tmp
+tmp-*
+.sass-cache
+.env
+.env.*
+conf/conf.json
+*.log
+e2e/screenshots
+e2e/reports
+scripts

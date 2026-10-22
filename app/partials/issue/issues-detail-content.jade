@@ -1,0 +1,117 @@
+include issue-metadata
+
+div.main.detail
+    .detail-header-container(ng-class="{blocked: issue.is_blocked}")
+        .detail-header(ng-init="storyPopupActions = {}")
+            tg-detail-header(
+                item="issue"
+                section-name="sectionName"
+                project="project"
+                required-perm="modify_issue"
+                ng-if="project && issue"
+                format="text"
+            )
+
+            tg-detail-nav(item="issue" ng-if="!detailPopup")
+
+            .story-status(ng-if="(detailPopup || detailPage)")
+                +issueStatus()
+
+            .story-context
+                //- Issue origin from github
+                .detail-header-line.issue-external-reference(ng-if="vm.item.external_reference")
+                    span(translate="ISSUES.EXTERNAL_REFERENCE")
+                    a(
+                        target="_blank"
+                        ng-href="{{::vm.item.external_reference[1]}}"
+                        ng-title="{{'ISSUES.GO_TO_EXTERNAL_REFERENCE' | translate}}"
+                    )
+                        span {{ ::vm.item.external_reference[1] }}
+
+                //- User Stories generated from issue
+                .detail-header-line.item-generated-us(
+                    ng-if="issue.generated_user_stories.length"
+                    tg-check-permission="view_us"
+                )
+                    span(ng-bind="'COMMON.PROMOTED_'+issue._name.toUpperCase() | translate")
+                    a.primary(
+                        ng-repeat="userstory in issue.generated_user_stories track by userstory.id"
+                        tg-nav="project-userstories-detail:project=project.slug,ref=userstory.ref"
+                        tg-detail-popup-link
+                        ng-bind-html="'#' + userstory.ref + ' '+ userstory.subject | emojify"
+                    )
+
+                .action-buttons
+                    a.btn-small(
+                        type="button"
+                        variant="secondary"
+                        tg-check-permission="view_milestones"
+                        tg-nav="project-taskboard:project=project.slug,sprint=sprint.slug"
+                        ng-if="!(detailPopup || detailPage) && sprint && project.is_backlog_activated"
+                        title="{{'ISSUES.TITLE_LINK_TASKBOARD' | translate}}"
+                        ng-attr-aria-label="{{'ISSUES.LINK_TASKBOARD' | translate}}"
+                        ng-class="{'detail-taskboard-icon': (detailPopup || detailPage)}"
+                    )
+                        tg-svg(ng-if="(detailPopup || detailPage)" svg-icon="icon-scrum")
+                        span(ng-if="!(detailPopup || detailPage)" translate="ISSUES.LINK_TASKBOARD")
+                .story-context-actions(ng-if="(detailPopup || detailPage)")
+                    .story-context-settings
+                        +issueSettings()
+                .issue-classification-row(ng-if="(detailPopup || detailPage)")
+                    +issueClassification()
+
+            +issueMetadata(true)
+
+            .subheader
+                tg-tag-line.tags-block(
+                    ng-if="issue && project"
+                    project="project"
+                    item="issue"
+                    permissions="modify_issue"
+                )
+                tg-created-by-display.ticket-created-by(ng-model="issue")
+
+
+    .detail-content(ng-if="attachmentsReady")
+        section.duty-content
+            tg-item-wysiwyg(
+                type="issue",
+                model="issue",
+                required-perm="modify_issue"
+            )
+
+        // Custom Fields
+        tg-custom-attributes-values(
+            ng-model="issue"
+            type="issue"
+            project="project"
+            required-edition-perm="modify_issue"
+        )
+
+        tg-attachments-full(
+            obj-id="issue.id"
+            type="issue",
+            project-id="projectId"
+            edit-permission = "modify_issue"
+        )
+
+        tg-history-section(
+            ng-if="issue && !(detailPopup || detailPage)"
+            type="issue"
+            name="issue"
+            id="issue.id"
+            project="project"
+        )
+
++issueMetadata(false)
+
+aside.story-discussion(ng-if="(detailPopup || detailPage)")
+    tg-history-section(
+        ng-if="issue"
+        type="issue"
+        name="issue"
+        id="issue.id"
+        project="project"
+    )
+
+div.lightbox.lightbox-block(tg-lb-block, ng-model="issue", title="ISSUES.LIGHTBOX_TITLE_BLOKING_ISSUE")

@@ -1,0 +1,44 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+process.chdir(path.resolve(__dirname, '..'));
+const {JSDOM} = require('jsdom');
+const coffee = require('coffeescript');
+const jade = require('jade');
+const dom = new JSDOM('<body></body>', {runScripts: 'outside-only'});
+const w = dom.window;
+w.$ = require('jquery')(w);
+w._ = require('lodash');
+w.eval(fs.readFileSync('node_modules/angular/angular.js', 'utf8'));
+const app = w.angular.module('taigaTaskboard', []);
+let saves = 0, reads = 0, errors = 0, fail = false;
+app.value('$tgTemplate', {get: () => w._.template(jade.renderFile('app/partials/common/components/status-button.jade'))});
+app.value('$tgConfirm', {notify: () => errors++});
+app.factory('$tgRepo', ['$q', q => ({
+ queryOne: (type, id, filters) => {reads++; assert.equal(type, 'userstories'); assert.equal(id, 7); assert.equal(filters.project, 3); return q.when({id, status: 1, version: 9, subject: 'Preserved'});},
+ save: fresh => {saves++; assert.equal(fresh.version, 9); assert.equal(fresh.subject, 'Preserved'); return fail ? q.reject() : q.when({...fresh, is_closed: true, version: 10});}
+})]);
+w.$.fn.popover = function() {return {open: () => this.show(), close: () => this.hide()};};
+w.eval(coffee.compile(fs.readFileSync('app/coffee/modules/taskboard/us-status.coffee', 'utf8')));
+const injector = w.angular.injector(['ng', 'taigaTaskboard']);
+const scope = injector.get('$rootScope').$new();
+scope.project = {id: 3, my_permissions: ['modify_us']};
+scope.us = {id: 7, status: 1};
+scope.usStatusList = [{id: 1, name: 'New', color: '#123'}, {id: 2, name: 'Done', color: '#456'}];
+scope.usStatusById = {1: scope.usStatusList[0], 2: scope.usStatusList[1]};
+const el = injector.get('$compile')('<div tg-taskboard-us-status ng-model="us"></div>')(scope);
+w.$('body').append(el); scope.$digest();
+const click = selector => {el.find(selector).trigger('click'); scope.$digest();};
+assert.equal(el.find('button').text().trim(), 'New');
+click('button'); assert.equal(el.find('button').attr('aria-expanded'), 'true');
+click('[data-status-id="2"]');
+assert.equal(saves, 1); assert.equal(scope.us.status, 2); assert.equal(scope.us.version, 10); assert.equal(scope.us.is_closed, true);
+assert.equal(el.find('button').text().trim(), 'Done');
+click('[data-status-id="2"]'); assert.equal(saves, 1);
+fail = true; click('[data-status-id="1"]'); assert.equal(errors, 1); assert.equal(scope.us.status, 2); assert.equal(el.find('button').prop('disabled'), false);
+scope.project.my_permissions = []; scope.$digest();
+assert(el.find('button').prop('disabled')); click('[data-status-id="1"]'); assert.equal(reads, 2);
+scope.project.my_permissions = ['modify_us']; scope.project.archived_code = 'archived'; scope.$digest();
+assert(el.find('button').prop('disabled')); click('[data-status-id="1"]'); assert.equal(reads, 2);
+scope.$destroy(); dom.window.close();
+console.log('PASS: taskboard status dropdown, fresh model save, updated label, unchanged status, failed save, permissions and archived project');
