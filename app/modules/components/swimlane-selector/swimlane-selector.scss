@@ -17,7 +17,7 @@ tg-swimlane-selector {
         padding-inline-start: 1rem;
         width: 100%;
         & tg-svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
         & .swimlane-select-text {
             overflow: hidden;
@@ -55,7 +55,7 @@ tg-swimlane-selector {
     .option {
         @include font-size(small);
         background: transparent;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         cursor: pointer;
         display: block;
         padding: .25rem;

@@ -61,7 +61,6 @@
     )
         button(
             ng-click="vm.displayStatusList = true"
-            ng-style="{'color': vm.epic.getIn(['status_extra_info', 'color'])}"
             tg-loading="vm.loadingStatus"
         )
             span.e2e-epic-status {{vm.epic.getIn(['status_extra_info', 'name'])}}
@@ -82,6 +81,17 @@
             ng-if="::vm.percentage"
             ng-style="{'width':vm.percentage}"
         )
+
+    .row-delete-field(tg-isolate-click)
+        button.row-delete-button(
+            type="button"
+            ng-if="vm.canDeleteEpic()"
+            ng-click="$event.stopPropagation(); vm.deleteEpic()"
+            ng-disabled="vm.deleting"
+            title="{{'COMMON.DELETE' | translate}}"
+            aria-label="{{'COMMON.DELETE' | translate}}"
+        )
+            tg-svg(svg-icon="icon-trash")
 
 .epic-stories-wrapper(ng-if="vm.displayUserStories && vm.epicStories")
     .epic-story(tg-repeat="story in vm.epicStories track by story.get('id')")

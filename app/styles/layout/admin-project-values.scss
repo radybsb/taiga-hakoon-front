@@ -159,7 +159,7 @@
         }
 
         .admin-swimlane-item-drag {
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-inline-end: 1rem;
         }
 
@@ -265,7 +265,7 @@
         }
 
         tg-svg {
-            fill: $color-link-primary;
+            fill: currentColor;
             height: 1rem;
             transition: all .6 ease;
             width: 1rem;
@@ -274,7 +274,7 @@
         .title-name {
             @include font-size(small);
             @include font-type(medium);
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             flex: 1 1 auto;
             margin-bottom: 0;
             margin-right: .75rem;

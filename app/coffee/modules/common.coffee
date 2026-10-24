@@ -401,6 +401,42 @@ module.directive 'tgPreloadImage', () ->
         replace: true,
         link: (scope, el, attrs) ->
             image = el.find('img:last')
+
+            # Attachment viewers retain the last loaded image during navigation.
+            if attrs.keepPreviousImage?
+                pending = null
+                revision = 0
+                destroyed = false
+                attrs.$observe 'preloadSrc', (src) ->
+                    return unless src
+                    revision += 1
+                    request = revision
+                    if pending
+                        pending.onload = pending.onerror = null
+                    pending = new Image()
+                    finish = ->
+                        return if destroyed || request != revision
+                        el.removeClass('is-loading')
+                        el.find('.loading-spinner').remove()
+                    pending.onload = ->
+                        return if destroyed || request != revision
+                        image.attr('src', src).show()
+                        finish()
+                    pending.onerror = ->
+                        return if destroyed || request != revision
+                        image.attr('src', src).show()
+                        finish()
+                    el.addClass('is-loading')
+                    el.find('.loading-spinner').remove()
+                    el.prepend(spinner) unless image.attr('src')
+                    pending.src = src
+                scope.$on '$destroy', ->
+                    destroyed = true
+                    revision += 1
+                    if pending
+                        pending.onload = pending.onerror = null
+                return
+
             timeout = null
 
             onLoad = () ->

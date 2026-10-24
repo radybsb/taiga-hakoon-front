@@ -135,6 +135,10 @@ class EpicsService
             .then () =>
                 return @.listRelatedUserStories(epic)
 
+    deleteEpic: (epic) ->
+        return @resources.epics.delete(epic.get('id')).then =>
+            @._epics = @._epics.filter (item) -> item.get('id') != epic.get('id')
+
     replaceEpic: (epic) ->
         @._epics = @._epics.map (it) ->
             if it.get('id') == epic.get('id')

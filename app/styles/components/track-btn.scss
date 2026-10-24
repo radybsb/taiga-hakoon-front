@@ -111,17 +111,17 @@
         height: 2rem;
         justify-content: space-between;
         &.active {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
         &:hover {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
     .watch-check {
         height: 1.25rem;
         width: 1.25rem;
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
 }

@@ -52,7 +52,7 @@
             &:hover {
                 .ref,
                 .subject {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
             }
         }

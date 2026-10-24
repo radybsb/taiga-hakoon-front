@@ -208,7 +208,7 @@
             border: 1px solid $color-link-primary;
             border-bottom: 1px solid $color-white;
             border-radius: 4px 4px 0 0;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
         +label {
             @include font-type(bold);
@@ -221,7 +221,7 @@
             top: 1px;
         }
         +label:hover {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
 }
@@ -286,7 +286,7 @@
 
     .icon {
         @include svg-size(1rem);
-        fill: $color-link-primary;
+        fill: currentColor;
         margin: 0;
     }
 
@@ -298,7 +298,7 @@
 .filter-button {
     @extend %button;
     background: $color-gray100;
-    color: $color-link-primary;
+    color: var(--workspace-accent);
     padding: 7px 1rem;
     text-transform: none;
 
@@ -307,13 +307,13 @@
     }
 
     svg {
-        fill: $color-link-primary;
+        fill: currentColor;
     }
 
     &:hover,
     &.active {
         background: $color-gray400;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
 
     .selected-filters {

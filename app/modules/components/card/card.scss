@@ -179,7 +179,7 @@ $iocaine: #b400d1;
             }
             &:hover {
                 svg {
-                    fill: $color-link-primary;
+                    fill: currentColor;
                 }
             }
         }
@@ -265,7 +265,7 @@ $iocaine: #b400d1;
             opacity: .5;
         }
         .epic-name {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
 }
@@ -345,7 +345,7 @@ $iocaine: #b400d1;
             background: $color-gray400;
         }
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
 
@@ -363,7 +363,7 @@ $iocaine: #b400d1;
         button {
             appearance: none;
             background: none;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             display: flex;
             padding: .25rem;
             width: 100%;
@@ -373,7 +373,7 @@ $iocaine: #b400d1;
             }
             svg {
                 @include svg-size(1rem);
-                fill: $color-link-primary;
+                fill: currentColor;
                 margin-inline-end: .5rem;
             }
         }
@@ -402,7 +402,7 @@ $iocaine: #b400d1;
     padding: $wrap-padding;
     .card-ref {
         @include font-type(medium);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
     .card-subject {
         color: $color-black900;
@@ -418,7 +418,7 @@ $iocaine: #b400d1;
                 color: $color-black900;
             }
             .card-subject {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
     }
@@ -505,7 +505,7 @@ $iocaine: #b400d1;
     outline: none;
     &:hover {
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
     svg {
@@ -533,7 +533,7 @@ $iocaine: #b400d1;
     padding: .5rem .75rem;
 
     .card-task-ref {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-right: .25rem;
     }
     a {
@@ -558,7 +558,7 @@ $iocaine: #b400d1;
             text-decoration: line-through;
         }
         &:hover {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
 }

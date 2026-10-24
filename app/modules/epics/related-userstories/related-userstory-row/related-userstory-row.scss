@@ -117,7 +117,7 @@ tg-related-userstory-row {
         margin: 0 .5rem 0 0;
         .related-ref {
             align-items: center;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             display: flex;
             margin-inline-end: 1ch;
         }
@@ -132,7 +132,7 @@ tg-related-userstory-row {
                 color: $color-black900;
             }
             .related-subject {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
     }

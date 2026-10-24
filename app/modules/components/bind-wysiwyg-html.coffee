@@ -68,7 +68,7 @@ BindCode = ($sce, $parse, $compile, wysiwygService) ->
             scope.$watch tgBindWysiwygHtmlWatch, () ->
                 html = wysiwygService.getHTML(tgBindWysiwygHtmlGetter(scope))
 
-                html = wysiwygService.relativePaths(html)
+                html = wysiwygService.relativePaths(html, element.closest('[data-wiki-page-url]').attr('data-wiki-page-url'))
 
                 wysiwygService.refreshAttachmentURL(html).then (html) =>
                     render(element, html)

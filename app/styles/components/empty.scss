@@ -16,7 +16,7 @@
     }
     a {
         @include font-type(regular);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
     .btn-small {
         margin: 1rem auto 2rem;

@@ -7,10 +7,11 @@ WikiOutline = ($location, $window, $confirm) ->
         lastEmitted = null
         highlighted = null
         navigate = ->
-            id = $location.hash()
+            return if scope.wikiPopupContext && !scope.wikiPopupContext.ready
+            id = if scope.wikiPopupContext then scope.wikiPopupContext.chapter else $location.hash()
             if id != lastEmitted
                 lastEmitted = id
-                scope.$evalAsync -> scope.$emit('wiki:chapter:active', id)
+                scope.$evalAsync -> scope.$emit('wiki:chapter:active', id) unless scope.wikiPopupContext
             return unless id && id != lastTarget && !scope.descriptionState?.editing
             target = Array.from(el[0].querySelectorAll('[data-wiki-chapter]')).find((node) -> node.id == id)
             return unless target
@@ -47,7 +48,8 @@ WikiOutline = ($location, $window, $confirm) ->
                     button.addEventListener 'click', (event) ->
                         event.preventDefault()
                         event.stopPropagation()
-                        url = $window.location.origin + $window.location.pathname + '#' + chapter.id
+                        path = scope.wikiPopupContext?.path || $window.location.pathname
+                        url = $window.location.origin + path + '#' + chapter.id
                         if !$window.navigator.clipboard?.writeText
                             scope.$applyAsync -> $confirm.notify('light-error', 'Your browser cannot copy this link. Open the chapter from the index and copy its address.')
                             return
@@ -64,6 +66,16 @@ WikiOutline = ($location, $window, $confirm) ->
         scope.$watch('descriptionState.editing', (editing) ->
             lastTarget = null
             schedule() unless editing
+        )
+        scope.$on('wiki:chapter:navigate', (event, path) ->
+            ownPath = (scope.wikiPopupContext?.path || $window.location.pathname).replace(/\/$/, '').replace(/\/wiki$/, '/wiki/home')
+            return unless ownPath == path
+            lastTarget = null
+            schedule()
+        )
+        scope.$watchGroup(['wikiPopupContext.chapter', 'wikiPopupContext.ready'], ->
+            lastTarget = null
+            schedule()
         )
         scope.$on('$locationChangeSuccess', ->
             lastTarget = null

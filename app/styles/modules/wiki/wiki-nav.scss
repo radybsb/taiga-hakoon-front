@@ -109,7 +109,7 @@
         @include font-type(medium);
         background: $color-white;
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
         &:hover {
             background: $color-white;

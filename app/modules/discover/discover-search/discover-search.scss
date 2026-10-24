@@ -95,9 +95,9 @@
             stroke: $gray-light;
         }
         &.active {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             svg {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
     }

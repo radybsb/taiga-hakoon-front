@@ -11,7 +11,7 @@
         padding: 1rem;
     }
     .title {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         font-size: 1.4rem;
         line-height: 1.4rem;
         margin: 0;
@@ -19,7 +19,7 @@
     }
 
     .action {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         line-height: .75em;
         &.disabled {
             color: $color-black600;
@@ -54,7 +54,7 @@
             width: 3rem;
         }
         .entry-date {
-            font-size: .85rem;
+            font-size: .875rem;
             margin-right: .5rem;
         }
     }
@@ -64,7 +64,7 @@
     .entry {
         color: $color-black600;
         display: flex;
-        font-size: .9rem;
+        font-size: .875rem;
         margin-bottom: .1rem;
         padding: .8rem .5rem;
         position: relative;
@@ -97,14 +97,14 @@
         .entry-project {
             @include font-type(medium);
             display: inline-block;
-            font-size: .9rem;
+            font-size: .875rem;
             max-width: 200px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .entry-date {
-            font-size: .7rem;
+            font-size: .75rem;
             margin-right: 1rem;
             white-space: nowrap;
         }

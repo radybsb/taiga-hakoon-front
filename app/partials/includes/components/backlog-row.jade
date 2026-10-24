@@ -68,8 +68,11 @@
 
     div.points(tg-backlog-us-points="us")
 
-    .us-option(tg-us-edit-selector, tg-check-permission="modify_us")
-        button.us-option-popup-button.js-popup-button(
-          ng-class="{first: us.id === first_us_in_backlog}"
+    .us-option.row-delete-field(tg-check-permission="delete_us")
+        button.row-delete-button(
+            type="button"
+            ng-click="$event.stopPropagation(); ctrl.deleteUserStory(us)"
+            title="{{'COMMON.DELETE' | translate}}"
+            aria-label="{{'COMMON.DELETE' | translate}}"
         )
-            tg-svg(svg-icon="icon-more-vertical")
+            tg-svg(svg-icon="icon-trash")

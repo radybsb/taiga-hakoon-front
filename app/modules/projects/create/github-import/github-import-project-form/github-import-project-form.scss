@@ -37,7 +37,7 @@
         &:checked {
             +label {
                 .create-project-github-import-type-name {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
             }
         }

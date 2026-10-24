@@ -79,7 +79,7 @@ tg-svg {
             @include font-type(medium);
             background: $color-white;
             a {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
             &:hover {
                 background: $color-white;
@@ -112,7 +112,7 @@ tg-svg {
             a {
                 @include font-type(medium);
                 background: $color-gray300;
-                color: $color-link-primary;
+                color: var(--workspace-accent);
                 &:hover,
                 &:hover a {
                     background: $color-gray300;

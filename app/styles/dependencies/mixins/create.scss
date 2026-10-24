@@ -98,7 +98,7 @@
         }
         .icon {
             @include svg-size(1.75rem);
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-right: 1rem;
             stroke: $primary;
             vertical-align: middle;
@@ -311,7 +311,7 @@
         p {
             margin-bottom: 0;
             a {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
                 display: inline-block;
                 margin-left: .25rem;
             }

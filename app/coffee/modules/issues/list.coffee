@@ -379,6 +379,26 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
         return @.loadIssues()
 
+    deleteIssue: (id) ->
+        return unless @projectService.canEdit('delete_issue')
+        issue = _.find(@scope.issues, {id: id})
+        return unless issue
+        @_deletingIssueIds ?= {}
+        return if @_deletingIssueIds[id]
+        @_deletingIssueIds[id] = true
+        return @confirm.askOnDelete(@translate.instant('ISSUES.ACTION_DELETE'), issue.subject,
+            'This action permanently deletes this issue.').then (askResponse) =>
+                return @repo.remove(issue).then () =>
+                    delete @_deletingIssueIds[id]
+                    askResponse.finish()
+                    @.loadIssues()
+                , () =>
+                    delete @_deletingIssueIds[id]
+                    askResponse.finish(false)
+                    @confirm.notify('error')
+            , () =>
+                delete @_deletingIssueIds[id]
+
     # Functions used from templates
     addNewIssue: ->
         project = @projectService.project.toJS()

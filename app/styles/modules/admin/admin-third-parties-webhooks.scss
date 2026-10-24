@@ -45,7 +45,7 @@
             vertical-align: middle;
         }
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             margin-left: .5rem;
             white-space: nowrap;
         }

@@ -28,7 +28,7 @@
             color: $color-black700;
         }
         .top {
-            fill: $color-link-primary;
+            fill: currentColor;
             opacity: 1;
         }
         &:hover {
@@ -118,9 +118,9 @@
         );
     }
     .icon-badge {
-        fill: $color-link-primary;
+        fill: currentColor;
         position: relative;
-        stroke: $color-link-primary;
+        stroke: currentColor;
         top: .15rem;
     }
 }

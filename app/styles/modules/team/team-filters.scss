@@ -35,10 +35,10 @@
             @include font-type(medium);
             background: $color-white;
             a {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
             .icon {
-                fill: $color-link-primary;
+                fill: currentColor;
                 opacity: 1;
             }
             &:hover {

@@ -193,7 +193,7 @@ tg-html-editor .ck-content,
         }
     }
     a[href] {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         font-weight: 600;
     }
     blockquote {
@@ -206,7 +206,7 @@ tg-html-editor .ck-content,
         }
     }
     code {
-        font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', 'monospacemonospace';
+        font-family: 'Menlo', 'Monaco', 'Consolas', 'Courier New', monospace;
         overflow-wrap: break-word;
         white-space: pre-wrap;
     }
@@ -223,7 +223,7 @@ tg-html-editor .ck-content,
     }
     .mention {
         background: none;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         cursor: pointer;
     }
     .ck-horizontal-line hr,
@@ -311,7 +311,7 @@ tg-html-editor .ck-content {
 
 .ck-body-wrapper {
     .ck.ck-link-actions .ck-button.ck-link-actions__preview .ck-button__label {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         font-weight: 600;
     }
 }

@@ -206,7 +206,7 @@ tg-card[type='task'].folded-dragging {
         margin-right: .75rem;
 
         &:hover svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
 }
@@ -263,7 +263,7 @@ tg-card[type='task'].folded-dragging {
                     color: $color-black600;
                 }
                 &:hover.us-subject {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
             }
         }
@@ -315,7 +315,7 @@ tg-card[type='task'].folded-dragging {
             &:hover {
                 .us-ref,
                 .us-subject {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
             }
         }
@@ -356,7 +356,7 @@ tg-card[type='task'].folded-dragging {
                 color: $color-black900;
             }
             .us-subject {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
     }
@@ -370,7 +370,7 @@ tg-card[type='task'].folded-dragging {
         flex-direction: column;
     }
     .us-ref {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         float: left;
         padding-right: .25rem;
     }
@@ -506,7 +506,7 @@ tg-card[type='task'].folded-dragging {
             background-color: $color-gray200;
 
             svg {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
     }
@@ -526,7 +526,7 @@ tg-card[type='task'].folded-dragging {
             display: block;
         }
         tg-svg {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             position: absolute;
             right: .5rem;
             top: .6rem;
@@ -536,7 +536,7 @@ tg-card[type='task'].folded-dragging {
             }
             &:hover {
                 svg {
-                    fill: $color-link-primary;
+                    fill: currentColor;
                 }
             }
         }

@@ -40,6 +40,7 @@ mixin epicSwitch(name, model)
             translate="EPICS.TABLE.PROGRESS"
             ng-if="vm.options.progress"
         )
+        .row-delete-field(aria-hidden="true")
         .epics-table-options-wrapper(
             ng-mouseleave="vm.hideEpicTableOption()"
             ng-mouseenter="vm.hoverEpicTableOption()"

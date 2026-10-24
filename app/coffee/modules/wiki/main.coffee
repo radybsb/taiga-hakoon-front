@@ -53,6 +53,12 @@ class WikiDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         @scope.$on "wiki:chapter:active", (event, id) =>
             @scope.activeWikiChapter = id
             @scope.wikiChaptersOpen[@scope.wiki?.slug] = true if id
+        @scope.$on "wiki:popup:closed", (event, page) =>
+            return unless page?.project == @scope.projectId
+            @scope.wikiOutline[page.slug] = page.outline || []
+            if @scope.wiki?.id == page.id
+                @scope.wiki = page
+                @.loadAttachments()
         @scope.projectSlug = @params.pslug
         @scope.wikiSlug = @params.slug
         @scope.sectionName = "Wiki"
@@ -251,7 +257,7 @@ $qqueue, $repo, $analytics, activityService) ->
 
                 $scope.item.outline = wikiPage.outline || []
                 $scope.$emit("wiki:outline:updated", wikiPage)
-                activityService.fetchEntries(true)
+                activityService.fetchEntries(true) unless $scope.wikiPopupContext
                 $confirm.notify("success")
 
             onError = ->

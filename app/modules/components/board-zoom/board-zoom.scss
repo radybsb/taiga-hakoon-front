@@ -6,7 +6,7 @@
         @include font-type(bold);
         @include font-size(xsmall);
 
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-right: .5rem;
         text-transform: uppercase;
     }

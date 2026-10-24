@@ -11,14 +11,15 @@
     .attachment-preview-container
         a.previous(
             href="#",
-            ng-click="vm.previous()",
+            ng-click="$event.preventDefault(); vm.previous()",
+            aria-label="Previous attachment",
             ng-if="vm.hasPagination()"
         )
             tg-svg(svg-icon="icon-arrow-left")
 
-        a(ng-if="!vm.isVideo()", href="{{vm.current.get('url')}}", title="{{vm.current.get('description')}}", target="_blank", download="{{vm.current.get('name')}}")
-            tg-preload-image(preload-src="{{vm.current.get('preview_url') || vm.getCurrent().get('url')}}")
-                 img(ng-src="{{vm.current.get('preview_url') || vm.getCurrent().get('url')}}")
+        .attachment-preview-image(ng-if="!vm.isVideo()" title="{{vm.current.get('description')}}")
+            tg-preload-image(keep-previous-image preload-src="{{vm.current.get('preview_url') || vm.getCurrent().get('url')}}")
+                 img(alt="{{vm.current.get('name')}}")
 
         video(
             ng-if="vm.isVideo()"
@@ -31,7 +32,28 @@
 
         a.next(
             href="#",
-            ng-click="vm.next()",
+            ng-click="$event.preventDefault(); vm.next()",
+            aria-label="Next attachment",
             ng-if="vm.hasPagination()"
         )
             tg-svg(svg-icon="icon-arrow-right")
+
+
+    footer.attachment-preview-footer
+        h1.attachment-preview-name {{vm.current.get('name')}}
+        p.attachment-preview-meta
+            span(ng-if="vm.current.get('created_date')") Added {{vm.current.get('created_date') | date:'MMM d, yyyy, h:mm a'}}
+            span(ng-if="vm.current.get('created_date')")  •
+            span {{vm.current.get('size') | sizeFormat}}
+        .attachment-preview-actions
+            a.attachment-preview-action(href="{{vm.current.get('url')}}" download="{{vm.current.get('name')}}")
+                tg-svg(svg-icon="icon-download")
+                span Download
+            button.attachment-preview-action(type="button" ng-click="vm.beginEdit()" tg-check-permission="modify_{{vm.type}}")
+                tg-svg(svg-icon="icon-edit")
+                span Edit
+            button.attachment-preview-action(type="button" ng-click="vm.deleteCurrent()" tg-check-permission="modify_{{vm.type}}")
+                tg-svg(svg-icon="icon-trash")
+                span Delete
+        .attachment-preview-editor(ng-if="vm.editing" tg-check-permission="modify_{{vm.type}}")
+            tg-attachment(attachment="vm.editableAttachment" on-update="vm.updateCurrent(attachment)" type="vm.type")

@@ -50,7 +50,7 @@
         &:hover,
         &.is-active {
             svg {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
         svg {
@@ -125,7 +125,7 @@
         color: $gray-light;
     }
     .more-attachments-num {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-left: .5rem;
     }
 }

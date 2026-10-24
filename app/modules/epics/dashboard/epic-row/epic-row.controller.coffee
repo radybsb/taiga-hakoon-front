@@ -10,10 +10,11 @@ class EpicRowController
     @.$inject = [
         "$tgConfirm",
         "tgProjectService",
-        "tgEpicsService"
+        "tgEpicsService",
+        "$translate"
     ]
 
-    constructor: (@confirm, @projectService, @epicsService) ->
+    constructor: (@confirm, @projectService, @epicsService, @translate) ->
         @.displayUserStories = false
         @.displayAssignedTo = false
         @.displayStatusList = false
@@ -38,6 +39,24 @@ class EpicRowController
 
     canEditEpics: () ->
         return @projectService.canEdit("modify_epic")
+
+    canDeleteEpic: () ->
+        return @projectService.canEdit('delete_epic')
+
+    deleteEpic: () ->
+        return unless @.canDeleteEpic() && !@.deleting
+        @.deleting = true
+        return @confirm.askOnDelete(@translate.instant('EPIC.ACTION_DELETE'), @.epic.get('subject'),
+            'This action permanently deletes this epic.').then (askResponse) =>
+                return @epicsService.deleteEpic(@.epic).then () =>
+                    @.deleting = false
+                    askResponse.finish()
+                , () =>
+                    @.deleting = false
+                    askResponse.finish(false)
+                    @confirm.notify('error')
+            , () =>
+                @.deleting = false
 
     toggleUserStoryList: () ->
         if !@.displayUserStories

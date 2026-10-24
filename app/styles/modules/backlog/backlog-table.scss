@@ -28,7 +28,7 @@
             tg-svg {
                 svg {
                     @include svg-size(1rem);
-                    fill: $color-link-primary;
+                    fill: currentColor;
                 }
             }
         }
@@ -86,7 +86,7 @@
         position: relative;
         .icon {
             @include svg-size(1rem);
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-top: .1rem;
         }
     }
@@ -180,7 +180,7 @@
     .header-points {
         /* stylelint-disable property-no-vendor-prefix, value-no-vendor-prefix */
         -webkit-box-orient: vertical;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         display: -webkit-box;
         -webkit-line-clamp: 2;
         overflow: hidden;
@@ -339,12 +339,12 @@
         line-height: 1.75;
         &:hover {
             .user-story-name {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
     }
     .user-story-number {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-inline-end: .25rem;
     }
     .user-story-name {
@@ -454,7 +454,7 @@
         button {
             appearance: none;
             background: none;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             display: flex;
             padding: .25rem;
             width: 100%;
@@ -464,7 +464,7 @@
             }
             svg {
                 @include svg-size(1rem);
-                fill: $color-link-primary;
+                fill: currentColor;
                 margin-inline-end: .5rem;
             }
         }
@@ -480,7 +480,7 @@
             background: $color-gray400;
         }
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
 
     }
@@ -553,7 +553,6 @@
             width: 100%;
         }
 
-        &.bulk-delete-icon { color: $color-link-red; }
     }
 
     .bulk-sprint-list {

@@ -79,7 +79,7 @@
         .icon-drag {
             @include svg-size(1rem);
             cursor: move;
-            fill: $color-link-primary;
+            fill: currentColor;
             transition: opacity .1s;
         }
 
@@ -208,10 +208,10 @@
     .delete-task {
         &:hover {
             .icon-edit {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
             .icon-save {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
             .icon-trash {
                 fill: $color-link-red;

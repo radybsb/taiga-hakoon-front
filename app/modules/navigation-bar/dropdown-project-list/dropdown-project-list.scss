@@ -28,7 +28,7 @@
         &:hover,
         &.active {
             background: $color-gray400;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
 
@@ -40,7 +40,7 @@
     .see-more-projects-btn {
         @include font-type(medium);
 
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
 
     .create-project-btn {
@@ -105,11 +105,11 @@
         .dropdown-project-list-projects {
             background-color: $color-gray200;
             span {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
 
             .icon-folder {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
     }
@@ -123,8 +123,8 @@
     padding: .25rem .5rem;
 
     span {
-        color: $color-link-primary;
-        font-size: .9rem;
+        color: var(--workspace-accent);
+        font-size: .875rem;
     }
 
     .empty-projects {
@@ -139,7 +139,7 @@
         margin: .1rem .25rem 0 0;
 
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
             @include svg-size(.9rem);
         }
     }

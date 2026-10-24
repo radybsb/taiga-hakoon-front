@@ -165,7 +165,7 @@ tg-admin-project-restrictions {
     p {
         margin-bottom: 0;
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             display: inline-block;
         }
     }
@@ -177,9 +177,9 @@ tg-admin-project-restrictions {
     justify-content: space-between;
     padding-top: 1rem;
     a {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         &:hover {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             transition: color .2s;
         }
     }

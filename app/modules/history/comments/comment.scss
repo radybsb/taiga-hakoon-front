@@ -71,7 +71,7 @@
         margin-bottom: 1rem;
     }
     .comment-creator {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-right: .5rem;
     }
     .comment-date {

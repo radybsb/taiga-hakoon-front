@@ -2,7 +2,7 @@
 
 @mixin font-size($size) {
     @if $size == xsmall {
-        font-size: .7rem;
+        font-size: .75rem;
     } @else if $size == small {
         font-size: .875rem;
     } @else if $size == medium {
@@ -24,15 +24,18 @@
 
 @mixin font-type($type) {
     @if $type == regular {
-        font-family: 'Ubuntu-Regular', Arial, Helvetica, sans-serif;
+        font-family: 'Ubuntu UI', Arial, Helvetica, sans-serif;
+        font-weight: 400;
     } @else if $type == medium {
-        font-family: 'Ubuntu-Medium', Arial, Helvetica, sans-serif;
+        font-family: 'Ubuntu UI', Arial, Helvetica, sans-serif;
+        font-weight: 500;
     } @else if $type == bold {
-        font-family: 'Ubuntu-Medium', Arial, Helvetica, sans-serif;
+        font-family: 'Ubuntu UI', Arial, Helvetica, sans-serif;
         font-weight: 500;
     } @else if $type == mono {
         font-family: 'courier new', 'monospace';
     } @else {
-        font-family: 'Ubuntu-Regular', Arial, Helvetica, sans-serif;
+        font-family: 'Ubuntu UI', Arial, Helvetica, sans-serif;
+        font-weight: 400;
     }
 }

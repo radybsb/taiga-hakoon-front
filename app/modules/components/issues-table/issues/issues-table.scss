@@ -36,7 +36,7 @@
             display: flex;
             justify-content: center;
             &:hover {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
         .issue-field {
@@ -50,12 +50,12 @@
         }
         .icon-arrow-up {
             .arrow-up {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
         .icon-arrow-down {
             .arrow-down {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
         .arrow-up,
@@ -195,12 +195,12 @@
                 color: $color-black900;
             }
             .issue-subject {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
         .issue-ref {
             align-items: center;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             display: flex;
             margin-inline-end: 1ch;
         }
@@ -299,14 +299,14 @@
             }
         }
         .icon {
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-left: .25rem;
         }
     }
     .options-field {
         flex-basis: 16px;
         .icon {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
         .options-button {
             background: none;
@@ -350,7 +350,7 @@
     .option {
         @include font-size(small);
         background: transparent;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         cursor: pointer;
         display: flex;
         padding: .25rem;

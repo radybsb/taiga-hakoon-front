@@ -149,14 +149,17 @@ form
                             svg-title-translate="ADMIN.PROJECT_PROFILE.PRIVATE_OR_PUBLIC"
                         )
                         span {{'ADMIN.PROJECT_PROFILE.PRIVATE_OR_PUBLIC' | translate }}
-                button.btn-small(
-                    variant="primary"
-                    type="submit"
-                    title="{{'COMMON.SAVE' | translate}}"
-                    translate="COMMON.SAVE"
-                )
-                a.delete-project(
-                    href=""
-                    title="{{'ADMIN.PROJECT_PROFILE.DELETE' | translate}}"
-                    ng-click="ctrl.openDeleteLightbox()"
-                ) {{ 'ADMIN.PROJECT_PROFILE.DELETE' | translate }}
+                .project-details-actions
+                    button.btn-small(
+                        variant="primary"
+                        type="submit"
+                        title="{{'COMMON.SAVE' | translate}}"
+                        translate="COMMON.SAVE"
+                    )
+                    a.delete-project(
+                        href=""
+                        title="{{'ADMIN.PROJECT_PROFILE.DELETE' | translate}}"
+                        ng-click="ctrl.openDeleteLightbox()"
+                    )
+                        tg-svg(svg-icon="icon-trash")
+                        span {{ 'ADMIN.PROJECT_PROFILE.DELETE' | translate }}

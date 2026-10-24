@@ -51,11 +51,11 @@
     background: $color-white;
     padding-block-end: 1rem;
     .button-filter {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-left: 0;
 
         svg {
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
 

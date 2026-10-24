@@ -199,7 +199,7 @@
             background: rgba($white, .4);
             cursor: pointer;
             .user-list-name {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
             .remove-user {
                 opacity: 1;
@@ -211,7 +211,7 @@
         }
         &:not(.read-only) {
             .user-list-name a {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
         }
     }
@@ -256,7 +256,7 @@
         cursor: pointer;
         display: flex;
         flex-grow: 1;
-        font-size: .9rem;
+        font-size: .875rem;
         justify-content: center;
         line-height: 2rem;
         margin: 0 .25rem;
@@ -288,7 +288,7 @@
     justify-content: center;
     [class^='btn-']:not(.select-option):not(.show-closed) {
         background: $color-gray200;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-inline-end: .5rem;
         padding: .75rem;
         &:hover {

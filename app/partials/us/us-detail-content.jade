@@ -83,18 +83,6 @@ include us-metadata
                         ng-bind-html="'#' + us.origin_issue.ref + ' ' + us.origin_issue.subject | emojify"
                     )
 
-                .action-buttons(
-                    ng-if="sprint && project.is_backlog_activated"
-                )
-                    a.btn-small(
-                        variant="secondary"
-                        href=""
-                        tg-check-permission="view_milestones"
-                        tg-nav="project-taskboard:project=project.slug,sprint=sprint.slug"
-                        title="{{'US.TITLE_LINK_TASKBOARD' | translate}}"
-                        translate="US.LINK_TASKBOARD"
-                    )
-
             +storyMetadata(true)
 
             .subheader(ng-class="{'has-tags': us.tags.length}")

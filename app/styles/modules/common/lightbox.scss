@@ -221,7 +221,7 @@
     .bulk-status-option {
         @include font-size(small);
         background: transparent;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         cursor: pointer;
         display: block;
         padding: .25rem;
@@ -282,7 +282,7 @@
     }
     .delete-sprint {
         @include font-size(small);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         display: flex;
         transition: color .3s linear;
         .delete-sprint-text {
@@ -635,7 +635,7 @@
             margin-top: 1rem;
         }
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
 }
@@ -673,7 +673,7 @@
     }
     .description {
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
     }
     img {
@@ -780,7 +780,7 @@
     }
     label {
         @include font-size(small);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         padding-left: .25rem;
     }
     textarea {
@@ -984,10 +984,10 @@
             &:hover {
                 background: $color-gray200;
                 .user-list-name {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
                 tg-svg {
-                    fill: $color-link-primary;
+                    fill: currentColor;
                 }
             }
 
@@ -1077,7 +1077,7 @@
             width: 0;
 
             &:checked ~ .radio-label {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
             &:checked + .radio-control::before {
                 transform: scale(1);
@@ -1595,7 +1595,7 @@ tg-attachments-preview.lightbox.lightbox-dialog {
             border-radius: 8px;
             cursor: pointer;
             display: flex;
-            font-size: .8rem;
+            font-size: .8125rem;
             gap: .5rem;
             list-style: none;
             padding: .5rem .625rem;

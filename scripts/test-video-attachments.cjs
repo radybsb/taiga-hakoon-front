@@ -19,9 +19,11 @@ evaluate('app/coffee/utils.coffee');
 w.eval(fs.readFileSync('node_modules/angular/angular.js', 'utf8'));
 const preview = { fileId: 2 };
 let opened = 0;
+let closed = 0;
 w.angular.module('taigaComponents', [])
   .value('tgAttachmentsPreviewService', preview)
-  .value('lightboxService', { open: () => opened++ });
+  .value('lightboxService', { open: () => opened++, close: () => closed++ })
+  .filter('sizeFormat', () => value => value == null ? '' : value + ' bytes');
 evaluate('app/modules/components/attachments-preview/attachments-preview.controller.coffee');
 evaluate('app/modules/components/attachments-preview/attachments-preview.directive.coffee');
 evaluate('app/modules/components/attachment-link/attachment-link.directive.coffee');
@@ -33,7 +35,7 @@ const controller = injector.get('$controller')('AttachmentsPreview', {});
 const url = 'http://localhost:9000/media/attachments/test.mp4?token=test';
 controller.attachments = w.Immutable.fromJS([
   {file: {id: 1, name: 'image.png', url: '/image.png'}},
-  {file: {id: 2, name: 'video.MP4', url}},
+  {file: {id: 2, name: 'video.MP4', url, size: 134590, created_date: '2026-10-17T00:12:00Z'}},
   {file: {id: 3, name: 'notes.txt', url: '/notes.txt'}},
   {file: {id: 4, name: 'animated.gif', url: '/animated.gif'}}
 ]);
@@ -52,7 +54,22 @@ const video = element[0].querySelector('video');
 assert(video);
 assert.equal(video.getAttribute('src'), url);
 assert.equal(element[0].querySelectorAll('img').length, 0);
-controller.next(); root.$digest();
+assert.equal(element[0].querySelector('.attachment-preview-name').textContent.trim(), 'video.MP4');
+assert(element[0].querySelector('.attachment-preview-meta').textContent.includes('134590 bytes'));
+assert.deepEqual(Array.from(element[0].querySelectorAll('.attachment-preview-action span'), el => el.textContent.trim()),
+  ['Download', 'Edit', 'Delete']);
+const original = controller.getCurrentAttachment();
+let updated;
+controller.onUpdate = ({attachment}) => updated = attachment;
+controller.beginEdit();
+assert(controller.editing);
+assert.equal(original.get('editable'), undefined);
+controller.updateCurrent(controller.editableAttachment.set('editable', false).setIn(['file', 'description'], 'Updated caption'));
+assert.equal(updated.getIn(['file', 'description']), 'Updated caption');
+assert.equal(original.getIn(['file', 'description']), undefined);
+assert.equal(controller.editing, false);
+controller.beginEdit();
+controller.next(); assert.equal(controller.editing, false); root.$digest();
 assert.equal(element[0].querySelectorAll('video').length, 0);
 assert.equal(element[0].querySelectorAll('img').length, 1);
 const linkScope = root.$new();
@@ -87,6 +104,31 @@ const hiddenScope=root.$new(),hidden=w.$('<div><video></video></div>');
 hidden.find("video")[0].pause=()=>{};
 directive.link(hiddenScope,hidden,{},controller);arrow(39);assert.equal(preview.fileId,4);
 hiddenScope.$destroy();arrow(37);assert.equal(preview.fileId,2);
+const input = w.$('<input>').appendTo(modal)[0];
+const beforeTyping = preview.fileId;
+assert.equal(arrow(39, input).defaultPrevented, false);
+assert.equal(preview.fileId, beforeTyping);
+// Only a click fully originating and ending in free space dismisses the viewer.
+const image = w.$('<img>').appendTo(modal)[0];
+const action = w.$('<button><svg></svg></button>').appendTo(modal)[0];
+const free = w.$('<div class="attachment-preview-footer">Metadata</div>').appendTo(modal)[0];
+const send = (target, type) => target.dispatchEvent(new w.MouseEvent(type, {button: 0, bubbles: true, cancelable: true}));
+const clickFromTo = (from, to) => { send(from, 'pointerdown'); send(to, 'pointerup'); send(to, 'click'); root.$digest(); };
+const beforeFreeClick = closed;
+clickFromTo(image, image); clickFromTo(player, player); clickFromTo(action.querySelector('svg'), action.querySelector('svg'));
+clickFromTo(input, free); clickFromTo(image, free); clickFromTo(free, image);
+assert.equal(closed, beforeFreeClick);
+send(free, 'pointerdown'); send(free, 'pointercancel'); send(free, 'pointerup'); send(free, 'click'); root.$digest();
+assert.equal(closed, beforeFreeClick);
+clickFromTo(free, free);
+assert.equal(closed, beforeFreeClick + 1);
+assert.equal(element[0].querySelector('.attachment-preview-image a'), null);
+const beforeDelete = closed;
+let deleted;
+controller.onDelete = ({attachment}) => deleted = attachment;
+controller.deleteCurrent();
+assert.equal(closed, beforeDelete);
+assert.equal(deleted.getIn(['file', 'id']), 2);
 modal.addClass('close-started');arrow(39);assert.equal(preview.fileId,2);
 root.$broadcast('lightbox:closed');
 assert.equal(paused, 1);

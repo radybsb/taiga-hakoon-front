@@ -52,7 +52,7 @@
         color: $color-black900;
         a {
             @include font-type(medium);
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             &:hover {
                 color: $color-black600;
             }
@@ -65,7 +65,7 @@
         top: 1rem;
         svg {
             @include svg-size(2rem);
-            fill: $color-link-primary;
+            fill: currentColor;
             pointer-events: none;
             transition: fill .2s;
             &:hover {

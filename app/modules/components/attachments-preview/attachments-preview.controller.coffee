@@ -18,6 +18,21 @@ class AttachmentsPreviewController
 
             return @.getCurrent()
 
+    getCurrentAttachment: () ->
+        return @.attachments.find (attachment) =>
+            @attachmentsPreviewService.fileId == attachment.getIn(['file', 'id'])
+
+    beginEdit: () ->
+        attachment = @.getCurrentAttachment()
+        return unless attachment
+        @.editableAttachment = attachment.set('editable', true)
+        @.editing = true
+
+    updateCurrent: (attachment) ->
+        @.editableAttachment = attachment
+        @.editing = attachment.get('editable')
+        return @.onUpdate({attachment: attachment})
+
     isVideo: () ->
         return taiga.isVideo(@.getCurrent()?.get('name'))
 
@@ -42,6 +57,7 @@ class AttachmentsPreviewController
             @attachmentsPreviewService.fileId == attachment.getIn(['file', 'id'])
 
     next: () ->
+        @.editing = false
         attachmentIndex = @.getIndex()
 
         image = @.attachments.slice(attachmentIndex + 1).find (attachment) ->
@@ -55,6 +71,7 @@ class AttachmentsPreviewController
         @attachmentsPreviewService.fileId = image.getIn(['file', 'id']) if image
 
     previous: () ->
+        @.editing = false
         attachmentIndex = @.getIndex()
 
         image = @.attachments.slice(0, attachmentIndex).findLast (attachment) ->

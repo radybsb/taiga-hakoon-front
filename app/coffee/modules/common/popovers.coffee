@@ -48,9 +48,11 @@ UsStatusDirective = ($repo, $template) ->
             event.stopPropagation()
             $el.find(".pop-status").popover().open()
 
-        $el.on "click", ".popover-status", debounce 2000, (event) ->
+        savingStatus = false
+        $el.on "click", ".popover-status", (event) ->
             event.preventDefault()
             event.stopPropagation()
+            return if savingStatus
 
             statusElement = $(event.currentTarget).find('#js-status-btn')
 
@@ -62,9 +64,12 @@ UsStatusDirective = ($repo, $template) ->
 
             $el.find(".pop-status").popover().close()
 
+            savingStatus = true
             $scope.$apply () ->
-                $repo.save(us).then ->
+                $repo.save(us).then(->
                     $scope.$eval($attrs.onUpdate)
+                ).finally ->
+                    savingStatus = false
 
 
         $scope.$on("userstories:loaded", -> render($scope.$eval($attrs.tgUsStatus)))
@@ -272,7 +277,7 @@ taiga.globalPopover = (target, list, options = {}, cb) ->
         use.setAttributeNode(xlink)
         use.setAttributeNode(attrHref)
 
-        svg.classList.add('icon')
+        svg.classList.add('icon', icon)
         svg.appendChild(use)
         tgSvg.appendChild(svg)
 

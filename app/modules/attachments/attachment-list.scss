@@ -109,7 +109,7 @@
         .icon-edit,
         .icon-save {
             &:hover {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
         .icon-trash,

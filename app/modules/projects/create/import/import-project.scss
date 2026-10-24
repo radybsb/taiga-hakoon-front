@@ -41,7 +41,7 @@
         @include font-type(regular);
         margin-bottom: 0;
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             margin-left: .3rem;
         }
     }

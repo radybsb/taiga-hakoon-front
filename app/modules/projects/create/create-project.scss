@@ -18,10 +18,10 @@
         }
     }
     .import-project-members-choose {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
     .import-project-members-match-true svg {
-        fill: $color-link-primary;
+        fill: currentColor;
     }
     .import-project-members-match-false svg {
         fill: $color-link-red;

@@ -31,7 +31,7 @@
         }
     }
     .project-name {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-bottom: 0;
     }
     .private {
@@ -105,8 +105,8 @@
             margin-bottom: .5rem;
         }
         a {
-            color: $color-link-primary;
-            font-size: .8rem;
+            color: var(--workspace-accent);
+            font-size: .8125rem;
             font-weight: 600;
         }
         .contact-team {
@@ -140,7 +140,7 @@
             @include svg-size(1.2rem);
             background-color: $white;
             bottom: 5%;
-            fill: $color-link-primary;
+            fill: currentColor;
             padding: .1rem;
             position: absolute;
             right: 5%;

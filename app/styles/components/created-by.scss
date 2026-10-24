@@ -22,7 +22,7 @@
             text-align: right;
         }
         .created-title {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
         .created-date {
             margin-left: .5rem;

@@ -62,13 +62,13 @@ $dropdown-width: 260px;
         }
         svg {
             @include svg-size(1.3rem);
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-top: .25rem;
             transition: all .2s linear;
         }
         [tg-dropdown-notifications] {
             & svg {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
 
             &:hover svg {
@@ -284,7 +284,7 @@ $dropdown-width: 260px;
         width: 22px;
     }
     20% {
-        font-size: .7rem;
+        font-size: .75rem;
         height: 20px;
         left: 50px;
         line-height: 20px;
@@ -373,7 +373,7 @@ $dropdown-width: 260px;
                 cursor: default;
             }
             &:not(.disabled) {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
             }
             &:not(.disabled):hover {
                 color: $color-black600;

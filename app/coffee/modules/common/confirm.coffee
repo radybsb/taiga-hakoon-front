@@ -108,10 +108,15 @@ class ConfirmService extends taiga.Service
             defered.reject()
             @.hide(lightbox)
 
+        onClose = () =>
+            defered.reject()
+            lightbox.off(".confirm-dialog")
+
         onEsc = () =>
+            defered.reject()
             @.hide(lightbox)
 
-        @lightboxService.open(lightbox, null, onEsc)
+        @lightboxService.open(lightbox, onClose, onEsc)
 
         return defered.promise
 

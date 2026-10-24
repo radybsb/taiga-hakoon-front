@@ -40,7 +40,7 @@
         }
 
         tg-svg {
-            fill: $color-link-primary;
+            fill: currentColor;
             height: 1rem;
             margin-right: .5rem;
             transition: all .2s ease;
@@ -108,7 +108,7 @@
             }
 
             svg {
-                fill: $color-link-primary;
+                fill: currentColor;
                 &:hover {
                     transition: fill .2s ease-in;
                 }
@@ -212,7 +212,7 @@
                 transition: background .2s ease-in;
 
                 .us-name-text {
-                    color: $color-link-primary;
+                    color: var(--workspace-accent);
                 }
 
                 .us-ref-text {
@@ -296,7 +296,7 @@
             }
 
             .us-ref-text {
-                color: $color-link-primary;
+                color: var(--workspace-accent);
                 text-decoration: line-through;
             }
 

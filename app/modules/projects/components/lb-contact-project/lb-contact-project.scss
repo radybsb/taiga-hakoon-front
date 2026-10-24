@@ -15,7 +15,7 @@
     }
     &-name {
         @include font-size(larger);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-bottom: 1rem;
     }
     &-message {

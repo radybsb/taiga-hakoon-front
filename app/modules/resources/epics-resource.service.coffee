@@ -40,6 +40,9 @@ Resource = (urlsService, http) ->
         return http.patch(url, patch)
             .then (result) -> Immutable.fromJS(result.data)
 
+    service.delete = (id) ->
+        return http.delete(urlsService.resolve('epics') + "/#{id}")
+
     service.post = (params) ->
         url = urlsService.resolve("epics")
 

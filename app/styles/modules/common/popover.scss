@@ -13,7 +13,7 @@
     button {
         appearance: none;
         background: none;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         display: flex;
         padding: .25rem;
         width: 100%;
@@ -23,7 +23,7 @@
         }
         svg {
             @include svg-size(1rem);
-            fill: $color-link-primary;
+            fill: currentColor;
             margin-inline-end: .5rem;
         }
     }

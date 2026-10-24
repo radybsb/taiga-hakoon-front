@@ -110,12 +110,12 @@
         fill: currentColor;
     }
     &[variant='icon'] {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         &:hover {
             background: none;
             color: $color-link-tertiary;
             & > tg-svg {
-                fill: $color-link-primary;
+                fill: currentColor;
             }
         }
         & > tg-svg {
@@ -134,7 +134,7 @@
 
 .btn-form {
     background: transparent;
-    color: $color-link-primary;
+    color: var(--workspace-accent);
     padding: .25rem;
     &:hover {
         background: $color-gray400;
@@ -150,13 +150,13 @@
 .btn-filter {
     @extend %button;
     background-color: $color-gray100;
-    color: $color-link-primary;
+    color: var(--workspace-accent);
     padding: .5rem .5rem;
     text-transform: none;
     &.active,
     &:hover {
         background-color: $color-gray400;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
     & tg-svg {
         margin-right: .25rem;
@@ -189,7 +189,7 @@
     }
     &:hover {
         background-color: $color-gray300;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
     }
     &[variant='blocked'] {
         &:hover {

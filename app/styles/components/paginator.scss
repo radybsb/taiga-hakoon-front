@@ -16,7 +16,7 @@
         align-items: center;
         background: $color-gray300;
         border-radius: 3px;
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         display: flex;
         justify-content: center;
         min-height: 2rem;
@@ -27,7 +27,7 @@
 
     }
     tg-svg {
-        fill: $color-link-primary;
+        fill: currentColor;
     }
     a {
         &:hover {

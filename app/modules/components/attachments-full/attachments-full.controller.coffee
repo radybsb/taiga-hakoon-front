@@ -54,7 +54,8 @@ class AttachmentsFullController
         @attachmentsFullService.loadAttachments(@.type, @.objId, @.projectId)
 
     deleteAttachment: (toDeleteAttachment) ->
-        @attachmentsPreviewService.fileId = null
+        deletedId = toDeleteAttachment.getIn(['file', 'id'])
+        deletedIndex = @.attachments.findIndex (attachment) -> attachment.getIn(['file', 'id']) == deletedId
 
         title = @translate.instant("ATTACHMENT.TITLE_LIGHTBOX_DELETE_ATTACHMENT")
         message = @translate.instant("ATTACHMENT.MSG_LIGHTBOX_DELETE_ATTACHMENT", {
@@ -68,7 +69,14 @@ class AttachmentsFullController
                     @confirm.notify("error", null, message)
                     askResponse.finish(false)
 
-                onSuccess = () => askResponse.finish()
+                onSuccess = () =>
+                    if @attachmentsPreviewService.fileId == deletedId
+                        isMedia = (attachment) ->
+                            name = attachment.getIn(['file', 'name'])
+                            return taiga.isImage(name) || taiga.isVideo(name)
+                        next = @.attachments.slice(deletedIndex).find(isMedia) || @.attachments.find(isMedia)
+                        @attachmentsPreviewService.fileId = if next then next.getIn(['file', 'id']) else null
+                    askResponse.finish()
 
                 @attachmentsFullService.deleteAttachment(toDeleteAttachment, @.type).then(onSuccess, onError)
 

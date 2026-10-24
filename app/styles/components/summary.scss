@@ -237,7 +237,7 @@ $summary-background: $grayer;
     padding: 2rem 6rem;
     svg {
         @include svg-size(4rem);
-        fill: $color-link-primary;
+        fill: currentColor;
         flex-basis: 4rem;
         flex-shrink: 0;
         margin-right: 2rem;
@@ -251,7 +251,7 @@ $summary-background: $grayer;
     .title {
         @include font-type(medium);
         @include font-size(large);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin: 0;
         text-transform: uppercase;
     }

@@ -428,7 +428,7 @@ body {
 
     .unfold-action,
     .fold-action {
-        fill: $color-link-primary;
+        fill: currentColor;
         height: 16px;
         margin-right: .75rem;
         transition: all .6 ease;
@@ -438,7 +438,7 @@ body {
     .title-name {
         @include font-size(small);
         @include font-type(medium);
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         margin-bottom: 0;
         margin-right: .75rem;
         transition: all .6 ease;
@@ -621,12 +621,12 @@ body {
         background: $color-gray400;
 
         span {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
         }
 
         .add-action {
             border-color: $color-link-primary;
-            fill: $color-link-primary;
+            fill: currentColor;
         }
     }
 }

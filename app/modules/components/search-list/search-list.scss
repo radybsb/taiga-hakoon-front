@@ -1,6 +1,6 @@
 .search-list {
     .show-closed {
-        color: $color-link-primary;
+        color: var(--workspace-accent);
         float: right;
         span {
             font-size: .9em;

@@ -1,7 +1,7 @@
 .detail-ref {
     @include font-type(bold);
     @include font-size(xlarge);
-    color: $color-link-primary;
+    color: var(--workspace-accent);
     margin-right: .5rem;
 }
 
@@ -29,7 +29,7 @@
         display: flex;
         margin: .5rem 0 0;
         a {
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             padding: 0 .2rem;
         }
         .item-ref {
@@ -48,7 +48,7 @@
 
         .relate-to-epic-button {
             align-content: flex-end;
-            color: $color-link-primary;
+            color: var(--workspace-accent);
             cursor: pointer;
             display: flex;
             .icon-epics {

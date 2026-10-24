@@ -439,7 +439,7 @@ class WysiwygService
                     @.cache[cache_key] = url
                     return url
 
-    relativePaths: (html) ->
+    relativePaths: (html, baseURL = window.location.href) ->
         el = document.createElement('html')
 
         window._extraValidHtmlElments = {input: true}
@@ -451,15 +451,15 @@ class WysiwygService
             href = link.getAttribute('href')
 
             if href && !href.startsWith('http') && !href.startsWith('/') && !link.classList.contains('mention')
-                currentHref = window.location.href.slice(
+                currentHref = baseURL.slice(
                     0,
-                    window.location.href.lastIndexOf('/') + 1
+                    baseURL.lastIndexOf('/') + 1
                 );
 
                 if !currentHref.endsWith('/')
                     currentHref = currentHref + '/'
 
-                newHref = currentHref + link.getAttribute('href')
+                newHref = if href.startsWith('#') then new URL(href, baseURL).href else currentHref + href
                 link.removeAttribute('rel')
                 link.removeAttribute('target')
 
