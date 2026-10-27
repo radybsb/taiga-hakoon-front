@@ -3816,7 +3816,8 @@ html[data-modern-workspace='issues'] .issues-table .row:not(.title) .issue-statu
     > tg-svg > svg { fill: currentColor; }
 }
 
-// Shared status menus in details and lists.
+// Shared status menus in details, lists and Taskboard story cards.
+html[data-modern-workspace='taskboard'] .taskboard-us .status-value .pop-status,
 html[data-workspace-appearance] .story-popup-body .ticket-header .pop-status,
 html[data-modern-workspace='backlog'] .backlog-table .pop-status,
 html[data-modern-workspace='issues'] .issues-table .pop-status {
