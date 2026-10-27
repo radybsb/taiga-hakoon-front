@@ -145,3 +145,8 @@
     }
 }
 
+
+.navbar .topnav-dropdown-wrapper[tg-dropdown-project-list] {
+    .navbar-dropdown { display: none; }
+    .dropdown-project-list.is-open > .navbar-dropdown { display: block; }
+}

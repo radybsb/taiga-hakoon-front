@@ -6,9 +6,17 @@
 # Copyright (c) 2021-present Kaleidos INC
 ###
 
-DropdownProjectListDirective = (rootScope, currentUserService, projectsService, projectService) ->
+DropdownProjectListDirective = (rootScope, currentUserService, projectsService, projectService, $document) ->
     link = (scope, el, attrs, ctrl) ->
-        scope.vm = {}
+        scope.vm = {menuOpen: false}
+        namespace = '.projectsMenu' + scope.$id
+        $document.on 'click' + namespace, (event) ->
+            return if el[0].contains(event.target)
+            scope.$evalAsync -> scope.vm.menuOpen = false
+        $document.on 'keydown' + namespace, (event) ->
+            return unless (event.key == 'Escape' || event.keyCode == 27) && scope.vm.menuOpen
+            scope.$evalAsync -> scope.vm.menuOpen = false
+        scope.$on '$destroy', -> $document.off(namespace)
 
         taiga.defineImmutableProperty(scope.vm, "projects", () -> currentUserService.projects.get("recents"))
 
@@ -26,7 +34,8 @@ DropdownProjectListDirective = (rootScope, currentUserService, projectsService, 
         updateLinks = ->
             el.find(".dropdown-project-list ul li a").data("fullUrl", "")
 
-        rootScope.$on("dropdown-project-list:updated", updateLinks)
+        removeUpdatedListener = rootScope.$on("dropdown-project-list:updated", updateLinks)
+        scope.$on("$destroy", removeUpdatedListener)
 
     directive = {
         templateUrl: "navigation-bar/dropdown-project-list/dropdown-project-list.html"
@@ -42,7 +51,8 @@ DropdownProjectListDirective.$inject = [
     "$rootScope",
     "tgCurrentUserService",
     "tgProjectsService",
-    "tgProjectService"
+    "tgProjectService",
+    "$document"
 ]
 
 angular.module("taigaNavigationBar").directive("tgDropdownProjectList", DropdownProjectListDirective)

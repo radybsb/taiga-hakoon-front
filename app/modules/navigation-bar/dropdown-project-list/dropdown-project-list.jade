@@ -5,11 +5,13 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-.dropdown-project-list(ng-class="{'active': active}")
-    a(
-        href=""
+.dropdown-project-list(ng-class="{'active': active, 'is-open': vm.menuOpen}" ng-mouseenter="vm.menuOpen = true" ng-mouseleave="vm.menuOpen = false")
+    button(
+        type="button"
+        ng-click="vm.menuOpen = true"
+        aria-haspopup="true"
+        ng-attr-aria-expanded="{{!!vm.menuOpen}}"
         title="{{'PROJECT.NAVIGATION.PROJECTS' | translate}}"
-        tg-nav="projects"
         class="dropdown-project-list-projects"
     )
         tg-svg(
