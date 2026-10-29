@@ -4999,3 +4999,58 @@ html[data-workspace-appearance] .lightbox-create-related-user-stories {
         }
     }
 }
+
+@media (max-width: 1199px) {
+    html[data-workspace-appearance] .navbar .topnav-dropdown-wrapper[tg-dropdown-project-list] {
+        > .dropdown-project-list:not(.is-open) > .navbar-dropdown { display: none; }
+        .navbar-dropdown .create-options a.create-project-btn {
+            align-items: center;
+            box-sizing: border-box;
+            flex: 0 0 auto;
+            gap: .375rem;
+            height: 36px;
+            justify-content: center;
+            line-height: 1.25;
+            min-height: 36px;
+            padding: .375rem .75rem;
+            width: 100%;
+            svg { height: 18px; width: 18px; }
+        }
+    }
+}
+
+.touch-drag-pending, .touch-drag-pending * {
+    -webkit-touch-callout: none;
+    user-select: none;
+}
+
+// Boards scroll vertically with the page; only the card viewport scrolls sideways.
+@media (max-width: 1199px) {
+    html[data-modern-workspace='kanban'], html[data-modern-workspace='taskboard'] {
+        body { padding-top: var(--workspace-navigation-height); }
+        [tg-navigation-bar] { inset: 0 0 auto; max-width: 100vw; position: fixed; width: 100%; z-index: 50; }
+        .master, .wrapper { height: auto; max-width: 100%; min-width: 0; }
+        .main.kanban, .main.taskboard { box-sizing: border-box; height: auto; max-height: none; max-width: 100%; min-width: 0; overflow: visible; width: 100%; }
+        .kanban-header, .taskboard-header, .summary.large-summary, .taskboard-actions { box-sizing: border-box; max-width: 100%; min-width: 0; }
+        .kanban-table-options-start, .kanban-table-options-end, .taskboard-table-options-start { max-width: 100%; min-width: 0; }
+    }
+    html[data-modern-workspace='kanban'] {
+        .kanban .kanban-header, .kanban .kanban-table-header, .kanban .kanban-swimlane-title { position: relative; top: auto; }
+        .kanban .kanban-manager, .kanban .kanban-table { height: auto; max-height: none; max-width: 100%; min-width: 0; overflow: visible; }
+        .kanban .kanban-table-header { overflow: hidden; }
+        .kanban .kanban-table-body { height: auto; max-height: none; max-width: 100%; min-width: 0; overflow-x: auto; }
+        .kanban .kanban-table-body .taskboard-column { height: auto; max-height: none; overflow-y: visible; }
+    }
+    html[data-modern-workspace='taskboard'] {
+        .taskboard-inner, .taskboard-manager, .taskboard-table { height: auto; max-height: none; max-width: 100%; min-width: 0; overflow: visible; }
+        .taskboard .taskboard-header, .taskboard .taskboard-table-header { position: relative; top: auto; }
+        .taskboard .taskboard-table-header { overflow: hidden; }
+        .taskbord-utility-wrapper { flex: 0 0 auto; height: auto; max-width: 100%; min-width: 0; overflow-x: auto; }
+        .taskboard-table-body { height: auto; max-height: none; }
+    }
+}
+
+// Dragula renders its copy outside the board's theme selectors.
+html[data-workspace-appearance] .card.gu-mirror {
+    .card-tasks, .card-tasks ul { background: var(--workspace-surface); }
+}

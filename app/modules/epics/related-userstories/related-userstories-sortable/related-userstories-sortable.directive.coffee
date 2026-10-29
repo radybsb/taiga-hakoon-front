@@ -14,7 +14,7 @@ RelatedUserstoriesSortableDirective = ($parse, projectService) ->
 
         callback = $parse(attrs.tgRelatedUserstoriesSortable)
 
-        drake = dragula([el[0]], {
+        drake = taiga.touchDragula([el[0]], {
             copySortSource: false
             copy: false
             mirrorContainer: el[0]

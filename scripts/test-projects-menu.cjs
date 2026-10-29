@@ -30,7 +30,9 @@ assert.equal(trigger[0].tagName, 'BUTTON'); assert.equal(trigger.attr('type'), '
 assert(!state.menuOpen);
 trigger.trigger('click'); root.$digest(); assert(state.menuOpen); assert.equal(trigger.attr('aria-expanded'), 'true');
 trigger.trigger('click'); root.$digest(); assert(state.menuOpen, 'Clicking an open menu must keep it open'); assert.deepEqual(navigations, []);
-element.find('.see-more-projects-btn').trigger('click'); root.$digest(); assert.deepEqual(navigations, ['projects']);
+element.find('.see-more-projects-btn').trigger('click'); root.$digest(); assert.deepEqual(navigations, ['projects']); assert(!state.menuOpen, 'Selecting View all projects closes the menu, including same-page navigation');
+trigger.trigger('click'); root.$digest(); root.$broadcast('$routeChangeStart'); root.$digest(); assert(!state.menuOpen, 'Route navigation closes the menu');
+trigger.trigger('click'); root.$digest(); element.find('.create-project-btn').first().trigger('click'); root.$digest(); assert(!state.menuOpen, 'Selecting New project closes the menu');
 w.angular.element(w.document).triggerHandler({type: 'keydown', key: 'Escape'}); root.$digest(); assert(!state.menuOpen);
 trigger.trigger('click'); root.$digest(); w.angular.element(w.document).triggerHandler({type: 'click', target: w.document.body}); root.$digest(); assert(!state.menuOpen);
 const list = element.find('.dropdown-project-list'); list.trigger('mouseenter'); root.$digest(); assert(state.menuOpen); list.trigger('mouseleave'); root.$digest(); assert(!state.menuOpen);

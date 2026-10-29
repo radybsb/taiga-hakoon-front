@@ -12,7 +12,7 @@ TasksSortableDirective = ($parse, projectService) ->
 
         callback = $parse(attrs.tgTasksSortable)
 
-        drake = dragula([el[0]], {
+        drake = taiga.touchDragula([el[0]], {
             copySortSource: false
             copy: false
             mirrorContainer: el[0]

@@ -12,7 +12,7 @@ EpicsSortableDirective = ($parse, projectService) ->
 
         callback = $parse(attrs.tgEpicsSortable)
 
-        drake = dragula([el[0]], {
+        drake = taiga.touchDragula([el[0]], {
             copySortSource: false
             copy: false
             mirrorContainer: el[0]

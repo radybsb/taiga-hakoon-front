@@ -47,7 +47,7 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
             containers = _.map $el.find('.taskboard-column'), (item) ->
                 return item
 
-            drake = dragula(containers, {
+            drake = taiga.touchDragula(containers, {
                 copySortSource: false,
                 copy: false,
                 accepts: (el, target) -> return !$(target).hasClass('taskboard-row-title-box')
@@ -114,13 +114,7 @@ TaskboardSortableDirective = ($repo, $rs, $rootscope, $translate) ->
                     $rootscope.$broadcast("taskboard:task:move", itemTask, itemTask.getIn(['model', 'status']), newUsId, newStatusId, itemIndex)
 
 
-            scroll = autoScroll([$('.taskboard-table-body')[0]], {
-                margin: 100,
-                pixels: 30,
-                scrollWhenOutside: true,
-                autoScroll: () ->
-                    return this.down && drake.dragging
-            })
+            scroll = taiga.boardAutoScroll(drake, $el[0])
 
             $scope.$on "$destroy", ->
                 $el.off()

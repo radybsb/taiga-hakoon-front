@@ -16,7 +16,13 @@ DropdownProjectListDirective = (rootScope, currentUserService, projectsService, 
         $document.on 'keydown' + namespace, (event) ->
             return unless (event.key == 'Escape' || event.keyCode == 27) && scope.vm.menuOpen
             scope.$evalAsync -> scope.vm.menuOpen = false
-        scope.$on '$destroy', -> $document.off(namespace)
+        closeMenu = -> scope.$evalAsync -> scope.vm.menuOpen = false
+        el.on 'click' + namespace, '.navbar-dropdown a', closeMenu
+        removeRouteListener = rootScope.$on('$routeChangeStart', closeMenu)
+        scope.$on '$destroy', ->
+            el.off(namespace)
+            $document.off(namespace)
+            removeRouteListener()
 
         taiga.defineImmutableProperty(scope.vm, "projects", () -> currentUserService.projects.get("recents"))
 

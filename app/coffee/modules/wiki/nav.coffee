@@ -55,7 +55,7 @@ WikiNavDirective = ($tgrepo, $log, $location, $confirm, $analytics, $loading, $t
                 itemEl = null
                 tdom = $el.find(".sortable")
 
-                drake = dragula([tdom[0]], {
+                drake = taiga.touchDragula([tdom[0]], {
                     direction: 'vertical',
                     copySortSource: false,
                     copy: false,

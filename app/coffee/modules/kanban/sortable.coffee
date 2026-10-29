@@ -53,7 +53,7 @@ KanbanSortableDirective = ($repo, $rs, $rootscope, kanbanUserstoriesService) ->
                 itemEl.off()
                 itemEl.remove()
 
-            drake = dragula(containers, {
+            drake = taiga.touchDragula(containers, {
                 copySortSource: false,
                 copy: false,
                 moves: (item) ->
@@ -146,12 +146,7 @@ KanbanSortableDirective = ($repo, $rs, $rootscope, kanbanUserstoriesService) ->
 
                     $rootscope.$broadcast("kanban:us:move", finalUsList, newStatus, newSwimlane, index, previousCard, nextCard)
 
-            scroll = autoScroll(containers, {
-                margin: 100,
-                scrollWhenOutside: true,
-                autoScroll: () ->
-                    return this.down && drake.dragging
-            })
+            scroll = taiga.boardAutoScroll(drake, $el[0])
 
         unwatch = $scope.$watch "isTableLoaded", (tableLoaded) ->
             return if !tableLoaded

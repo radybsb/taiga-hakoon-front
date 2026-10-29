@@ -36,7 +36,7 @@ BacklogSortableDirective = () ->
             nextUs = null
             oldIndex = null
 
-            drake = dragula([$el[0], emptyBacklog[0], emptyBacklog[1]], {
+            drake = taiga.touchDragula([$el[0], emptyBacklog[0], emptyBacklog[1]], {
                 copySortSource: false,
                 copy: false,
                 isContainer: (el) -> return el.classList.contains('sprint-table'),
