@@ -6,9 +6,10 @@
 # Copyright (c) 2021-present Kaleidos INC
 ###
 
-NavigationBarDirective = (currentUserService, navigationBarService, locationService, navUrlsService, config, feedbackService) ->
+NavigationBarDirective = (currentUserService, navigationBarService, locationService, navUrlsService, config, feedbackService, projectService, projectNavigation) ->
     link = (scope, el, attrs, ctrl) ->
-        scope.vm = {}
+        scope.vm = {projectNavigation: projectNavigation}
+        taiga.defineImmutableProperty(scope.vm, "hasProject", () -> !!projectService.project)
 
         taiga.defineImmutableProperty(scope.vm, "projects", () -> currentUserService.projects.get("recents"))
         taiga.defineImmutableProperty(scope.vm, "isAuthenticated", () -> currentUserService.isAuthenticated())
@@ -85,7 +86,9 @@ NavigationBarDirective.$inject = [
     "$tgLocation",
     "$tgNavUrls",
     "$tgConfig",
-    "tgFeedbackService"
+    "tgFeedbackService",
+    "tgProjectService",
+    "tgProjectNavigationState"
 ]
 
 angular.module("taigaNavigationBar").directive("tgNavigationBar", NavigationBarDirective)

@@ -8,6 +8,10 @@ BackgroundDirective = ($window, $document, $http, $config, $currentUser) ->
         boardType = if board.classList.contains('issue-main') then 'issues' else ['kanban', 'taskboard', 'backlog', 'epics'].find((name) -> board.classList.contains(name))
         content = board
         board = board.closest('main.scrum') || board if boardType == 'backlog'
+        # Credits belong to the board's background layer, outside the header controls.
+        creditLayer = el[0].querySelector('.board-photo-credit-layer')
+        board.classList.add('board-background-surface')
+        board.appendChild(creditLayer)
         key = null
         alive = true
         requestId = 0
@@ -125,6 +129,8 @@ BackgroundDirective = ($window, $document, $http, $config, $currentUser) ->
         $document[0].addEventListener('keydown', escape)
         scope.$on '$destroy', ->
             alive = false
+            creditLayer.remove()
+            board.classList.remove('board-background-surface')
             input.removeEventListener('change', changed)
             $document[0].removeEventListener('pointerdown', outside)
             $document[0].removeEventListener('keydown', escape)

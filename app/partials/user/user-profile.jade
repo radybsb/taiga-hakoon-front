@@ -96,7 +96,7 @@ div.wrapper(tg-modern-workspace="user-settings"
 
                 fieldset
                     label(for="lang", translate="USER_PROFILE.FIELD.LANGUAGE")
-                    select(
+                    select(tg-preset-select,
                         name="lang"
                         id="lang"
                         ng-model="lang"
@@ -106,7 +106,7 @@ div.wrapper(tg-modern-workspace="user-settings"
 
                 fieldset
                     label(for="theme", translate="USER_PROFILE.FIELD.THEME")
-                    select(
+                    select(tg-preset-select,
                         name="theme"
                         id="theme"
                         ng-model="theme"

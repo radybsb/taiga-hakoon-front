@@ -327,9 +327,9 @@ module.directive("tgMembershipsRowAdminCheckbox", ["$log", "$tgRepo", "$tgConfir
 ## Member RoleSelector Directive
 #############################################################################
 
-MembershipsRowRoleSelectorDirective = ($log, $repo, $confirm) ->
+MembershipsRowRoleSelectorDirective = ($log, $repo, $confirm, $compile) ->
     template = _.template("""
-    <select>
+    <select tg-preset-select aria-label="{{'ADMIN.MEMBERSHIP.COLUMN_ROLE' | translate}}">
         <% _.each(roleList, function(role) { %>
         <option value="<%- role.id %>" <% if(selectedRole === role.id){ %>selected="selected"<% } %>>
             <%- role.name %>
@@ -347,6 +347,7 @@ MembershipsRowRoleSelectorDirective = ($log, $repo, $confirm) ->
 
             html = template(ctx)
             $el.html(html)
+            $compile($el.contents())($scope)
 
         if not $attrs.tgMembershipsRowRoleSelector?
             return $log.error "MembershipsRowRoleSelectorDirective: the directive need a member"
@@ -375,7 +376,7 @@ MembershipsRowRoleSelectorDirective = ($log, $repo, $confirm) ->
     return {link: link}
 
 
-module.directive("tgMembershipsRowRoleSelector", ["$log", "$tgRepo", "$tgConfirm",
+module.directive("tgMembershipsRowRoleSelector", ["$log", "$tgRepo", "$tgConfirm", "$compile",
                                                   MembershipsRowRoleSelectorDirective])
 
 

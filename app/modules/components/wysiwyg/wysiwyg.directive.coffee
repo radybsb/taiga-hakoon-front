@@ -304,6 +304,9 @@ Wysiwyg = ($translate, $confirm, $storage, wysiwygService, animationFrame, tgLoa
             localSave($scope.markdown)
 
             $scope.onChange({markdown: $scope.markdown})
+            # Custom editor events and trailing throttle calls run outside Angular.
+            # Refresh required/disabled bindings without delaying the synchronous save flush.
+            $scope.$evalAsync(angular.noop)
 
         throttleChange = _.throttle(change, 200)
 

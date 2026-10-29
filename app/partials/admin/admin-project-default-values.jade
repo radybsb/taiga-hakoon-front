@@ -11,11 +11,9 @@ div.wrapper(tg-modern-workspace="settings" tg-project-default-values, ng-control
             ng-init="section='admin'; sectionName='ADMIN.PROJECT_PRESETS.TITLE'")
     tg-project-menu
 
-    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-navigation="project-profile")
+    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-subsection="default-values", tg-admin-navigation="project-profile")
         include ../includes/modules/admin-menu
 
-    sidebar.menu-tertiary.sidebar(tg-admin-navigation="default-values")
-        include ../includes/modules/admin-submenu-project-profile
 
     section.main.admin-common
         header

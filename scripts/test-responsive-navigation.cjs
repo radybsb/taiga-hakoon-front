@@ -1,0 +1,27 @@
+const fs=require('fs'), path=require('path'), assert=require('assert'), coffee=require('coffeescript'), {JSDOM}=require('jsdom');
+process.chdir(path.resolve(__dirname,'..'));
+const w=new JSDOM('<body><button class="project-navigation-toggle">Menu</button></body>',{runScripts:'outside-only',url:'http://localhost/'}).window;
+w.eval(fs.readFileSync('node_modules/jquery/dist/jquery.js','utf8'));w.eval(fs.readFileSync('node_modules/angular/angular.js','utf8'));w.eval(fs.readFileSync('node_modules/angular-mocks/angular-mocks.js','utf8'));
+let resize; const desktop={matches:false,addEventListener:(type,fn)=>resize=fn,removeEventListener(){}};w.matchMedia=()=>desktop;
+w.angular.module('taigaComponents',[]);w.angular.module('taigaNavigationBar',[]);
+for(const f of ['app/modules/components/project-menu/project-menu.directive.coffee','app/modules/navigation-bar/navigation-dropdown.directive.coffee'])w.eval(coffee.compile(fs.readFileSync(f,'utf8')));
+const injector=w.angular.injector(['ng','ngMock','taigaComponents','taigaNavigationBar']),root=injector.get('$rootScope'),state=injector.get('tgProjectNavigationState');
+state.toggle();assert(state.open&&w.document.body.classList.contains('project-navigation-open'));
+w.angular.element(w.document).triggerHandler({type:'keydown',key:'Escape',preventDefault(){}});root.$digest();assert(!state.open&&!w.document.body.classList.contains('project-navigation-open'));
+state.toggle();root.$broadcast('$routeChangeStart');assert(!state.open,'Close after page navigation');
+state.toggle();root.$broadcast('lightbox:opened');assert(!state.open,'Close when a modal opens');
+state.toggle();desktop.matches=true;resize();root.$digest();assert(!state.open,'Returning to desktop clears the drawer');
+const scope=root.$new();const el=injector.get('$compile')('<div tg-navigation-dropdown=".trigger"><button class="trigger">Account</button><div class="navbar-dropdown">Menu</div></div>')(scope);w.document.body.append(el[0]);root.$digest();
+const button=el.find('button');el.trigger('mouseenter');button.trigger('click');assert(el.hasClass('navigation-menu-open'),'Touch/mouse click must not undo hover opening');assert.equal(button.attr('aria-expanded'),'true');
+w.angular.element(w.document).triggerHandler({type:'keydown',key:'Escape'});assert(!el.hasClass('navigation-menu-open'));assert.equal(button.attr('aria-expanded'),'false');
+button.trigger('click');w.angular.element(w.document).triggerHandler({type:'click',target:w.document.body});assert(!el.hasClass('navigation-menu-open'));
+button.trigger('click');root.$broadcast('$routeChangeStart');assert(!el.hasClass('navigation-menu-open'));
+const timeout=injector.get('$timeout');timeout.flush(0);
+el.trigger('mouseenter');el.trigger('mouseleave');assert(el.hasClass('navigation-menu-open'),'Crossing the gap must not immediately close the menu');
+el.trigger('mouseenter');timeout.verifyNoPendingTasks();assert(el.hasClass('navigation-menu-open'),'Entering the menu cancels hover dismissal');
+el.trigger('mouseleave');timeout.flush(300);assert(!el.hasClass('navigation-menu-open'),'Hover-only menus close after leaving');
+button.trigger('click');el.trigger('mouseleave');timeout.verifyNoPendingTasks();assert(el.hasClass('navigation-menu-open'),'A clicked menu stays open when the pointer leaves');
+w.angular.element(w.document).triggerHandler({type:'keydown',key:'Escape'});assert(!el.hasClass('navigation-menu-open'));
+
+scope.$destroy();root.$destroy();w.close();
+console.log('PASS: drawer open/close, Escape, routing, modal opening, desktop resize, touch/hover menu interaction and listener cleanup.');

@@ -5,8 +5,19 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-section.admin-menu
-    nav
+section.admin-menu(ng-class="{'user-settings-menu-open': userSettingsNavigation.open}")
+    header.user-settings-menu-header
+        button.user-settings-menu-toggle(
+            type="button"
+            ng-click="userSettingsNavigation.open = !userSettingsNavigation.open"
+            ng-attr-aria-expanded="{{userSettingsNavigation.open}}"
+            aria-controls="user-settings-navigation-items"
+            ng-attr-aria-label="{{userSettingsNavigation.open ? 'Close user settings menu' : 'Open user settings menu'}}"
+        )
+            tg-svg(svg-icon="icon-list", ng-if="!userSettingsNavigation.open")
+            tg-svg(svg-icon="icon-close", ng-if="userSettingsNavigation.open")
+            span(translate="USER_SETTINGS.MENU.SECTION_TITLE")
+    nav#user-settings-navigation-items
         ul
             li#usersettingsmenu-user-profile
                 a(href="", tg-nav="user-settings-user-profile", title="{{ 'USER_SETTINGS.MENU.SECTION_TITLE' | translate }}")

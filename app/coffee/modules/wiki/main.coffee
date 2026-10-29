@@ -218,6 +218,8 @@ WikiSummaryDirective = ($log, $template, $compile, $translate, avatarService) ->
             ctx = {
                 totalEditions: wiki.editions
                 lastModifiedDate: moment(wiki.modified_date).format($translate.instant("WIKI.DATETIME"))
+                lastModifiedDay: moment(wiki.modified_date).format($translate.instant("COMMON.DATE"))
+                lastModifiedTime: moment(wiki.modified_date).format("HH:mm")
                 user: user
             }
             html = template(ctx)

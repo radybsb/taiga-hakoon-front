@@ -9,8 +9,17 @@ section.team-filters
     div.team-filters-inner
         header
             h1(translate="BACKLOG.FILTERS.TITLE")
+            button.team-sidebar-toggle(
+                type="button"
+                ng-click="ctrl.teamFiltersCollapsed = !ctrl.teamFiltersCollapsed"
+                ng-attr-aria-expanded="{{!ctrl.teamFiltersCollapsed}}"
+                aria-controls="team-filter-search team-filter-roles"
+                ng-attr-aria-label="{{ctrl.teamFiltersCollapsed ? 'Expand team filters' : 'Collapse team filters'}}"
+                ng-attr-title="{{ctrl.teamFiltersCollapsed ? 'Expand team filters' : 'Collapse team filters'}}"
+            )
+                tg-svg(svg-icon="icon-arrow-down" ng-class="{'is-expanded': !ctrl.teamFiltersCollapsed}")
 
-        form.search-in
+        form.search-in#team-filter-search
             fieldset
                 input(type="text", placeholder="{{'TEAM.PLACEHOLDER_INPUT_SEARCH' | translate}}", ng-model="filtersQ")
                 .icon-search-wrapper
@@ -19,4 +28,4 @@ section.team-filters
                         title="{{'COMMON.FILTERS.TITLE_ACTION_FILTER_BUTTON' | translate}}"
                     )
 
-        nav(tg-team-filters)
+        nav#team-filter-roles(tg-team-filters)

@@ -7,13 +7,15 @@
 ###
 
 DropdownUserDirective = (authService, configService, locationService,
-        navUrlsService, $rootScope) ->
+        navUrlsService, $rootScope, feedbackService) ->
 
     link = (scope, el, attrs, ctrl) ->
         scope.vm = {}
         scope.vm.isFeedbackEnabled = configService.get("feedbackEnabled")
         scope.vm.customSupportUrl = configService.get("supportUrl")
         taiga.defineImmutableProperty(scope.vm, "user", () -> authService.userData)
+
+        scope.vm.sendFeedback = -> feedbackService.sendFeedback()
 
         scope.vm.logout = ->
             authService.logout()
@@ -35,7 +37,8 @@ DropdownUserDirective.$inject = [
     "$tgConfig",
     "$tgLocation",
     "$tgNavUrls",
-    "$rootScope"
+    "$rootScope",
+    "tgFeedbackService"
 ]
 
 angular.module("taigaNavigationBar").directive("tgDropdownUser", DropdownUserDirective)

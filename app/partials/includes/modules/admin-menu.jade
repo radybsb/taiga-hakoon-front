@@ -5,24 +5,49 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-section.admin-menu
-    nav
+section.admin-menu(ng-class="{'is-collapsed': settingsNavigation.collapsed}")
+    header.settings-nav-header
+        h2(translate="PROJECT.SECTION.SETTINGS")
+        button.settings-nav-toggle(
+            type="button"
+            ng-click="settingsNavigation.collapsed = !settingsNavigation.collapsed"
+            ng-attr-aria-expanded="{{!settingsNavigation.collapsed}}"
+            aria-controls="settings-navigation-items"
+            ng-attr-aria-label="{{settingsNavigation.collapsed ? 'Expand settings menu' : 'Collapse settings menu'}}"
+            ng-attr-title="{{settingsNavigation.collapsed ? 'Expand settings menu' : 'Collapse settings menu'}}"
+        )
+            tg-svg(svg-icon="icon-arrow-down", ng-class="{'is-expanded': !settingsNavigation.collapsed}")
+    nav#settings-navigation-items
         ul
             li#adminmenu-project-profile
-                a(href="", tg-nav="project-admin-project-profile-details:project=project.slug")
+                button.settings-group-toggle(type="button", ng-click="settingsNavigation.open = settingsNavigation.open === 'project-profile' ? null : 'project-profile'", aria-expanded="{{settingsNavigation.open === 'project-profile'}}", aria-controls="settings-submenu-project-profile")
                     span.title(translate="ADMIN.MENU.PROJECT")
+                    tg-svg(svg-icon="icon-arrow-down")
+                div.settings-nested-menu(id="settings-submenu-project-profile", ng-show="settingsNavigation.open === 'project-profile'")
+                    include admin-submenu-project-profile
             li#adminmenu-project-values(ng-if="!project.archived_code")
-                a(href="", tg-nav="project-admin-project-values-status:project=project.slug")
+                button.settings-group-toggle(type="button", ng-click="settingsNavigation.open = settingsNavigation.open === 'project-values' ? null : 'project-values'", aria-expanded="{{settingsNavigation.open === 'project-values'}}", aria-controls="settings-submenu-project-values")
                     span.title(translate="ADMIN.MENU.ATTRIBUTES")
+                    tg-svg(svg-icon="icon-arrow-down")
+                div.settings-nested-menu(id="settings-submenu-project-values", ng-show="settingsNavigation.open === 'project-values'")
+                    include admin-submenu-project-values
             li#adminmenu-memberships
                 a(href="" tg-nav="project-admin-memberships:project=project.slug")
                     span.title(translate="ADMIN.MENU.MEMBERS")
             li#adminmenu-roles(ng-if="!project.archived_code")
-                a(href="" tg-nav="project-admin-roles:project=project.slug")
+                a(ng-if="settingsNavigation.section !== 'roles'", href="", tg-nav="project-admin-roles:project=project.slug")
                     span.title(translate="ADMIN.MENU.PERMISSIONS")
+                button.settings-group-toggle(ng-if="settingsNavigation.section === 'roles'", type="button", ng-click="settingsNavigation.open = settingsNavigation.open === 'roles' ? null : 'roles'", aria-expanded="{{settingsNavigation.open === 'roles'}}", aria-controls="settings-submenu-roles")
+                    span.title(translate="ADMIN.MENU.PERMISSIONS")
+                    tg-svg(svg-icon="icon-arrow-down")
+                .settings-nested-menu#settings-submenu-roles(ng-if="settingsNavigation.section === 'roles'", ng-show="settingsNavigation.open === 'roles'")
+                    include admin-submenu-roles
             li#adminmenu-third-parties(ng-if="!project.archived_code")
-                a(href="" tg-nav="project-admin-third-parties-webhooks:project=project.slug")
+                button.settings-group-toggle(type="button", ng-click="settingsNavigation.open = settingsNavigation.open === 'third-parties' ? null : 'third-parties'", aria-expanded="{{settingsNavigation.open === 'third-parties'}}", aria-controls="settings-submenu-third-parties")
                     span.title(translate="ADMIN.MENU.INTEGRATIONS")
+                    tg-svg(svg-icon="icon-arrow-down")
+                div.settings-nested-menu(id="settings-submenu-third-parties", ng-show="settingsNavigation.open === 'third-parties'")
+                    include admin-submenu-third-parties
             li#adminmenu-contrib(ng-if="adminPlugins.length > 0")
                 a(href="" tg-nav="project-admin-contrib:project=project.slug,plugin=adminPlugins[0].slug")
                     span.title(translate="COMMON.PLUGINS")

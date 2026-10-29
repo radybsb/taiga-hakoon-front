@@ -144,9 +144,21 @@ section.issues-table.basic-table(ng-class="{empty: !ctrl.issues.length}")
         ng-repeat="issue in ctrl.issues track by issue.id"
         ng-class="{'is-blocked': issue.is_blocked}"
     )
-        div.level-field(tg-listitem-type="issue")
-        div.level-field(tg-listitem-severity="issue")
-        div.level-field(tg-listitem-priority="issue")
+        div.level-field(
+            tg-listitem-type="issue"
+            ng-attr-data-field-label="{{'COMMON.FIELDS.TYPE' | translate}}"
+            ng-attr-data-field-value="{{issueTypeById[issue.type].name}}"
+        )
+        div.level-field(
+            tg-listitem-severity="issue"
+            ng-attr-data-field-label="{{'COMMON.FIELDS.SEVERITY' | translate}}"
+            ng-attr-data-field-value="{{severityById[issue.severity].name}}"
+        )
+        div.level-field(
+            tg-listitem-priority="issue"
+            ng-attr-data-field-label="{{'COMMON.FIELDS.PRIORITY' | translate}}"
+            ng-attr-data-field-value="{{priorityById[issue.priority].name}}"
+        )
         div.votes-field(ng-if="!ctrl.sprintIssues")
             tg-svg(svg-icon="icon-upvote")
             span {{ issue.total_voters || 0 }}

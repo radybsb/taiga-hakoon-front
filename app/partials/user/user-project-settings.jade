@@ -33,7 +33,8 @@ div.wrapper(tg-modern-workspace="user-settings"
                     .project-settings-table-project
                         span {{ projectSettings.project_name }}
                     .project-settings-table-homepage
-                        select(
+                        select(tg-preset-select,
+                            aria-label="{{'USER_SETTINGS.PROJECT_SETTINGS.COLUMN_STARTPAGE' | translate}}: {{projectSettings.project_name}}"
                             id="projects-settings-{{projectSettings.id}}-homepage-dropdown"
                             ng-model="projectSettings.homepage"
                             ng-options="section.id as section.title for section in ctrl.filteredSections(projectSettings)"

@@ -9,11 +9,15 @@
 AdminNavigationDirective = ->
     link = ($scope, $el, $attrs) ->
         section = $attrs.tgAdminNavigation
-        # Permission-dependent entries may be inserted by ng-if after linking.
+        $scope.settingsNavigation = {section: section, open: section, collapsed: false}
+        # ng-if can insert navigation entries after this directive links.
         $scope.$watch (-> $el.find("#adminmenu-#{section}")[0]), (item) ->
             return unless item
-            $el.find(".active").removeClass("active")
             angular.element(item).addClass("active")
+        subsection = $attrs.tgAdminSubsection
+        if subsection
+            $scope.$watch (-> $el.find("#adminmenu-#{subsection}")[0]), (item) ->
+                angular.element(item).addClass("active") if item
 
         $scope.$on "$destroy", ->
             $el.off()

@@ -46,12 +46,12 @@
     a.task-status(
         href=""
         title="{{'TASK.TITLE_SELECT_STATUS' | translate}}"
-        ng-style="{'color': task.status_extra_info.color}"
     )
-        span.task-status-bind
-        <% if(perms.modify_task) { %>
-        tg-svg(svg-icon="icon-arrow-down", ng-style="{'fill': task.status_extra_info.color}")
-        <% } %>
+        span.related-task-status-label
+            span.task-status-bind
+            <% if(perms.modify_task) { %>
+            tg-svg(svg-icon="icon-arrow-down")
+            <% } %>
 
 .assigned-to(
     tg-related-task-assigned-to-inline-edition="task"

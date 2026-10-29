@@ -30,33 +30,36 @@
                     tabindex="0"
                 )
     .user-stories.user-story-main-data
-        a.user-story-link(
-            href=""
-            tg-nav="project-userstories-detail:project=project.slug,ref=us.ref"
-            tg-detail-popup-link
-            tg-nav-get-params="{{ ctrl.getLinkParams() }}"
-        )
-            span.user-story-number(tg-bo-ref="us.ref")
-            span.user-story-name(ng-bind-html="us.subject | emojify")
-        tg-due-date.due-date(
-            due-date="us.due_date"
-            is-closed="us.is_closed"
-            ng-if="us.due_date"
-            obj-type="us"
-        )
-        .tag(
-            ng-if="ctrl.showTags"
-            ng-attr-title="{{tag[0]}}"
-            ng-repeat="tag in us.tags"
-            ng-style="{background: tag[1]}"
-            ng-class="{'last':$last}"
-        ) {{tag[0]}}
-        - var hash = "#";
-        .belong-to-epic-pill(
-            ng-repeat="epic in us.epics"
-            ng-style="{'background': epic.color}"
-            ng-attr-title="#{hash}{{epic.ref}} {{epic.subject}}"
-        )
+        .user-story-heading
+            a.user-story-link(
+                href=""
+                tg-nav="project-userstories-detail:project=project.slug,ref=us.ref"
+                tg-detail-popup-link
+                tg-nav-get-params="{{ ctrl.getLinkParams() }}"
+            )
+                span.user-story-number(tg-bo-ref="us.ref")
+                span.user-story-name.user-story-name-full(ng-bind-html="us.subject | emojify")
+                span.user-story-name.user-story-name-compact(ng-bind-html="(us.subject.length > 35 ? (us.subject | limitTo:32) + '...' : us.subject) | emojify")
+            tg-due-date.due-date(
+                due-date="us.due_date"
+                is-closed="us.is_closed"
+                ng-if="us.due_date"
+                obj-type="us"
+            )
+            .tag(
+                ng-if="ctrl.showTags"
+                ng-attr-title="{{tag[0]}}"
+                ng-repeat="tag in us.tags"
+                ng-style="{background: tag[1]}"
+                ng-class="{'last':$last}"
+            ) {{tag[0]}}
+        .user-story-epics
+            - var hash = "#";
+            .belong-to-epic-pill(
+                ng-repeat="epic in us.epics"
+                ng-style="{'background': epic.color}"
+                ng-attr-title="#{hash}{{epic.ref}} {{epic.subject}}"
+            )
 
     .status(tg-us-status="us" on-update="ctrl.updateUserStoryStatus()")
         a.us-status(href="", title="{{'BACKLOG.STATUS_NAME' | translate}}")

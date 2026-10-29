@@ -40,6 +40,13 @@ vm.show('photos'); parent.$digest(); assert.equal(vm.photos.length,1);
 vm.choosePhoto(vm.photos[0]); parent.$digest();
 assert.deepEqual(JSON.parse(JSON.stringify(tracked.data)),{id:'one',token:'signed'});
 assert.equal(vm.current.kind,'photo');
+const surface = boardType === 'backlog' ? w.document.querySelector('main.scrum') : w.document.querySelector(`.${boardType === 'issues' ? 'issue-main' : boardType}`);
+const creditLayer = surface.querySelector('.board-photo-credit-layer');
+assert.equal(creditLayer.parentElement, surface, 'Credits must escape the header controls stacking context');
+assert.equal(el[0].querySelector('.board-photo-credit'), null);
+assert.ok(surface.classList.contains('board-background-surface'));
+assert.match(creditLayer.textContent, /Photo by Test on Unsplash/);
+
 if (boardType === 'backlog') assert.match(w.document.querySelector('main.scrum').style.backgroundImage, /images.unsplash.com/);
 vm.open = true;
 w.document.body.dispatchEvent(new w.Event('pointerdown',{bubbles:true})); parent.$digest();
@@ -48,6 +55,8 @@ vm.reset(); assert.equal(vm.current,null);
 if (boardType === 'backlog') assert.equal(w.document.querySelector('main.scrum').style.backgroundImage, '');
 assert.equal(w.localStorage.getItem(`taiga.${boardType}.background.9.1`),null);
 parent.$destroy();
+assert.equal(surface.querySelector('.board-photo-credit-layer'), null, 'Remove the detached credit layer on destruction');
+assert.equal(surface.classList.contains('board-background-surface'), false);
 console.log(`PASS ${boardType}: gradients, per-project persistence, photo tracking, outside dismissal and reset`);
 
 }

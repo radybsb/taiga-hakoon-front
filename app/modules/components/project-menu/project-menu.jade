@@ -5,9 +5,12 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-.sticky-project-menu(ng-if="vm.project" ng-class="{'mobile-menu-open': mobileMenuOpen}")
-    button.mobile-project-menu-toggle(type="button" ng-click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle project navigation" ng-attr-aria-expanded="{{!!mobileMenuOpen}}")
-        tg-svg(svg-icon="icon-list")
+button.project-navigation-backdrop(type="button" ng-if="vm.project && navigation.open" ng-click="navigation.close(true)" aria-label="Close project navigation" tabindex="-1")
+.sticky-project-menu(ng-if="vm.project" ng-class="{'mobile-menu-open': navigation.open}" id="project-navigation")
+    .project-navigation-drawer-header
+        span Project navigation
+        button(type="button" ng-click="navigation.close(true)" aria-label="Close project navigation")
+            tg-svg(svg-icon="icon-close")
     tg-legacy-loader(
         ng-class="{'menu-fixed': vm.fixed}",
         tg-load-element="vm.projectMenu"

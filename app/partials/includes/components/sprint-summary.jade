@@ -5,8 +5,18 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-div.summary.large-summary
-    div.large-summary-wrapper
+div.summary.large-summary(ng-class="{'is-collapsed': ctrl.summaryCollapsed}")
+    span.taskboard-summary-collapsed-title(ng-if="ctrl.summaryCollapsed") Sprint summary
+    button.taskboard-summary-toggle(
+        type="button"
+        ng-click="ctrl.summaryCollapsed = !ctrl.summaryCollapsed"
+        ng-attr-aria-expanded="{{!ctrl.summaryCollapsed}}"
+        aria-controls="taskboard-summary-content"
+        ng-attr-aria-label="{{ctrl.summaryCollapsed ? 'Expand sprint summary' : 'Collapse sprint summary'}}"
+        ng-attr-title="{{ctrl.summaryCollapsed ? 'Expand sprint summary' : 'Collapse sprint summary'}}"
+    )
+        tg-svg(svg-icon="icon-arrow-down" ng-class="{'is-expanded': !ctrl.summaryCollapsed}")
+    div.large-summary-wrapper#taskboard-summary-content
         .summary-progress-wrapper
             div.summary-progress-bar(tg-progress-bar="stats.completedPercentage")
             div.data

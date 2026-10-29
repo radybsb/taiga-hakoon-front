@@ -116,12 +116,12 @@ RelatedTaskStatusDirective = ($repo, $template) ->
     selectionTemplate = $template.get("common/popover/popover-related-task-status.html", true)
 
     updateTaskStatus = ($el, task, taskStatusById) ->
-        taskStatusDomParent = $el.find(".us-status")
+        taskStatusDomParent = $el.find(".related-task-status-label")
         taskStatusDom = $el.find(".task-status .task-status-bind")
 
         if taskStatusById[task.status]
             taskStatusDom.text(taskStatusById[task.status].name)
-            taskStatusDomParent.css('color', taskStatusById[task.status].color)
+            taskStatusDomParent.css('background-color', taskStatusById[task.status].color)
 
     link = ($scope, $el, $attrs) ->
         $ctrl = $el.controller()

@@ -13,10 +13,8 @@ div.wrapper.roles(tg-modern-workspace="settings"
     ng-init="section='admin'"
 )
     tg-project-menu
-    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-navigation="third-parties")
+    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-subsection="third-parties-github", tg-admin-navigation="third-parties")
         include ../includes/modules/admin-menu
-    sidebar.menu-tertiary.sidebar(tg-admin-navigation="third-parties-github")
-        include ../includes/modules/admin-submenu-third-parties
 
     section.main.admin-common.admin-third-parties
         include ../includes/components/mainTitle

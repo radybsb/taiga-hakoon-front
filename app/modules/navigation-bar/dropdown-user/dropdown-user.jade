@@ -5,7 +5,7 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-.dropdown-user-inner
+.dropdown-user-inner(tg-navigation-dropdown=".chevron, .mobile-account-toggle")
     .dropdown-user-navbar
         a.user-avatar(
             tg-nav="profile"
@@ -16,7 +16,10 @@
                 alt="{{ vm.user.get('full_name_display') }}"
             )
 
-        button.chevron(type="button" aria-label="Account menu")
+        button.mobile-account-toggle(type="button" aria-label="Account menu" aria-haspopup="true" aria-expanded="false")
+            img(tg-avatar="vm.user" alt="")
+
+        button.chevron(type="button" aria-label="Account menu" aria-haspopup="true" aria-expanded="false")
             tg-svg(svg-icon="icon-chevron-down")
 
     div.navbar-dropdown.dropdown-user
@@ -43,6 +46,13 @@
                         translate="PROJECT.NAVIGATION.EDIT_PROFILE")
 
         ul
+            li.mobile-home-link
+                a.secondary(href="#" tg-nav="home") Home
+            li.mobile-support-link(ng-if="vm.customSupportUrl")
+                a.secondary(ng-href="{{vm.customSupportUrl}}" target="_blank" rel="noopener noreferrer") Help
+            li.mobile-support-link(ng-if="vm.isFeedbackEnabled")
+                a.secondary(href="#" ng-click="vm.sendFeedback()" translate="PROJECT.NAVIGATION.FEEDBACK")
+
             li.plugin(ng-repeat="plugin in vm.userSettingsPlugins")
                 a.secondary(
                     href=""

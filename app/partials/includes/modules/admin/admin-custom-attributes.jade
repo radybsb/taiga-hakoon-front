@@ -30,7 +30,7 @@ section.custom-fields-table.basic-table
                 form.js-form(tg-bind-scope)
                     div.row.single-custom-field.js-view-custom-field
                         tg-svg.e2e-drag(svg-icon="icon-draggable")
-                        div.custom-name
+                        div.custom-name(ng-attr-data-field-label="{{'COMMON.FIELDS.NAME' | translate}}")
                             span {{ attr.name }}
                             a(
                                 href=""
@@ -45,8 +45,8 @@ section.custom-fields-table.basic-table
                                     ng-if="isExtraVisible[attr.id]"
                                     svg-icon="icon-arrow-down"
                                 )
-                        div.custom-description {{ attr.description }}
-                        div.custom-field-type(ng-switch on="attr.type")
+                        div.custom-description(ng-attr-data-field-label="{{'COMMON.FIELDS.DESCRIPTION' | translate}}") {{ attr.description }}
+                        div.custom-field-type(ng-attr-data-field-label="{{'COMMON.FIELDS.TYPE' | translate}}", ng-switch on="attr.type")
                             span(
                                 ng-switch-default
                                 translate="ADMIN.CUSTOM_FIELDS.FIELD_TYPE_TEXT"
@@ -94,7 +94,7 @@ section.custom-fields-table.basic-table
                                     tg-svg(svg-icon="icon-trash")
                     .js-edit-custom-field.hidden
                         div.row.single-custom-field
-                            fieldset.custom-name
+                            fieldset.custom-name(ng-attr-data-field-label="{{'COMMON.FIELDS.NAME' | translate}}")
                                 input(
                                     type="text"
                                     name="name"
@@ -103,15 +103,15 @@ section.custom-fields-table.basic-table
                                     data-required="true"
                                     data-maxlength="64"
                                 )
-                            fieldset.custom-description
+                            fieldset.custom-description(ng-attr-data-field-label="{{'COMMON.FIELDS.DESCRIPTION' | translate}}")
                                 input(
                                     type="text"
                                     name="description"
                                     placeholder="{{'ADMIN.CUSTOM_ATTRIBUTES.SET_FIELD_DESCRIPTION' | translate}}"
                                     ng-model="attr.description"
                                 )
-                            fieldset.custom-field-type
-                                select(
+                            fieldset.custom-field-type(ng-attr-data-field-label="{{'COMMON.FIELDS.TYPE' | translate}}")
+                                select(tg-preset-select, aria-label="{{'COMMON.FIELDS.TYPE' | translate}}",
                                     ng-model="attr.type"
                                     ng-options="type.key as type.name|translate for type in TYPE_CHOICES"
                                 )
@@ -134,7 +134,7 @@ section.custom-fields-table.basic-table
 
         form(tg-bind-scope)
             div.row.single-custom-field.js-new-custom-field.hidden
-                fieldset.custom-name
+                fieldset.custom-name(ng-attr-data-field-label="{{'COMMON.FIELDS.NAME' | translate}}")
                     input(
                         type="text"
                         name="name"
@@ -143,15 +143,15 @@ section.custom-fields-table.basic-table
                         data-required="true"
                         data-maxlength="64"
                     )
-                fieldset.custom-description
+                fieldset.custom-description(ng-attr-data-field-label="{{'COMMON.FIELDS.DESCRIPTION' | translate}}")
                     input(
                         type="text"
                         name="description"
                         placeholder="{{'ADMIN.CUSTOM_ATTRIBUTES.SET_FIELD_DESCRIPTION' | translate}}"
                         ng-model="newAttr.description"
                     )
-                fieldset.custom-field-type
-                    select(
+                fieldset.custom-field-type(ng-attr-data-field-label="{{'COMMON.FIELDS.TYPE' | translate}}")
+                    select(tg-preset-select, aria-label="{{'COMMON.FIELDS.TYPE' | translate}}",
                         ng-model="newAttr.type"
                         ng-options="type.key as type.name|translate for type in TYPE_CHOICES"
                     )

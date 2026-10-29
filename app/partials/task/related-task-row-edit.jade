@@ -28,8 +28,9 @@
 
 .status(tg-related-task-status='task', ng-model='task')
   a.task-status(href='', title="{{'TASK.TITLE_SELECT_STATUS' | translate}}")
-    span.task-status-bind
-    tg-svg(svg-icon="icon-arrow-down")
+    span.related-task-status-label
+      span.task-status-bind
+      tg-svg(svg-icon="icon-arrow-down")
 
 .assigned-to(tg-related-task-assigned-to-inline-edition='task')
   .task-assignedto(title="{{'COMMON.FIELDS.ASSIGNED_TO' | translate}}")

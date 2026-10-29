@@ -12,12 +12,16 @@
         ng-class="{'top': stats.closed_bugs[userId] == 1}"
     )
 
+    span.team-stat-label(translate="TEAM.COLUMN_MR_WOLF")
+
 .attribute(ng-if="tasksEnabled")
     tg-svg(
         svg-icon="icon-iocaine",
         ng-style="{'opacity': 0.35 + 0.65 * (stats.iocaine_tasks[userId] || 0)}",
         ng-class="{'top': stats.iocaine_tasks[userId] == 1}"
     )
+
+    span.team-stat-label(translate="TEAM.COLUMN_IOCAINE")
 
 .attribute(ng-if="wikiEnabled")
     tg-svg(
@@ -26,12 +30,16 @@
         ng-class="{'top': stats.wiki_changes[userId] == 1}"
     )
 
+    span.team-stat-label(translate="TEAM.COLUMN_CERVANTES")
+
 .attribute(ng-if="issuesEnabled")
     tg-svg(
         svg-icon="icon-bug",
         ng-style="{'opacity': 0.35 + 0.65 * (stats.created_bugs[userId] || 0)}",
         ng-class="{'top': stats.created_bugs[userId] == 1}"
     )
+
+    span.team-stat-label(translate="TEAM.COLUMN_BUG_HUNTER")
 
 .attribute(ng-if="tasksEnabled")
     tg-svg(
@@ -40,5 +48,8 @@
         ng-class="{'top': stats.closed_tasks[userId] == 1}"
     )
 
+    span.team-stat-label(translate="TEAM.COLUMN_NIGHT_SHIFT")
+
 .attribute
     span.points(ng-bind="stats.totals[userId]")
+    span.team-stat-label(translate="TEAM.COLUMN_TOTAL_POWER")

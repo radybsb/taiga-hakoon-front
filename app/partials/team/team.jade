@@ -10,7 +10,7 @@ doctype html
 tg-project-archived-warning
 div.wrapper(tg-modern-workspace="team" ng-controller="TeamController as ctrl", ng-init="section='team'")
     tg-project-menu
-    sidebar.menu-secondary
+    sidebar.menu-secondary.team-sidebar(ng-class="{'is-collapsed': ctrl.teamFiltersCollapsed}")
         include ../includes/modules/team/team-filters
     section.main.team
         include ../includes/components/mainTitle

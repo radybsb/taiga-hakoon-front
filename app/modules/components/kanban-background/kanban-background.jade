@@ -58,8 +58,9 @@ button.btn-icon.board-background-toggle(type="button" ng-click="background.toggl
     button.background-reset(type="button" ng-if="background.current" ng-click="background.reset()") Remove background
     p.background-local Saved for this project in this browser.
 
-.board-photo-credit(ng-if="background.current.kind === 'photo'")
-    | Photo by 
-    a(ng-href="{{background.current.profile}}" target="_blank" rel="noopener noreferrer") {{background.current.author}}
-    |  on 
-    a(href="https://unsplash.com/?utm_source=hakoon_taiga&utm_medium=referral" target="_blank" rel="noopener noreferrer") Unsplash
+.board-photo-credit-layer
+    .board-photo-credit(ng-if="background.current.kind === 'photo'")
+        | Photo by&#32;
+        a(ng-href="{{background.current.profile}}" target="_blank" rel="noopener noreferrer") {{background.current.author}}
+        | &#32;on&#32;
+        a(href="https://unsplash.com/?utm_source=hakoon_taiga&utm_medium=referral" target="_blank" rel="noopener noreferrer") Unsplash

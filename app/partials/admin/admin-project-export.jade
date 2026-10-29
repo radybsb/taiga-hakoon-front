@@ -14,11 +14,9 @@ div.wrapper(tg-modern-workspace="settings"
 )
     tg-project-menu
 
-    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-navigation="project-profile")
+    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-subsection="export", tg-admin-navigation="project-profile")
         include ../includes/modules/admin-menu
 
-    sidebar.menu-tertiary.sidebar(tg-admin-navigation="export")
-        include ../includes/modules/admin-submenu-project-profile
 
     section.main.admin-common(tg-project-export)
         header

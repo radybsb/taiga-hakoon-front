@@ -7,6 +7,8 @@
 
 nav.navbar(ng-if="vm.isEnabledHeader")
     .nav-left
+        button.project-navigation-toggle(type="button" ng-if="vm.hasProject" ng-click="vm.projectNavigation.toggle()" aria-label="Project navigation" aria-controls="project-navigation" ng-attr-aria-expanded="{{!!vm.projectNavigation.open}}")
+            tg-svg(svg-icon="icon-list")
         a.logo(
             ng-if="!vm.isAuthenticated"
             href="https://taiga.io/",
@@ -14,7 +16,7 @@ nav.navbar(ng-if="vm.isEnabledHeader")
         )
             include ../../svg/logo.svg
 
-        a.logo(
+        a.logo.authenticated-home(
             ng-if="vm.isAuthenticated"
             href="#",
             tg-nav="home",
@@ -52,8 +54,10 @@ nav.navbar(ng-if="vm.isEnabledHeader")
         )
             tg-svg(svg-icon="icon-compass")
 
-        .topnav-dropdown-wrapper.nav-bar-support(ng-if="vm.customSupportUrl")
-            a(
+        .topnav-dropdown-wrapper.nav-bar-support(ng-if="vm.customSupportUrl" tg-navigation-dropdown=".nav-help-trigger")
+            a.nav-help-trigger(
+                aria-haspopup="true"
+                aria-expanded="false"
                 ng-if="vm.customSupportUrl"
                 href="{{ vm.customSupportUrl }}",
                 target="_blank",

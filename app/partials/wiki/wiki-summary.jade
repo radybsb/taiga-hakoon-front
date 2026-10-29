@@ -17,7 +17,10 @@
         span.username <%- user.name %>
 
 .wiki-last-modified
-    span.number <%- lastModifiedDate %>
+    span.number.wiki-modified-full <%- lastModifiedDate %>
+    span.number.wiki-modified-split
+        span.wiki-modified-day <%- lastModifiedDay %>
+        span.wiki-modified-time <%- lastModifiedTime %>
     span.description(translate="WIKI.SUMMARY.LAST_EDIT")
 
 .wiki-times-edited
