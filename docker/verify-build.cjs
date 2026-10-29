@@ -16,4 +16,9 @@ for (const file of ['app-loader.js', 'app.js', 'libs.js', 'elements.js', 'templa
 for (const file of ['styles/theme-taiga.css', 'locales/taiga/locale-en.json', 'emojis/emojis-data.json']) {
     assert(fs.statSync(path.join(root, version, file)).size > 100, file + ' is empty');
 }
+// Test-only e2e classes are stripped from release templates. Styling hooks must survive.
+const templates = fs.readFileSync(path.join(root, version, 'js/templates.js'), 'utf8');
+const styles = fs.readFileSync(path.join(root, version, 'styles/theme-taiga.css'), 'utf8');
+assert(templates.includes('tag-input-trigger'), 'Add tag must retain its styling hook in production templates');
+assert(styles.includes('.tag-input-trigger'), 'Add tag styles must use the permanent styling hook');
 console.log('Verified frontend build: ' + version);

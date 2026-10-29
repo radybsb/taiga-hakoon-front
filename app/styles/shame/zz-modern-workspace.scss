@@ -1071,9 +1071,9 @@ html[data-modern-workspace='taskboard'] {
         .story-editor-form .story-form-tags tg-tag-line-common { display: block; flex: 1 1 14rem; min-width: 0; }
         .story-editor-form .story-form-tags .ticket-detail-settings { margin: 0; }
         .creation-position-fields .custom-radio { flex: 1 1 auto; }
-        .story-editor-form .e2e-show-tag-input .add-tag-text { display: none; }
-        .story-editor-form .e2e-show-tag-input { height: 2rem; padding: .375rem; width: 2rem; }
-        .story-editor-form .e2e-show-tag-input svg { margin: 0; }
+        .story-editor-form .tag-input-trigger .add-tag-text { display: none; }
+        .story-editor-form .tag-input-trigger { height: 2rem; padding: .375rem; width: 2rem; }
+        .story-editor-form .tag-input-trigger svg { margin: 0; }
         .btn-icon, .btn-filter { background: var(--workspace-soft); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); svg { fill: currentColor; } }
         .btn-icon:hover, .btn-filter:hover { background: var(--workspace-hover); }
         .btn-icon.active, .item-unblock { background: var(--workspace-accent-soft); color: var(--workspace-accent); }
@@ -1536,7 +1536,7 @@ html[data-modern-workspace='taskboard'] {
         .search-list .choice ng-include .title { font-size: .875rem; line-height: 1.5; margin: 0; }
         .add-existing-button:disabled { opacity: .45; cursor: not-allowed; }
         .add-existing-button { border-radius: 8px; display: block; margin: 1.25rem 0 0 auto; min-height: 2.25rem; min-width: 7rem; padding: .5rem 1rem; width: auto; }
-        .e2e-show-tag-input { align-items: center; display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { margin: 0; } }
+        .tag-input-trigger { align-items: center; display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { margin: 0; } }
         .ticket-data-container {
             .ticket-status > div { background: var(--workspace-soft); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); margin-bottom: .5rem; padding: .5rem; }
             .level-name { color: var(--workspace-muted); }
@@ -1606,7 +1606,7 @@ html[data-modern-workspace='epics'] {
         .settings .requirement { background: var(--workspace-soft); border: 1px solid var(--workspace-border); border-radius: 7px; color: var(--workspace-muted); }
         .settings input:checked + .requirement { background: var(--workspace-accent-soft); border-color: var(--workspace-accent); color: var(--workspace-accent); }
         .create-epic-button { display: block; margin-left: auto; min-width: 7rem; }
-        .e2e-show-tag-input { align-items: center; display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { margin: 0; } }
+        .tag-input-trigger { align-items: center; display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { margin: 0; } }
         select { color-scheme: light; }
     }
     &[data-workspace-appearance='dark'] .lightbox-create-epic select { color-scheme: dark; }
@@ -1870,7 +1870,7 @@ html[data-modern-workspace='user-settings'] {
     .project-details .project-owner { color: var(--workspace-text); }
     .project-details .project-privacy-settings .privacy-option label { background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-muted); }
     .project-details .project-privacy-settings input:checked + label { background: var(--workspace-accent-soft); border-color: var(--workspace-accent); color: var(--workspace-accent); }
-    section.main .e2e-show-tag-input { align-items: center; background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { fill: currentColor; margin: 0; } }
+    section.main .tag-input-trigger { align-items: center; background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); display: inline-flex; height: 2rem; justify-content: center; padding: .375rem; width: 2rem; .add-tag-text { display: none; } svg { fill: currentColor; margin: 0; } }
     section.main .add-tag-input, section.main .tags-dropdown { background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 8px; color: var(--workspace-text); }
     section.main .tags-dropdown li { color: var(--workspace-text); &:hover { background: var(--workspace-hover); } }
 }
@@ -5053,4 +5053,49 @@ html[data-workspace-appearance] .lightbox-create-related-user-stories {
 // Dragula renders its copy outside the board's theme selectors.
 html[data-workspace-appearance] .card.gu-mirror {
     .card-tasks, .card-tasks ul { background: var(--workspace-surface); }
+}
+
+// CKEditor panels can be mounted directly under body, outside their editor.
+// Theme every CKEditor UI root so all editor locations share the same states.
+html[data-workspace-appearance='dark'] {
+    .ck {
+        --ck-color-base-background: var(--workspace-surface);
+        --ck-color-base-foreground: var(--workspace-soft);
+        --ck-color-base-border: var(--workspace-border);
+        --ck-color-base-text: var(--workspace-text);
+        --ck-color-text: var(--workspace-text);
+        --ck-color-toolbar-background: var(--workspace-soft);
+        --ck-color-toolbar-border: var(--workspace-border);
+        --ck-color-button-default-background: transparent;
+        --ck-color-button-default-hover-background: var(--workspace-hover);
+        --ck-color-button-default-active-background: var(--workspace-hover);
+        --ck-color-button-default-active-shadow: transparent;
+        --ck-color-button-on-background: var(--workspace-accent-soft);
+        --ck-color-button-on-hover-background: var(--workspace-accent-soft);
+        --ck-color-button-on-active-background: var(--workspace-accent-soft);
+        --ck-color-button-on-active-shadow: transparent;
+        --ck-color-button-on-disabled-background: var(--workspace-soft);
+        --ck-color-button-on-color: var(--workspace-accent);
+        --ck-color-split-button-hover-background: var(--workspace-hover);
+        --ck-color-split-button-hover-border: var(--workspace-border);
+        --ck-color-dropdown-panel-background: var(--workspace-surface);
+        --ck-color-panel-background: var(--workspace-surface);
+        --ck-color-panel-border: var(--workspace-border);
+        --ck-color-list-background: var(--workspace-surface);
+        --ck-color-list-button-hover-background: var(--workspace-hover);
+        --ck-color-list-button-on-background: var(--workspace-accent-soft);
+        --ck-color-list-button-on-background-focus: var(--workspace-accent-soft);
+        --ck-color-list-button-on-text: var(--workspace-accent);
+        --ck-color-input-background: var(--workspace-surface);
+        --ck-color-input-text: var(--workspace-text);
+        --ck-color-input-border: var(--workspace-border);
+        --ck-color-focus-border: var(--workspace-accent);
+        --ck-color-focus-outer-shadow: var(--workspace-accent-soft);
+    }
+    .ck.ck-dropdown__panel, .ck.ck-balloon-panel, .ck.ck-list {
+        background: var(--workspace-surface);
+        border-color: var(--workspace-border);
+        color: var(--workspace-text);
+    }
+    .ck.ck-button.ck-on { color: var(--workspace-accent); }
 }
