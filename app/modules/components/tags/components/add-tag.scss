@@ -1,3 +1,12 @@
+.tag-input-trigger:not(:disabled):not(.disabled):not([aria-disabled='true']) {
+    cursor: pointer;
+    tg-svg,
+    svg,
+    use {
+        cursor: inherit;
+    }
+}
+
 $tag-input-width: 250px;
 
 .add-tag-input {
