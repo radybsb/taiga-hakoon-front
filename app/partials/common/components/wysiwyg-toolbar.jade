@@ -34,7 +34,7 @@
             span(translate="COMMON.WYSIWYG.MARKDOWN_HELP")
 
 .tools(ng-class="{visible: editMode}")
-    a.e2e-save-editor(
+    a.editor-save-button.e2e-save-editor(
         variant="primary"
         class="btn-small"
         ng-class="{disabled: required && !markdown.length}"
@@ -44,7 +44,7 @@
         translate="COMMON.SAVE"
     )
 
-    a.e2e-cancel-editor(
+    a.editor-cancel-button.e2e-cancel-editor(
         variant="secondary"
         class="btn-small"
         href="#",

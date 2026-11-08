@@ -1755,8 +1755,8 @@ html[data-modern-workspace='wiki'] .menu-secondary .wiki-link.fixed-link { backg
 html[data-modern-workspace='wiki'] .wiki-main,
 html[data-workspace-appearance] .lightbox-wiki-detail .wiki-main {
     tg-wiki-wysiwyg .ck.ck-editor__editable { min-height: 18rem; }
-    .tools .e2e-save-editor { background: #535bdc; border: 1px solid #535bdc; color: #fff; &:hover { background: #444bc2; } }
-    .tools .e2e-cancel-editor { background: var(--workspace-soft); border: 1px solid var(--workspace-border); color: var(--workspace-text); &:hover { background: var(--workspace-hover); } }
+    .tools .editor-save-button { background: #535bdc; border: 1px solid #535bdc; color: #fff; &:hover { background: #444bc2; } }
+    .tools .editor-cancel-button { background: var(--workspace-soft); border: 1px solid var(--workspace-border); color: var(--workspace-text); &:hover { background: var(--workspace-hover); } }
     tg-wysiwyg button:not(.ck-button) { background: var(--workspace-soft); border: 1px solid var(--workspace-border); border-radius: 7px; color: var(--workspace-muted); padding: .375rem .625rem; }
 }
 

@@ -21,4 +21,10 @@ const templates = fs.readFileSync(path.join(root, version, 'js/templates.js'), '
 const styles = fs.readFileSync(path.join(root, version, 'styles/theme-taiga.css'), 'utf8');
 assert(templates.includes('tag-input-trigger'), 'Add tag must retain its styling hook in production templates');
 assert(styles.includes('.tag-input-trigger'), 'Add tag styles must use the permanent styling hook');
+for (const action of ['save', 'cancel']) {
+    const hook = `editor-${action}-button`;
+    assert(templates.includes(hook), `Editor ${action} must retain its styling hook in release templates`);
+    assert(styles.includes('.' + hook), `Editor ${action} styles must use the permanent styling hook`);
+    assert(!styles.includes('.e2e-' + action + '-editor'), `Editor ${action} styles must not depend on test classes`);
+}
 console.log('Verified frontend build: ' + version);
