@@ -87,6 +87,8 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
         bindMethods(@)
 
         @showTags = true
+        @closedExpanded = false
+        @closedPage = 1
         @scope.sectionName = @translate.instant("PROJECT.SECTION.ISSUES")
         @.voting = false
         @.openFilter = false
@@ -120,9 +122,11 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
         @scope.$on "status:changed", =>
             @.generateFilters()
-            if @.isFilterDataTypeSelected('status') ||\
-                @.isOrderedBy('status') || @.isOrderedBy('modified')
-                    @.loadIssues()
+            @.loadIssues()
+
+        @scope.$on 'detail-popup:changed', (event, detail) =>
+            if detail.type == 'issue' && detail.item?.project == @scope.projectId
+                @.loadIssues()
 
     toggleShowTags: ->
         @rs.issues.storeIssuesShowTags(@scope.projectId, @showTags)
@@ -351,21 +355,42 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
     # We count the requests made and only if the callback is for the last one data is updated
     loadIssuesRequests: 0
     loadIssues: =>
-        params = @location.search()
+        params = _.clone(@location.search())
+        # Changing filters or sorting resets the independent closed-issue page.
+        queryKey = JSON.stringify(_.omit(params, 'page'))
+        if @_issuesQueryKey != queryKey
+            @closedPage = 1
+            @_issuesQueryKey = queryKey
+        @closedPage ?= 1
+        @rs.issues.storeQueryParams(@scope.projectId, params)
+        @loadIssuesRequests += 1
+        request = @loadIssuesRequests
+        fetchSection = (closed, page) =>
+            filters = _.extend({}, params, {project: @scope.projectId, status__is_closed: closed, page: page || 1})
+            return @repo.queryPaginated('issues', filters).catch (error) =>
+                # Closing/deleting the last issue on a page can remove that page.
+                if error.status == 404 && Number(filters.page) > 1
+                    filters.page = 1
+                    return @repo.queryPaginated('issues', filters)
+                throw error
+        return @q.all([fetchSection(false, params.page), fetchSection(true, @closedPage)]).then (sections) =>
+            if request == @loadIssuesRequests && !@scope.$$destroyed
+                [opened, closed] = sections
+                @scope.issues = opened.models
+                @scope.page = opened.current
+                @scope.count = opened.count
+                @scope.paginatedBy = opened.paginatedBy
+                @scope.closedIssues = closed.models
+                @scope.closedPage = @closedPage = closed.current
+                @scope.closedCount = closed.count
+                @scope.closedPaginatedBy = closed.paginatedBy
+                if params.page && Number(params.page) != opened.current
+                    @replaceFilter('page', opened.current)
+            return sections[0]
 
-        promise = @rs.issues.list(@scope.projectId, params)
-        @.loadIssuesRequests += 1
-        promise.index = @.loadIssuesRequests
-        promise.then (data) =>
-            if promise.index == @.loadIssuesRequests
-                @scope.issues = data.models
-                @scope.page = data.current
-                @scope.count = data.count
-                @scope.paginatedBy = data.paginatedBy
-
-            return data
-
-        return promise
+    changeClosedPage: (page) ->
+        @closedPage = page
+        return @loadIssues()
 
     loadInitialData: ->
         project = @.loadProject()
@@ -381,7 +406,7 @@ class IssuesController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.Fi
 
     deleteIssue: (id) ->
         return unless @projectService.canEdit('delete_issue')
-        issue = _.find(@scope.issues, {id: id})
+        issue = _.find((@scope.issues || []).concat(@scope.closedIssues || []), {id: id})
         return unless issue
         @_deletingIssueIds ?= {}
         return if @_deletingIssueIds[id]
@@ -428,6 +453,14 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
     template = $template.get("issue/issue-paginator.html", true)
 
     linkPagination = ($scope, $el, $attrs, $ctrl) ->
+        closed = $attrs.tgIssuesPagination == 'closed'
+        value = (name) -> $scope[if closed then 'closed' + name[0].toUpperCase() + name.slice(1) else name]
+        goToPage = (page) ->
+            if closed
+                $ctrl.changeClosedPage(page)
+            else
+                $ctrl.selectFilter('page', page)
+                $ctrl.loadIssues()
         # Constants
         afterCurrent = 2
         beforeCurrent = 4
@@ -437,7 +470,7 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
         $pagEl = $el.find(".issues-paginator")
 
         getNumPages = ->
-            numPages = $scope.count / $scope.paginatedBy
+            numPages = value("count") / value("paginatedBy")
             if parseInt(numPages, 10) < numPages
                 numPages = parseInt(numPages, 10) + 1
             else
@@ -456,10 +489,10 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
             pages = []
             options = {}
             options.pages = pages
-            options.showPrevious = ($scope.page > 1)
-            options.showNext = not ($scope.page == numPages)
+            options.showPrevious = (value("page") > 1)
+            options.showNext = not (value("page") == numPages)
 
-            cpage = $scope.page
+            cpage = value("page")
 
             for i in [1..numPages]
                 if i == (cpage + afterCurrent) and numPages > (cpage + afterCurrent + atEnd)
@@ -479,9 +512,12 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
 
             $pagEl.html(html)
 
-        $scope.$watch "issues", (value) ->
-            # Do nothing if value is not logical true
-            return if not value
+        paginationFields = if closed
+            ["closedIssues", "closedPage", "closedCount"]
+        else
+            ["issues", "page", "count"]
+        $scope.$watchGroup paginationFields, (values) ->
+            return unless values[0]
 
             renderPagination()
 
@@ -489,14 +525,12 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
             event.preventDefault()
 
             $scope.$apply ->
-                $ctrl.selectFilter("page", $scope.page + 1)
-                $ctrl.loadIssues()
+                goToPage(value("page") + 1)
 
         $el.on "click", ".issues-paginator a.previous", (event) ->
             event.preventDefault()
             $scope.$apply ->
-                $ctrl.selectFilter("page", $scope.page - 1)
-                $ctrl.loadIssues()
+                goToPage(value("page") - 1)
 
         $el.on "click", ".issues-paginator li.page > a", (event) ->
             event.preventDefault()
@@ -504,8 +538,7 @@ IssuesPaginationDirective = ($log, $location, $template, $compile) ->
             pagenum = target.data("pagenum")
 
             $scope.$apply ->
-                $ctrl.selectFilter("page", pagenum)
-                $ctrl.loadIssues()
+                goToPage(pagenum)
 
     ## Issues Link
     link = ($scope, $el, $attrs) ->

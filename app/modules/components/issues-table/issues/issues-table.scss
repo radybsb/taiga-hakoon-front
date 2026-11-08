@@ -192,7 +192,7 @@
         }
         &:hover {
             .issue-ref {
-                color: $color-black900;
+                color: var(--workspace-muted);
             }
             .issue-subject {
                 color: var(--workspace-accent);

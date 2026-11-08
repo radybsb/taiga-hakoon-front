@@ -1,0 +1,43 @@
+const fs=require('fs'),path=require('path'),assert=require('assert');
+process.chdir(path.resolve(__dirname,'..'));
+const {JSDOM}=require('jsdom'),coffee=require('coffeescript'),jade=require('jade');
+const dom=new JSDOM('<!doctype html><body></body>',{url:'http://localhost/',runScripts:'outside-only'}),w=dom.window;
+w.eval(fs.readFileSync('node_modules/jquery/dist/jquery.js','utf8'));w.eval(fs.readFileSync('node_modules/angular/angular.js','utf8'));
+w._=require('lodash');w.taiga={trim:x=>x.trim(),debounce:(delay,fn)=>fn,truncate:x=>x};
+w.eval(coffee.compile(fs.readFileSync('app/coffee/modules/related-tasks.coffee','utf8')));
+w.angular.module('taigaComponents',[]);
+w.eval(coffee.compile(fs.readFileSync('app/modules/components/lb-select-user/lb-select-user.directive.coffee','utf8')));
+const app=w.angular.module('assigneeTest',['taigaRelatedTasks','taigaComponents']);
+const saves=[],pickers=[],errors=[];let fail=false,closed=0;
+app.factory('$exceptionHandler',()=>error=>{throw error;});
+app.factory('$tgRepo',['$q',q=>({save:task=>{saves.push(JSON.parse(JSON.stringify(task)));return fail?q.reject(Error('conflict')):q.when(task);}})]);
+app.value('$tgConfirm',{notify:message=>errors.push(message)});
+app.value('$translate',{instant:key=>key});app.filter('translate',()=>v=>v);
+app.value('tgAvatarService',{getAvatar:member=>({url:'http://localhost/avatar-'+(member?.id||'none')+'.png',bg:'#abc'})});
+app.value('tgLightboxFactory',{create:(...args)=>pickers.push(args)});
+app.factory('lightboxService',['$q',q=>({open:()=>q.when(),close:()=>closed++})]);
+app.value('lightboxKeyboardNavigationService',{stop:()=>{},init:()=>{}});
+app.value('tgProjectService',{project:{toJS:()=>({roles:[]})}});
+const injector=w.angular.injector(['ng','assigneeTest']),root=injector.get('$rootScope'),compile=injector.get('$compile');
+injector.get('$templateCache').put('components/lb-select-user/lb-select-user.html',jade.renderFile('app/modules/components/lb-select-user/lb-select-user.jade'));
+const scope=root.$new();scope.project={my_permissions:['modify_task']};scope.usersById={4:{id:4,full_name_display:'Alice'},9:{id:9,full_name_display:'Bob'},11:{id:11,full_name_display:'Charlie'}};scope.activeUsers=Object.values(scope.usersById);
+scope.task={id:1,assigned_to:4,assigned_users:[4,9]};
+const row=w.$('<div tg-related-task-assigned-to-inline-edition="task"><div class="task-assignedto"><figure class="avatar"></figure></div></div>');w.$('body').append(row);compile(row)(scope);root.$digest();
+const click=el=>{el[0].dispatchEvent(new w.MouseEvent('click',{bubbles:true}));root.$digest();};
+try {
+ assert.equal(row.find('.avatar img').length,2);assert.equal(row.find('figcaption').length,0);assert.equal(row.find('.avatar img').eq(1).attr('title'),'Bob');
+ click(row.find('.task-assignedto'));const config=pickers.at(-1)[2];assert.equal(config.single,false);assert.deepEqual(Array.from(config.currentUsers),[4,9]);
+ config.currentUsers.push(11);assert.deepEqual(Array.from(scope.task.assigned_users),[4,9],'Picker changes must remain unsaved until Save');config.currentUsers.pop();
+ const pickerScope=root.$new();Object.assign(pickerScope,config);const picker=w.$('<div tg-lb-select-user></div>');w.$('body').append(picker);compile(picker)(pickerScope);root.$digest();
+ const pickerState=picker.scope();const charlie=pickerState.collection.find(user=>user.id===11);pickerState.addItem(charlie);root.$digest();assert.equal(closed,0,'Selecting a user must keep the picker open');assert.equal(saves.length,0);assert.equal(picker.find('.lb-select-user-confirm').length,1);
+ click(picker.find('.lb-select-user-confirm'));assert.equal(closed,1);assert.deepEqual(saves[0].assigned_users,[4,9,11]);assert.equal(scope.task.assigned_to,4);assert.equal(row.find('.avatar img').length,3);
+ click(row.find('.task-assignedto'));pickers.at(-1)[2].onClose([9,11]);root.$digest();assert.equal(scope.task.assigned_to,9);assert.equal(row.find('.avatar img').length,2);
+ fail=true;click(row.find('.task-assignedto'));pickers.at(-1)[2].onClose([4]);root.$digest();assert.equal(scope.task.assigned_to,9);assert.deepEqual(Array.from(scope.task.assigned_users),[9,11]);assert.equal(errors.length,1);
+ fail=false;click(row.find('.task-assignedto'));pickers.at(-1)[2].onClose([]);root.$digest();assert.equal(scope.task.assigned_to,null);assert.equal(row.find('.avatar img').length,1);assert(row.find('.avatar img').attr('src').includes('none'));
+ scope.task={id:2,assigned_to:4};root.$digest();assert.equal(row.find('.avatar img').attr('title'),'Alice','Legacy single assignments must render');
+ scope.project.archived_code='archived';root.$digest();const count=pickers.length;click(row.find('.task-assignedto'));assert.equal(pickers.length,count);
+ // New task assignment stays local and retains every selected user for creation.
+ scope.project.archived_code=null;scope.newTask={assigned_to:null,assigned_users:[]};
+ const create=w.$('<div tg-related-task-assigned-to-inline-edition="newTask" not-auto-save="true"><div class="task-assignedto"><figure class="avatar"></figure></div></div>');w.$('body').append(create);compile(create)(scope);root.$digest();const previousSaves=saves.length;click(create.find('.task-assignedto'));pickers.at(-1)[2].onClose([4,9]);root.$digest();assert.deepEqual(Array.from(scope.newTask.assigned_users),[4,9]);assert.equal(saves.length,previousSaves);assert.equal(create.find('.avatar img').length,2);
+ console.log('PASS: all avatars without names, legacy assignments, real multi-user picker stays open until Save, isolated selections, primary-assignee consistency, removal, failed-save rollback, archived guard and unsaved task creation.');
+} finally {scope.$destroy();dom.window.close();}

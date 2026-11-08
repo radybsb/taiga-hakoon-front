@@ -256,7 +256,7 @@ section.empty-large(ng-if="ctrl.issues != undefined && ctrl.issues.length == 0 &
         src="#{v}/images/empty/empty_moon.png",
         alt="{{ISSUES.TABLE.EMPTY.TITLE | translate }}"
     )
-    p.title(translate="ISSUES.TABLE.EMPTY.TITLE")
+    p.title(translate="{{ctrl.emptyTitle || 'ISSUES.TABLE.EMPTY.TITLE'}}")
     a(
         href=""
         ng-click="ctrl.onAddNewIssue()"

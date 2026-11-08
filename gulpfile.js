@@ -729,6 +729,7 @@ gulp.task("default", gulp.series(
         "jade-deploy",
         "elements"
     ),
+    "link-images",
     gulp.parallel("express", "watch"))
 );
 

@@ -11,7 +11,6 @@ tg-project-archived-warning
 div.wrapper.issues.lightbox-generic-form(
     tg-modern-workspace="issues"
     tg-issues-ordering
-    tg-issues-pagination
     ng-controller="IssuesController as ctrl"
     ng-init="section='issues'"
 )
@@ -99,18 +98,41 @@ div.wrapper.issues.lightbox-generic-form(
             section.issues-page(
                 ng-class="{filter: ctrl.openFilter}"
             )
-                tg-issues-table(
-                    issues="issues"
-                    show-tags="ctrl.showTags"
-                    on-load-issues="ctrl.loadIssues()"
-                    on-delete-issue="ctrl.deleteIssue(id)"
-                    on-add-new-issue="ctrl.addNewIssue()"
-                    on-add-issues-in-bulk="ctrl.addIssuesInBulk()"
-                    on-toggle-tags="ctrl.toggleTags(tags)"
-                )
+                .open-issues-section(tg-issues-pagination)
+                    tg-issues-table(
+                        issues="issues"
+                        empty-title="ISSUES.CLOSED_SECTION.NO_OPEN"
+                        show-tags="ctrl.showTags"
+                        on-load-issues="ctrl.loadIssues()"
+                        on-delete-issue="ctrl.deleteIssue(id)"
+                        on-add-new-issue="ctrl.addNewIssue()"
+                        on-add-issues-in-bulk="ctrl.addIssuesInBulk()"
+                        on-toggle-tags="ctrl.toggleTags(tags)"
+                    )
+                    div.paginator.issues-paginator
 
-                // Paginator is rendered using js.
-                div.paginator.issues-paginator
+                section.closed-issues-section
+                    button.closed-issues-toggle(
+                        type="button"
+                        ng-click="ctrl.closedExpanded=!ctrl.closedExpanded"
+                        aria-expanded="{{ctrl.closedExpanded}}"
+                        aria-controls="closed-issues-content"
+                    )
+                        tg-svg(svg-icon="icon-arrow-down" ng-class="{collapsed: !ctrl.closedExpanded}")
+                        span(translate="ISSUES.CLOSED_SECTION.TITLE")
+                        span.closed-issues-count {{closedCount || 0}}
+                    #closed-issues-content(ng-show="ctrl.closedExpanded" tg-issues-pagination="closed")
+                        tg-issues-table(
+                            ng-if="closedIssues.length"
+                            issues="closedIssues"
+                            show-tags="ctrl.showTags"
+                            on-delete-issue="ctrl.deleteIssue(id)"
+                            on-add-new-issue="ctrl.addNewIssue()"
+                            on-add-issues-in-bulk="ctrl.addIssuesInBulk()"
+                            on-toggle-tags="ctrl.toggleTags(tags)"
+                        )
+                        p.closed-issues-empty(ng-if="closedIssues && !closedIssues.length" translate="ISSUES.CLOSED_SECTION.EMPTY")
+                        div.paginator.issues-paginator
 
     div.lightbox.lightbox-generic-form.lightbox-create-edit(tg-lb-create-edit)
 

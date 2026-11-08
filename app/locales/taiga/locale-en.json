@@ -272,6 +272,7 @@
             }
         },
         "WYSIWYG": {
+            "TEXT_COLOR": {"TITLE": "Text color", "AUTOMATIC": "Automatic", "RED": "Red", "ORANGE": "Orange", "GREEN": "Green", "BLUE": "Blue", "PURPLE": "Purple"},
             "LAYOUT": {
                 "TITLE": "Text and media layout",
                 "LEFT": "Left",
@@ -1582,6 +1583,19 @@
         }
     },
     "TASK": {
+        "BULK": {
+            "SELECT_ALL": "Select all tasks",
+            "SELECT_TASK": "Select task #{{ref}}",
+            "SELECTED": "{{count}} selected",
+            "SET_STATUS": "Set status",
+            "ASSIGN": "Assign selected tasks",
+            "DELETE": "Delete selected tasks",
+            "WORKING": "Applying changes…",
+            "RESULT": "{{success}} succeeded; {{failed}} failed.",
+            "RETRY": "Retry failed tasks",
+            "DELETE_TITLE": "Delete selected tasks",
+            "DELETE_MESSAGE": "Delete {{count}} selected tasks? This action cannot be undone."
+        },
         "PAGE_TITLE": "{{taskSubject}} - Task {{taskRef}} - {{projectName}}",
         "PAGE_DESCRIPTION": "Status: {{taskStatus }}. Description: {{taskDescription}}",
         "SECTION_NAME": "Task",
@@ -1631,6 +1645,11 @@
         "SUCCESS": "Congratulations!!, your email address has been verified"
     },
     "ISSUES": {
+        "CLOSED_SECTION": {
+            "TITLE": "Closed issues",
+            "EMPTY": "No closed issues match the current filters.",
+            "NO_OPEN": "No open issues match the current filters."
+        },
         "PAGE_TITLE": "Issues - {{projectName}}",
         "PAGE_DESCRIPTION": "The issues list panel of the project {{projectName}}: {{projectDescription}}",
         "SECTION_NAME": "Issue",

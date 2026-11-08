@@ -564,4 +564,14 @@
     .bulk-result button { margin-right: .5rem; }
     .bulk-panel { position: relative; }
     .bulk-panel .detail-status-inner { cursor: pointer; }
+
+    .bulk-panel .pop-status {
+        li + li { margin-top: .5rem; }
+
+        a.status {
+            display: block;
+            line-height: 1.5;
+            padding: .5rem .625rem;
+        }
+    }
 }

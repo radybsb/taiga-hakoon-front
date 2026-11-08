@@ -19,7 +19,7 @@ RelatedTaskRowDirective = ($repo, $compile, $confirm, $rootscope, $loading, $tem
 
     link = ($scope, $el, $attrs, $model) ->
         saveTask = debounce 2000, (task) ->
-            task.subject = $el.find('input').val()
+            task.subject = $el.find('.task-name input').val()
 
             currentLoading = $loading()
                 .target($el.find('.task-name'))
@@ -73,7 +73,7 @@ RelatedTaskRowDirective = ($repo, $compile, $confirm, $rootscope, $loading, $tem
 
             $el.on "click", ".edit-task", ->
                 renderEdit($model.$modelValue)
-                $el.find('input').focus().select()
+                $el.find('.task-name input').focus().select()
 
             $el.on "click", ".delete-task", (event) ->
                 title = $translate.instant("TASK.TITLE_DELETE_ACTION")
@@ -116,15 +116,18 @@ RelatedTaskCreateFormDirective = ($repo, $compile, $confirm, $tgmodel, $loading,
     newTask = {
         subject: ""
         assigned_to: null
+        assigned_users: []
     }
 
     link = ($scope, $el, $attrs) ->
         createTask = (task) ->
-            task.subject = $el.find('input').val()
+            task.subject = $el.find('.task-name input').val()
             task.assigned_to = $scope.newTask.assigned_to
+            task.assigned_users = ($scope.newTask.assigned_users || []).slice()
             task.status = $scope.newTask.status
             $scope.newTask.status = $scope.project.default_task_status
             $scope.newTask.assigned_to = null
+            $scope.newTask.assigned_users = []
 
             currentLoading = $loading()
                 .target($el.find('.task-name'))
@@ -152,6 +155,7 @@ RelatedTaskCreateFormDirective = ($repo, $compile, $confirm, $tgmodel, $loading,
             newTask = {
                 subject: ""
                 assigned_to: null
+                assigned_users: []
             }
 
             newTask["status"] = $scope.project.default_task_status
@@ -221,8 +225,127 @@ module.directive("tgRelatedTaskCreateButton", ["$tgRepo", "$compile", "$tgConfir
                                                "$tgTemplate", RelatedTaskCreateButtonDirective])
 
 
-RelatedTasksDirective = ($rootscope) ->
+# Fetch current versions before saving so bulk edits preserve unrelated fields.
+RelatedTaskBulkActions = ($q, $repo) ->
+    run = (projectId, storyId, ids, action, value) ->
+        result = {succeeded: [], failed: []}
+        promise = $q.when()
+        for id in _.uniq(ids)
+            do (id) ->
+                promise = promise.then ->
+                    $repo.queryOne('tasks', id, {project: projectId}).then (task) ->
+                        throw new Error('Task no longer belongs to this story') unless task.project == projectId && task.user_story == storyId
+                        switch action
+                            when 'delete' then return $repo.remove(task)
+                            when 'status' then task.status = value
+                            when 'assigned'
+                                task.assigned_users = _.uniq(value || [])
+                                unless _.includes(task.assigned_users, task.assigned_to)
+                                    task.assigned_to = task.assigned_users[0] || null
+                            else throw new Error('Unknown task bulk action')
+                        return $repo.save(task)
+                    .then (-> result.succeeded.push(id)), (-> result.failed.push(id))
+        return promise.then -> result
+    return {run: run}
+
+module.factory('tgRelatedTaskBulkActions', ['$q', '$tgRepo', RelatedTaskBulkActions])
+
+RelatedTasksDirective = ($rootscope, bulkActions, $confirm, $translate, $lightboxFactory, $document) ->
     link = ($scope, $el, $attrs) ->
+        vm = $scope.taskBulk = {selected: {}, ids: [], busy: false, confirming: false, statusOpen: false, message: '', failed: []}
+        destroyed = false
+        vm.permitted = (action) ->
+            permission = if action == 'delete' then 'delete_task' else 'modify_task'
+            return !$scope.project?.archived_code && _.includes($scope.project?.my_permissions, permission)
+        vm.canSelect = -> vm.permitted('delete') || vm.permitted('status')
+        vm.sync = ->
+            vm.ids = (task.id for task in ($scope.tasks || []) when vm.selected[task.id])
+            vm.all = !!$scope.tasks?.length && vm.ids.length == $scope.tasks.length
+            vm.statusOpen = false
+        vm.changed = ->
+            vm.message = ''
+            vm.failed = []
+            vm.sync()
+        vm.selectAll = ->
+            return if vm.busy || vm.confirming
+            vm.selected = {}
+            vm.selected[task.id] = true for task in ($scope.tasks || []) when vm.all
+            vm.changed()
+        $scope.$watchCollection 'tasks', ->
+            valid = _.map($scope.tasks || [], 'id')
+            delete vm.selected[id] for id of vm.selected when !_.includes(valid, Number(id))
+            vm.sync()
+        $scope.$watch (-> vm.canSelect()), (allowed) ->
+            unless allowed
+                vm.selected = {}
+                vm.sync()
+        vm.execute = (action, value, ids = vm.ids.slice()) ->
+            return if destroyed || vm.busy || !vm.permitted(action) || !ids.length
+            if action == 'status'
+                return unless _.some($scope.project.task_statuses, (status) -> status.id == value)
+            vm.busy = true
+            vm.statusOpen = false
+            vm.message = ''
+            vm.lastAction = action
+            vm.lastValue = value
+            return bulkActions.run($scope.project.id, $scope.us.id, ids.slice(), action, value).then (result) ->
+                return if destroyed
+                vm.failed = result.failed
+                vm.selected = {}
+                vm.selected[id] = true for id in result.failed
+                vm.sync()
+                vm.message = $translate.instant('TASK.BULK.RESULT', {success: result.succeeded.length, failed: result.failed.length})
+                $rootscope.$broadcast('related-tasks:update')
+            .catch ->
+                return if destroyed
+                vm.failed = ids.slice()
+                vm.selected = {}
+                vm.selected[id] = true for id in ids
+                vm.sync()
+                vm.message = $translate.instant('TASK.BULK.RESULT', {success: 0, failed: ids.length})
+                $confirm.notify('error')
+            .finally -> vm.busy = false
+        vm.retry = -> vm.execute(vm.lastAction, vm.lastValue, vm.failed.slice())
+        vm.assign = ->
+            return unless vm.permitted('assigned') && vm.ids.length && !vm.busy
+            ids = vm.ids.slice()
+            vm.statusOpen = false
+            $lightboxFactory.create('tg-lb-select-user', {'class': 'lightbox lightbox-select-user'}, {
+                currentUsers: [], activeUsers: $scope.activeUsers, single: false,
+                lbTitle: $translate.instant('TASK.BULK.ASSIGN'),
+                onClose: (users) -> vm.execute('assigned', users.slice(), ids)
+            })
+        vm.remove = ->
+            return unless vm.permitted('delete') && vm.ids.length && !vm.busy && !vm.confirming
+            ids = vm.ids.slice()
+            vm.statusOpen = false
+            vm.confirming = true
+            $confirm.askOnDelete(
+                $translate.instant('TASK.BULK.DELETE_TITLE'),
+                $translate.instant('TASK.BULK.DELETE_MESSAGE', {count: ids.length})
+            ).then (answer) ->
+                unless !destroyed && vm.permitted('delete')
+                    answer.finish(false)
+                    return
+                operation = vm.execute('delete', null, ids)
+                if operation
+                    operation.then (-> answer.finish()), (-> answer.finish(false))
+                else
+                    answer.finish(false)
+            .finally -> vm.confirming = false
+        outside = (event) ->
+            return if $el[0].contains(event.target)
+            $scope.$evalAsync -> vm.statusOpen = false
+        $document.on('click', outside)
+        $el.on 'keydown.taskBulk', (event) ->
+            if event.key == 'Escape' && vm.statusOpen
+                event.stopPropagation()
+                $scope.$evalAsync -> vm.statusOpen = false
+        $scope.$on '$destroy', ->
+            destroyed = true
+            $document.off('click', outside)
+            $el.off('keydown.taskBulk')
+
         _isVisible = ->
             if $scope.project
                 return $scope.project.my_permissions.indexOf("view_tasks") != -1
@@ -260,81 +383,80 @@ RelatedTasksDirective = ($rootscope) ->
         $scope.$on "$destroy", ->
             $el.off()
 
-    return {link: link}
+    return {scope: true, link: link}
 
-module.directive("tgRelatedTasks", ["$rootScope", RelatedTasksDirective])
+module.directive("tgRelatedTasks", ["$rootScope", "tgRelatedTaskBulkActions", "$tgConfirm", "$translate", "tgLightboxFactory", "$document", RelatedTasksDirective])
 
 
-RelatedTaskAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarService, $lightboxFactory) ->
+RelatedTaskAssignedToInlineEditionDirective = ($repo, $rootscope, $translate, avatarService, $lightboxFactory, $confirm) ->
     template = _.template("""
-    <img style="background-color: <%- bg %>" src="<%- imgurl %>" alt="<%- name %>"/>
-    <figcaption><%- name %></figcaption>
+    <img style="background-color: <%- bg %>" src="<%- imgurl %>" alt="<%- name %>" title="<%- name %>"/>
     """)
 
     link = ($scope, $el, $attrs) ->
-        updateRelatedTask = (task) ->
-            ctx = {
-                name: $translate.instant("COMMON.ASSIGNED_TO.NOT_ASSIGNED"),
-            }
-
-            member = $scope.usersById[task.assigned_to]
-
-            avatar = avatarService.getAvatar(member)
-            ctx.imgurl = avatar.url
-            ctx.bg = avatar.bg
-
-            if member
-                ctx.name = member.full_name_display
-
-            $el.find(".avatar").html(template(ctx))
-            $el.find(".task-assignedto").attr('title', ctx.name)
-
-        $ctrl = $el.controller()
         task = $scope.$eval($attrs.tgRelatedTaskAssignedToInlineEdition)
-        notAutoSave = $scope.$eval($attrs.notAutoSave)
-        autoSave = !notAutoSave
+        autoSave = !$scope.$eval($attrs.notAutoSave)
+        saving = false
+        editable = ->
+            return !$scope.project?.archived_code && _.includes($scope.project?.my_permissions, 'modify_task')
+        assignedIds = (item) -> _.uniq(_.compact([item?.assigned_to].concat(item?.assigned_users || [])))
+        updateRelatedTask = ->
+            ids = assignedIds(task)
+            names = []
+            avatars = (ids.length && ids) || [null]
+            html = avatars.map (id) ->
+                member = $scope.usersById?[id]
+                avatar = avatarService.getAvatar(member)
+                name = member?.full_name_display || $translate.instant('COMMON.ASSIGNED_TO.NOT_ASSIGNED')
+                names.push(name)
+                return template({bg: avatar.bg, imgurl: avatar.url, name: name})
+            $el.find('.avatar').html(html.join(''))
+            $el.find('.task-assignedto').attr({
+                title: names.join(', '), 'aria-label': names.join(', '),
+                role: if editable() then 'button' else null,
+                tabindex: if editable() then '0' else null,
+                'aria-disabled': String(!editable() || saving)
+            }).toggleClass('editable', editable())
 
-        $scope.$watch $attrs.tgRelatedTaskAssignedToInlineEdition, () ->
+        $scope.$watchCollection (->
             task = $scope.$eval($attrs.tgRelatedTaskAssignedToInlineEdition)
-            updateRelatedTask(task)
+            return assignedIds(task).concat([editable()])
+        ), updateRelatedTask
+        updateRelatedTask()
 
-        updateRelatedTask(task)
-
-        $el.on "click", ".task-assignedto", (event) ->
+        openPicker = (event) ->
             event.preventDefault()
             event.stopPropagation()
-
-            onClose = (assignedUsers) =>
-                task.assigned_to = assignedUsers.pop() || null
+            return unless editable() && !saving
+            onClose = (users) ->
+                return unless editable() && !saving && !$scope.$$destroyed
+                previous = {assigned_to: task.assigned_to, assigned_users: (task.assigned_users || []).slice()}
+                task.assigned_users = _.uniq(users.slice())
+                unless _.includes(task.assigned_users, task.assigned_to)
+                    task.assigned_to = task.assigned_users[0] || null
+                updateRelatedTask()
                 if autoSave
+                    saving = true
                     $repo.save(task).then ->
-                        $scope.$emit("related-tasks:assigned-to-changed")
-                        updateRelatedTask(task)
+                        $scope.$emit('related-tasks:assigned-to-changed') unless $scope.$$destroyed
+                    .catch ->
+                        task.assigned_to = previous.assigned_to
+                        task.assigned_users = previous.assigned_users
+                        $confirm.notify('error')
+                    .finally ->
+                        saving = false
+                        updateRelatedTask() unless $scope.$$destroyed
+            $lightboxFactory.create('tg-lb-select-user', {'class': 'lightbox lightbox-select-user'}, {
+                currentUsers: assignedIds(task), activeUsers: $scope.activeUsers,
+                onClose: onClose, single: false,
+                lbTitle: $translate.instant('COMMON.ASSIGNED_USERS.ADD')
+            })
 
-            $lightboxFactory.create(
-                'tg-lb-select-user',
-                {
-                    "class": "lightbox lightbox-select-user",
-                },
-                {
-                    "currentUsers": [task.assigned_to],
-                    "activeUsers": $scope.activeUsers,
-                    "onClose": onClose,
-                    "single": true,
-                    "lbTitle": $translate.instant("COMMON.ASSIGNED_USERS.ADD"),
-                }
-            )
-
-        taiga.bindOnce $scope, "project", (project) ->
-            # If the user has not enough permissions the click events are unbinded
-            if !project.archived_code && project.my_permissions.indexOf("modify_task") == -1
-                $el.unbind("click")
-                $el.find("a").addClass("not-clickable")
-
-        $scope.$on "$destroy", ->
-            $el.off()
-
+        $el.on('click', '.task-assignedto', openPicker)
+        $el.on 'keydown', '.task-assignedto', (event) ->
+            openPicker(event) if event.key in ['Enter', ' ']
+        $scope.$on '$destroy', -> $el.off()
     return {link: link}
 
 module.directive("tgRelatedTaskAssignedToInlineEdition", ["$tgRepo", "$rootScope", "$translate", "tgAvatarService",
-                                                          "tgLightboxFactory", RelatedTaskAssignedToInlineEditionDirective])
+                                                          "tgLightboxFactory", "$tgConfirm", RelatedTaskAssignedToInlineEditionDirective])

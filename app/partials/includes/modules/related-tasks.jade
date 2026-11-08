@@ -11,11 +11,29 @@ section.related-tasks(
 )
     .related-tasks-header
         span.related-tasks-title(translate="COMMON.RELATED_TASKS")
-        div(tg-related-task-create-button)
+        .related-task-bulk-controls
+            label.task-bulk-select-all(ng-if="taskBulk.canSelect() && tasks.length")
+                input(type="checkbox" ng-model="taskBulk.all" ng-change="taskBulk.selectAll()" ng-disabled="taskBulk.busy || taskBulk.confirming" aria-label="{{'TASK.BULK.SELECT_ALL' | translate}}" ng-attr-aria-checked="{{taskBulk.ids.length && !taskBulk.all ? 'mixed' : taskBulk.all}}")
+            span.task-bulk-count(ng-if="taskBulk.ids.length" translate="TASK.BULK.SELECTED" translate-values="{count: taskBulk.ids.length}")
+            .task-bulk-actions(ng-if="taskBulk.ids.length")
+                button.btn-icon.e2e-task-bulk-status(type="button" variant="secondary" ng-if="taskBulk.permitted('status')" ng-disabled="taskBulk.busy || taskBulk.confirming" ng-click="taskBulk.statusOpen=!taskBulk.statusOpen" title="{{'TASK.BULK.SET_STATUS' | translate}}" aria-label="{{'TASK.BULK.SET_STATUS' | translate}}" aria-haspopup="true" aria-expanded="{{taskBulk.statusOpen}}")
+                    tg-svg(svg-icon="icon-set-status")
+                button.btn-icon.e2e-task-bulk-assign(type="button" variant="secondary" ng-if="taskBulk.permitted('assigned')" ng-disabled="taskBulk.busy || taskBulk.confirming" ng-click="taskBulk.assign()" title="{{'TASK.BULK.ASSIGN' | translate}}" aria-label="{{'TASK.BULK.ASSIGN' | translate}}")
+                    tg-svg(svg-icon="icon-assign-to")
+                button.btn-icon.e2e-task-bulk-delete(type="button" variant="secondary" ng-if="taskBulk.permitted('delete')" ng-disabled="taskBulk.busy || taskBulk.confirming" ng-click="taskBulk.remove()" title="{{'TASK.BULK.DELETE' | translate}}" aria-label="{{'TASK.BULK.DELETE' | translate}}")
+                    tg-svg(svg-icon="icon-trash")
+                ul.task-bulk-status-menu(ng-if="taskBulk.statusOpen")
+                    li(ng-repeat="status in project.task_statuses track by status.id")
+                        button(type="button" ng-click="taskBulk.execute('status', status.id)" ng-disabled="taskBulk.busy") {{status.name}}
+            div(tg-related-task-create-button)
+    .task-bulk-result(ng-if="taskBulk.busy || taskBulk.message" role="status" aria-live="polite")
+        span(ng-if="taskBulk.busy" translate="TASK.BULK.WORKING")
+        span(ng-if="!taskBulk.busy") {{taskBulk.message}}
+        button.btn-small(type="button" ng-if="taskBulk.failed.length && !taskBulk.busy" ng-click="taskBulk.retry()" translate="TASK.BULK.RETRY")
     .related-tasks-body(tg-tasks-sortable="reorderTask(task, newIndex)")
         .row.single-related-task.js-related-task(
             ng-repeat="task in tasks track by task.id"
-            ng-class="{closed: task.is_closed, blocked: task.is_blocked, iocaine: task.is_iocaine}"
+            ng-class="{closed: task.is_closed, blocked: task.is_blocked, iocaine: task.is_iocaine, 'task-bulk-selected': taskBulk.selected[task.id]}"
             tg-related-task-row
             tg-bind-scope
             ng-model="task"

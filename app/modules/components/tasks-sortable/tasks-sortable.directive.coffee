@@ -16,7 +16,9 @@ TasksSortableDirective = ($parse, projectService) ->
             copySortSource: false
             copy: false
             mirrorContainer: el[0]
-            moves: (item) ->
+            moves: (item, source, handle) ->
+                return false if scope.taskBulk?.busy || scope.taskBulk?.confirming
+                return false if $(handle).closest('input, button, a, label, .task-assignedto').length
                 return $(item).is('div.single-related-task.js-related-task')
         })
 

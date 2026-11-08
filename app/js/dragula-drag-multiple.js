@@ -24,22 +24,31 @@
     var drag = function() {
         var shadow = dragMultiple.items.shadow;
 
-        // following the drag element
-        var currentLeft = shadow.position().left;
-        var currentTop = shadow.position().top;
-        var height = shadow.outerHeight();
+        // Each copy can have a different height (wrapped titles, tags, etc.).
+        // Measure the rendered copies and accumulate their heights on either
+        // side of the primary mirror instead of multiplying one row height.
+        var bounds = shadow[0].getBoundingClientRect();
+        var gap = shadow.hasClass('us-item-row') ? 8 : 0;
+        var above = bounds.top;
+        var below = bounds.bottom + gap;
+        var items = dragMultiple.items.draggingItems.slice().sort(function(a, b) {
+            return Math.abs(a.data('dragMultipleIndex')) - Math.abs(b.data('dragMultipleIndex'));
+        });
 
         $('.gu-transit').addClass('gu-transit-multi');
 
-        _.forEach(dragMultiple.items.draggingItems, function(elm, index) {
+        _.forEach(items, function(elm) {
             var elmIndex = parseInt(elm.data('dragMultipleIndex'), 10);
-            var top = currentTop + (elmIndex * height);
-
-            elm
-                .css({
-                    top: top,
-                    left: currentLeft
-                });
+            var height = elm.outerHeight();
+            var top;
+            if (elmIndex < 0) {
+                above -= height + gap;
+                top = above;
+            } else {
+                top = below;
+                below += height + gap;
+            }
+            elm.css({top: top, left: bounds.left});
         });
     };
 
@@ -167,7 +176,7 @@
         dragMultiple.items.draggedItemsOriginal = items;
 
         var itemsCloned = _.map(items, function (item) {
-            clone = $(item).clone(true);
+            var clone = $(item).clone(true);
 
             clone
                 .addClass('multiple-drag-mirror')
@@ -179,7 +188,7 @@
                     opacity: '0.8',
                     position: 'fixed',
                     width: dragMultiple.items.elm.outerWidth(),
-                    height: $(item).outerHeight()
+                    height: $(item).hasClass('us-item-row') ? 'auto' : $(item).outerHeight()
                 });
 
             $(item)

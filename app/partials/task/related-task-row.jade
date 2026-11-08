@@ -5,6 +5,9 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
+label.task-bulk-checkbox(ng-if="taskBulk.canSelect()")
+    input(type="checkbox" ng-model="taskBulk.selected[task.id]" ng-change="taskBulk.changed()" ng-disabled="taskBulk.busy || taskBulk.confirming" ng-click="$event.stopPropagation()" aria-label="{{'TASK.BULK.SELECT_TASK' | translate:{ref: task.ref} }}")
+
 .task-reorder
     <% if(perms.modify_task) { %>
     tg-svg.icon-drag(

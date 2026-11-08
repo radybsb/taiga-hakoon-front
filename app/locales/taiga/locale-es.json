@@ -1560,6 +1560,19 @@
         }
     },
     "TASK": {
+        "BULK": {
+            "SELECT_ALL": "Seleccionar todas las tareas",
+            "SELECT_TASK": "Seleccionar tarea #{{ref}}",
+            "SELECTED": "{{count}} seleccionadas",
+            "SET_STATUS": "Establecer estado",
+            "ASSIGN": "Asignar tareas seleccionadas",
+            "DELETE": "Eliminar tareas seleccionadas",
+            "WORKING": "Aplicando cambios…",
+            "RESULT": "{{success}} completadas; {{failed}} fallaron.",
+            "RETRY": "Reintentar tareas fallidas",
+            "DELETE_TITLE": "Eliminar tareas seleccionadas",
+            "DELETE_MESSAGE": "¿Eliminar {{count}} tareas seleccionadas? Esta acción no se puede deshacer."
+        },
         "PAGE_TITLE": "{{taskSubject}} - Tarea {{taskRef}} - {{projectName}}",
         "PAGE_DESCRIPTION": "Estado: {{taskStatus }}. Descripción: {{taskDescription}}",
         "SECTION_NAME": "Tarea",
@@ -1609,6 +1622,11 @@
         "SUCCESS": "Congratulations!!, your email address has been verified"
     },
     "ISSUES": {
+        "CLOSED_SECTION": {
+            "TITLE": "Incidencias cerradas",
+            "EMPTY": "Ninguna incidencia cerrada coincide con los filtros actuales.",
+            "NO_OPEN": "Ninguna incidencia abierta coincide con los filtros actuales."
+        },
         "PAGE_TITLE": "Peticiones - {{projectName}}",
         "PAGE_DESCRIPTION": "El panel de la lista de incidencias del proyecto {{projectName}}: {{projectDescription}}",
         "SECTION_NAME": "Petición",

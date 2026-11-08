@@ -1036,6 +1036,21 @@ html[data-modern-workspace='taskboard'] {
         .user-list-avatar img, .user-list-item img { border-radius: 50%; }
         .assigned-inline .add-assigned .users-dropdown, .assigned-inline .user-list-name a, .assigned-inline .user-list-name span { color: var(--workspace-text); }
         .assigned-inline .add-assigned svg { fill: var(--workspace-muted); }
+        .assigned-inline .user-list-single { border-radius: 6px; }
+        .assigned-inline .user-list-single:hover:not(.read-only),
+        .assigned-inline .user-list-single:focus-within:not(.read-only),
+        .assigned-inline .user-list-single.selected {
+            background: var(--workspace-hover);
+            color: var(--workspace-text);
+        }
+        .assigned-inline .user-assigned:hover,
+        .assigned-inline .user-assigned:focus-visible,
+        .assigned-inline .self-assign:hover,
+        .assigned-inline .self-assign:focus-visible {
+            background: var(--workspace-hover);
+            border-radius: 5px;
+            color: var(--workspace-text);
+        }
         .attachment-simple .attachment-list .attachment-size { color: var(--workspace-muted); }
         .attachment-simple .attachment-list .attachment-settings { opacity: 1; }
         .pop-users, .pop-status, .pop-points, .pop-points-open, .bulk-status-option-wrapper, tg-swimlane-selector .options {
@@ -1564,7 +1579,16 @@ html[data-modern-workspace='issues'] {
     .issues-table .row.table-main { background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 10px; box-shadow: var(--workspace-shadow); color: var(--workspace-text); min-height: 3.5rem; margin-bottom: .5rem; padding: .75rem .6rem; }
     .issues-table .row.table-main:hover { background: var(--workspace-hover); }
     .issues-table .issue-text, .issues-table .issue-subject, .issues-table .votes-field { color: var(--workspace-text); }
-    .issues-table .issue-ref, .issues-table .modified-field { color: var(--workspace-muted); }
+    .issues-table .modified-field { color: var(--workspace-muted); }
+    .issues-table .subject .issue-ref { flex-shrink: 0; }
+    .issues-table .subject .issue-text,
+    .issues-table .subject .issue-ref,
+    .issues-table .subject .issue-subject,
+    .issues-table .subject .issue-subject *,
+    .issues-table .subject:hover .issue-ref,
+    .issues-table .subject:hover .issue-subject,
+    .issues-table .subject:focus-within .issue-ref,
+    .issues-table .subject:focus-within .issue-subject { color: var(--workspace-text); }
     .issues-table .row.is-blocked { border-left: 3px solid #d95770; }
     .issues-table .issue-status svg, .issues-table .assigned-field svg { fill: var(--workspace-muted); }
     .pop-status, .pop-users, .popover, .global-popover { background: var(--workspace-surface); border: 1px solid var(--workspace-border); border-radius: 10px; box-shadow: var(--workspace-popup-shadow); color: var(--workspace-text); a, button { color: var(--workspace-text); } a:hover, button:hover { background: var(--workspace-hover); } }
@@ -1760,6 +1784,8 @@ html[data-workspace-appearance='dark'] .loader {
 }
 html[data-modern-workspace='wiki'] .wiki-main .ck.ck-content {
     p, h1, h2, h3, h4, li { color: var(--workspace-text); }
+    strong, b, a strong, a b { color: inherit; }
+    a[href] { color: var(--workspace-accent); }
     .ck-placeholder::before { color: var(--workspace-muted); }
 }
 html[data-modern-workspace='wiki'] .wiki-main tg-wysiwyg {
@@ -2066,7 +2092,13 @@ html[data-modern-workspace='home'] .home-wrapper {
         .data { flex: 1; min-width: 0; }
         .line { max-width: 100%; width: 45%; &:last-child { width: 90%; } }
     }
-    .duty-single { border: 0; }
+    .duty-single {
+        background: transparent;
+        border: 0;
+        border-radius: 10px;
+        &:hover { background: transparent; }
+        > .list-itemtype-ticket:focus-visible { background: var(--workspace-hover); }
+    }
     .ticket-status { background: var(--workspace-soft); border-radius: 5px; color: var(--workspace-muted) !important; padding: .125rem .375rem; }
     .list-itemtype-data-meta { align-items: center; display: flex; flex-wrap: wrap; gap: .375rem; margin-bottom: .375rem; }
 }
@@ -2340,6 +2372,24 @@ html[data-modern-workspace='backlog'] {
         &.completed { background: var(--workspace-accent-soft); color: var(--workspace-accent); }
     }
 }
+// Backlog multi-selection copies are appended to body while dragging.
+html[data-modern-workspace='backlog'] .multiple-drag-mirror.us-item-row {
+    background: var(--workspace-surface);
+    border: 1px solid var(--workspace-accent);
+    border-radius: 10px;
+    box-shadow: var(--workspace-shadow);
+    box-sizing: border-box;
+    color: var(--workspace-text);
+    gap: .5rem;
+    padding: .875rem .75rem;
+    pointer-events: none;
+    .user-story-link { color: var(--workspace-text); line-height: 1.5; }
+    .user-story-name { color: var(--workspace-text); font-weight: 500; }
+    .user-story-number { color: var(--workspace-muted); }
+    .tag { border-radius: 5px; font-size: .75rem; padding: .15rem .4rem; }
+    &.blocked { border-inline-start: 3px solid #d95770; }
+}
+
 html[data-modern-workspace='backlog'] .sprints .sprint-table .row .points-container {
     background: var(--workspace-soft);
     border-radius: 5px;
@@ -5098,4 +5148,99 @@ html[data-workspace-appearance='dark'] {
         color: var(--workspace-text);
     }
     .ck.ck-button.ck-on { color: var(--workspace-accent); }
+}
+
+// Body-level drag copies need their own row layout, including on narrow screens.
+html[data-modern-workspace='backlog'] .multiple-drag-mirror.us-item-row {
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 0;
+    > .us-item-row-left { display: none; }
+    > .user-story-main-data {
+        align-items: center;
+        display: flex;
+        flex: 1 1 0;
+        flex-wrap: nowrap;
+        gap: .5rem;
+        min-width: 0;
+    }
+    .user-story-heading { display: contents; }
+    .user-story-link {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .due-date, .tag { flex: 0 1 auto; margin: 0; min-width: 0; }
+    .tag { display: block; max-width: 17ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .user-story-epics { align-items: center; display: flex; flex: 0 0 auto; flex-wrap: nowrap; gap: .25rem; max-width: none; }
+    .user-story-epics:empty { display: none; }
+    .belong-to-epic-pill { flex-shrink: 0; margin: 0; top: 0; }
+}
+
+@media (min-width: 768px) {
+    html[data-modern-workspace='backlog'] .backlog-table-body .us-item-row .user-story-main-data {
+        flex-wrap: nowrap;
+        min-width: 0;
+        .user-story-link { flex: 1 1 0; min-width: 0; overflow-wrap: anywhere; }
+        .tag { flex-shrink: 0; }
+        .belong-to-epic-pill { flex-shrink: 0; }
+    }
+}
+
+// Shared rich-text palette: semantic classes keep saved colors readable in either theme.
+html[data-workspace-appearance] {
+    --workspace-text-red: #bc304c;
+    --workspace-text-orange: #a95405;
+    --workspace-text-green: #247440;
+    --workspace-text-blue: #275dc3;
+    --workspace-text-purple: #8545b5;
+    &[data-workspace-appearance='dark'] {
+        --workspace-text-red: #ff91a4;
+        --workspace-text-orange: #ffc078;
+        --workspace-text-green: #85d9a0;
+        --workspace-text-blue: #91baff;
+        --workspace-text-purple: #d4a4ff;
+    }
+    @each $color in red, orange, green, blue, purple {
+        .ck-content .taiga-text-color-#{$color},
+        .wysiwyg .taiga-text-color-#{$color},
+        .ck-button.taiga-text-color-#{$color} .ck-icon { color: var(--workspace-text-#{$color}); }
+    }
+}
+
+// Keep story references and subjects consistent, including body-level drag copies.
+html[data-modern-workspace='backlog'] .us-item-row {
+    .user-story-link,
+    .user-story-link .user-story-number,
+    .user-story-link .user-story-name,
+    .user-story-link .user-story-name *,
+    .user-story-link:hover .user-story-number,
+    .user-story-link:hover .user-story-name,
+    .user-story-link:focus-visible .user-story-number,
+    .user-story-link:focus-visible .user-story-name { color: var(--workspace-text); }
+}
+
+// Use the same estimation picker on story pages and in detail/create popups.
+html[data-workspace-appearance] .ticket-estimation .popover.pop-points-open {
+    background: var(--workspace-surface);
+    border: 1px solid var(--workspace-border);
+    border-radius: 10px;
+    box-shadow: var(--workspace-popup-shadow);
+    padding: .5rem;
+    > li {
+        border-radius: 8px;
+        &:hover { background: transparent; }
+    }
+    > li > .point {
+        border-radius: 6px;
+        margin: .125rem;
+        overflow: hidden;
+        &.active { background: var(--workspace-accent-soft); color: var(--workspace-accent); }
+        &:not(.active) { background: var(--workspace-accent); color: var(--workspace-surface); }
+        &:hover, &:focus-visible { background: var(--workspace-hover); color: var(--workspace-text); }
+        &:focus-visible { outline: 2px solid var(--workspace-accent); outline-offset: 1px; }
+        .item-text { color: inherit; }
+    }
 }

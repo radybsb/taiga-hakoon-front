@@ -16,14 +16,14 @@ class WysiwygLayoutService
             root = document.createElement('div')
             root.innerHTML = html || ''
             blocks = []
-            selector = '.taiga-media-row, .taiga-align-left, .taiga-align-center, .taiga-align-right'
+            selector = '.taiga-media-row, .taiga-align-left, .taiga-align-center, .taiga-align-right, span.taiga-text-color'
             root.querySelectorAll(selector).forEach (block) ->
                 return unless root.contains(block)
                 return if block.parentElement.closest(selector)
                 token = 'TAIGALAYOUTBLOCK' + Date.now() + blocks.length
                 token += 'X' while root.textContent.indexOf(token) != -1
                 blocks.push({token: token, html: block.outerHTML})
-                placeholder = document.createElement('p')
+                placeholder = if block.matches('span.taiga-text-color') then document.createTextNode(token) else document.createElement('p')
                 placeholder.textContent = token
                 block.replaceWith(placeholder)
             markdown = toMarkdown(root.innerHTML)
@@ -34,6 +34,55 @@ class WysiwygLayoutService
         return if editor._taigaLayout
         editor._taigaLayout = true
         schema = editor.model.schema
+        # Semantic colors survive Markdown/HTML conversion and adapt to theme.
+        colors = ['red', 'orange', 'green', 'blue', 'purple']
+        schema.extend('$text', {allowAttributes: 'fontColor'})
+        schema.setAttributeProperties('fontColor', {isFormatting: true, copyOnEnter: true})
+        for color in colors
+            do (color) ->
+                editor.conversion.for('upcast').elementToAttribute {
+                    view: {name: 'span', classes: ['taiga-text-color', 'taiga-text-color-' + color]}
+                    model: {key: 'fontColor', value: color}
+                }
+        editor.conversion.for('downcast').attributeToElement {
+            model: 'fontColor'
+            view: (value, writer) ->
+                return unless value in colors
+                writer = writer.writer || writer
+                return writer.createAttributeElement('span', {class: 'taiga-text-color taiga-text-color-' + value}, {priority: 7})
+        }
+        AttributeCommand = editor.commands.get('bold').constructor
+        colorCommand = new AttributeCommand(editor, 'fontColor')
+        colorCommand._getValueFromFirstAllowedNode = ->
+            selection = editor.model.document.selection
+            return selection.getAttribute('fontColor') if selection.isCollapsed
+            for range in Array.from(selection.getRanges())
+                for item in Array.from(range.getItems())
+                    if editor.model.schema.checkAttribute(item, 'fontColor')
+                        return item.getAttribute('fontColor')
+        # Keep CKEditor's decorated command (including read-only guards).
+        colorCommand.on 'execute', (event, args) ->
+            options = args[0] || {}
+            if options.value && options.value not in colors
+                event.stop()
+                return
+            event.stop()
+            editor.model.change (writer) ->
+                selection = editor.model.document.selection
+                if selection.isCollapsed
+                    if options.value
+                        writer.setSelectionAttribute('fontColor', options.value)
+                    else
+                        writer.removeSelectionAttribute('fontColor')
+                else
+                    ranges = schema.getValidRanges(selection.getRanges(), 'fontColor')
+                    for range in Array.from(ranges)
+                        if options.value
+                            writer.setAttribute('fontColor', options.value, range)
+                        else
+                            writer.removeAttribute('fontColor', range)
+        , {priority: 'high'}
+        editor.commands.add('fontColor', colorCommand)
         schema.register 'taigaMediaRow', {
             isBlock: true
             allowWhere: '$block'
@@ -242,6 +291,28 @@ class WysiwygLayoutService
             outsideListeners.push(outside)
             return dropdown
         toolbar = editor.ui.view.toolbar
+        colorLabel = (key) =>
+            translated = @translate?.instant('COMMON.WYSIWYG.TEXT_COLOR.' + key)
+            return if translated && translated != 'COMMON.WYSIWYG.TEXT_COLOR.' + key then translated else key
+        colorIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M8 2h4l5 13h-3l-1-3H7l-1 3H3zm2 3-2 5h4zM2 17h16v3H2z"/></svg>'
+        colorDropdown = createDropdown(colorLabel('TITLE'), colorIcon)
+        colorDropdown.bind('isEnabled').to(colorCommand)
+        for value in [null].concat(colors)
+            do (value) ->
+                swatch = if value then '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/></svg>' else null
+                button = createButton(colorLabel(if value then value.toUpperCase() else 'AUTOMATIC'), swatch, ->
+                    editor.execute('fontColor', {value: value})
+                    colorDropdown.isOpen = false
+                    editor.editing.view.focus()
+                )
+                button.set({withText: true, isToggleable: true})
+                button.bind('isEnabled').to(colorCommand)
+                button.bind('isOn').to(colorCommand, 'value', (current) -> (current || null) == value)
+                button.extendTemplate({attributes: {class: 'taiga-text-color-' + value}}) if value
+                colorDropdown.toolbarView.items.add(button)
+        toolbar.items.add(colorDropdown, Math.min(2, toolbar.items.length))
+        views.push(colorDropdown)
+        editor._taigaColorDropdown = colorDropdown
         headingDropdown = Array.from(toolbar.items).find((view) -> view.element?.classList.contains('ck-heading-dropdown'))
         if headingDropdown
             headingDropdown.buttonView.unbind('label')

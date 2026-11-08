@@ -19,8 +19,14 @@
 
 @font-face {
     font-family: 'Ubuntu UI';
-    font-weight: 500 900;
+    font-weight: 500;
     src: url('../fonts/Ubuntu-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Ubuntu UI';
+    font-weight: 700 900;
+    src: url('../fonts/Ubuntu-Bold.ttf') format('truetype');
 }
 
 h1,

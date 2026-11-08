@@ -271,6 +271,7 @@
             }
         },
         "WYSIWYG": {
+            "TEXT_COLOR": {"TITLE": "Cor do texto", "AUTOMATIC": "Automática", "RED": "Vermelho", "ORANGE": "Laranja", "GREEN": "Verde", "BLUE": "Azul", "PURPLE": "Roxo"},
             "LAYOUT": {
                 "TITLE": "Alinhamento de texto e mídias",
                 "LEFT": "Esquerda",
@@ -1584,6 +1585,19 @@
         }
     },
     "TASK": {
+        "BULK": {
+            "SELECT_ALL": "Selecionar todas as tarefas",
+            "SELECT_TASK": "Selecionar tarefa #{{ref}}",
+            "SELECTED": "{{count}} selecionadas",
+            "SET_STATUS": "Definir status",
+            "ASSIGN": "Atribuir tarefas selecionadas",
+            "DELETE": "Excluir tarefas selecionadas",
+            "WORKING": "Aplicando alterações…",
+            "RESULT": "{{success}} concluídas; {{failed}} falharam.",
+            "RETRY": "Tentar novamente as tarefas que falharam",
+            "DELETE_TITLE": "Excluir tarefas selecionadas",
+            "DELETE_MESSAGE": "Excluir {{count}} tarefas selecionadas? Esta ação não pode ser desfeita."
+        },
         "PAGE_TITLE": "{{taskSubject}} - Tarefa {{taskRef}} - {{projectName}}",
         "PAGE_DESCRIPTION": "Estado: {{taskStatus }}. Descrição: {{taskDescription}}",
         "SECTION_NAME": "Tarefa",
@@ -1633,6 +1647,11 @@
         "SUCCESS": "Congratulations!!, your email address has been verified"
     },
     "ISSUES": {
+        "CLOSED_SECTION": {
+            "TITLE": "Issues fechadas",
+            "EMPTY": "Nenhuma issue fechada corresponde aos filtros atuais.",
+            "NO_OPEN": "Nenhuma issue aberta corresponde aos filtros atuais."
+        },
         "PAGE_TITLE": "Apontamentos - {{projectName}}",
         "PAGE_DESCRIPTION": "O painel de problemas do projeto {{projectName}}: {{projectDescription}}",
         "SECTION_NAME": "Problema",

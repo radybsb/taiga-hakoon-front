@@ -1,0 +1,45 @@
+const fs=require('fs'),path=require('path'),vm=require('vm'),assert=require('assert');
+process.chdir(path.resolve(__dirname,'..'));
+const coffee=require('coffeescript'),jade=require('jade'),_=require('lodash');
+const controllers={},directives={};
+const context={angular:{module:()=>({controller:(n,v)=>controllers[n]=v,directive:(n,v)=>directives[n]=v})},_,taiga:{Controller:class{},PageMixin:{},FiltersMixin:{},mixOf:()=>class{},bindMethods:instance=>{for(const name of Object.getOwnPropertyNames(Object.getPrototypeOf(instance)))if(name!=='constructor'&&typeof instance[name]==='function')instance[name]=instance[name].bind(instance);}}};
+vm.runInNewContext(coffee.compile(fs.readFileSync('app/coffee/modules/issues/list.coffee','utf8')),context);
+const Controller=controllers.IssuesController;
+const data=[1,2,3,4,5,6].map(id=>({id,subject:id===6?'target':'Issue '+id,closed:id>3}));
+let params={order_by:'id',page:1},calls=[],stored=[];
+const c=Object.create(Controller.prototype);c.scope={projectId:10};c.location={search:()=>params};c.q={all:Promise.all.bind(Promise)};c.rs={issues:{storeQueryParams:(project,filters)=>stored.push({...filters})}};
+c.replaceFilter=(key,value)=>params[key]=value;
+c.repo={queryPaginated:async(type,filters)=>{assert.equal(type,'issues');assert.equal(filters.project,10);calls.push({...filters});let models=data.filter(i=>i.closed===filters.status__is_closed&&(!filters.q||i.subject.includes(filters.q)));const page=Number(filters.page),size=2;if(page>1&&(page-1)*size>=models.length)throw {status:404};return {models:models.slice((page-1)*size,page*size),count:models.length,current:page,paginatedBy:size};}};
+(async()=>{
+ await c.loadIssues();assert.deepEqual(Array.from(c.scope.issues,i=>i.id),[1,2]);assert.deepEqual(Array.from(c.scope.closedIssues,i=>i.id),[4,5]);assert.equal(c.scope.count,3);assert.equal(c.scope.closedCount,3);assert(!('status__is_closed' in stored[0]),'Section filters must not leak into remembered issue detail filters');
+ data[0].closed=true;await c.loadIssues();assert.deepEqual(Array.from(c.scope.issues,i=>i.id),[2,3]);assert.deepEqual(Array.from(c.scope.closedIssues,i=>i.id),[1,4]);
+ data[0].closed=false;await c.loadIssues();assert.deepEqual(Array.from(c.scope.issues,i=>i.id),[1,2]);assert.deepEqual(Array.from(c.scope.closedIssues,i=>i.id),[4,5]);
+ await c.changeClosedPage(2);assert.equal(c.scope.page,1);assert.equal(c.scope.closedPage,2);assert.deepEqual(Array.from(c.scope.closedIssues,i=>i.id),[6]);
+ params={...params,q:'target'};await c.loadIssues();assert.equal(c.scope.closedPage,1);assert.equal(c.scope.count,0);assert.equal(c.scope.closedCount,1);assert(calls.slice(-2).every(f=>f.q==='target'));
+ params={page:2,order_by:'id'};await c.loadIssues();assert.equal(c.scope.page,2);data[2].closed=true;await c.loadIssues();assert.equal(c.scope.page,1);assert.equal(params.page,1,'Reset an open page removed by a status change');
+ await c.changeClosedPage(2);data[4].closed=false;data[5].closed=false;await c.loadIssues();assert.equal(c.scope.closedPage,1,'Reset a closed page removed by reopening issues');
+ let approve,deletions=0;c.projectService={canEdit:()=>true};c.translate={instant:k=>k};c.confirm={askOnDelete:()=>new Promise(r=>approve=r),notify:()=>{}};c.repo.remove=async issue=>{assert.equal(issue.id,4);deletions++;};const pending=c.deleteIssue(4);approve({finish:()=>{}});await pending;assert.equal(deletions,1,'Closed issues must retain deletion actions');
+ // Both sections must ignore a slower response from an older filter/search request.
+ const delayed=[];c.repo.queryPaginated=(type,filters)=>new Promise(resolve=>delayed.push({resolve,filters}));params={q:'old'};const old=c.loadIssues();params={q:'new'};const latest=c.loadIssues();
+ for(const item of delayed.slice(2))item.resolve({models:[{id:99}],count:1,current:1,paginatedBy:2});await latest;
+ for(const item of delayed.slice(0,2))item.resolve({models:[{id:10}],count:1,current:1,paginatedBy:2});await old;assert.equal(c.scope.issues[0].id,99);assert.equal(c.scope.closedIssues[0].id,99);
+ const events={};let reloads=0;const originalLoad=Controller.prototype.loadInitialData;
+ Controller.prototype.onInitialDataError=()=>{};Controller.prototype.applyStoredFilters=()=>false;Controller.prototype.loadInitialData=()=>Promise.resolve();Controller.prototype.loadIssues=()=>{reloads++;return Promise.resolve();};Controller.prototype.generateFilters=()=>{};
+ const scope={project:{name:'Test',description:''},projectId:10,$on:(event,fn)=>events[event]=fn};
+ new Controller(scope,{}, {},{}, {},{}, {pslug:'test'}, {},{}, {setAll:()=>{}},{},{},{}, {instant:k=>k},{},{},{},{});
+ await Promise.resolve();events['status:changed']();assert.equal(reloads,1,'Status changes must reload even without a status filter/sort');events['detail-popup:changed']({}, {type:'issue',item:{project:10}});assert.equal(reloads,2);events['detail-popup:changed']({}, {type:'task',item:{project:10}});assert.equal(reloads,2);
+ Controller.prototype.loadInitialData=originalLoad;
+ // Compile the actual paginator twice and verify that paging one does not page the other.
+ const {JSDOM}=require('jsdom');const dom=new JSDOM('<!doctype html><body></body>',{runScripts:'outside-only',url:'http://localhost/'}),w=dom.window;
+ w.eval(fs.readFileSync('node_modules/jquery/dist/jquery.js','utf8'));w.eval(fs.readFileSync('node_modules/angular/angular.js','utf8'));context.angular.element=w.angular.element;
+ const app=w.angular.module('closedTest',[]);let openPage,closedPage;
+ app.controller('TestController',function(){this.selectFilter=(name,page)=>openPage=page;this.loadIssues=()=>{};this.changeClosedPage=page=>closedPage=page;});
+ app.directive('tgIssuesPagination',['$compile',compile=>directives.tgIssuesPagination.at(-1)({}, {}, {get:()=>_.template(jade.renderFile('app/partials/issue/issue-paginator.jade'))},compile)]);
+ const injector=w.angular.injector(['ng','closedTest']),root=injector.get('$rootScope'),compile=injector.get('$compile');Object.assign(root,{issues:[{}],page:1,count:6,paginatedBy:2,closedIssues:[{}],closedPage:2,closedCount:8,closedPaginatedBy:2});
+ const el=w.$('<div ng-controller="TestController as ctrl"><div class="opened" tg-issues-pagination><div class="issues-paginator"></div></div><div class="closed" tg-issues-pagination="closed"><div class="issues-paginator"></div></div></div>');w.$('body').append(el);compile(el)(root);root.$digest();
+ el.find('.closed a.next').trigger('click');assert.equal(closedPage,3);assert.equal(openPage,undefined);el.find('.opened a.next').trigger('click');assert.equal(openPage,2);
+ root.$destroy();dom.window.close();
+ const html=jade.renderFile('app/partials/issue/issues.jade');assert(html.indexOf('open-issues-section')<html.indexOf('closed-issues-section'));assert(html.includes('aria-controls="closed-issues-content"'));assert(html.includes('ng-show="ctrl.closedExpanded"'));
+ for(const locale of ['en','pt-br','es'])assert(require('../app/locales/taiga/locale-'+locale+'.json').ISSUES.CLOSED_SECTION.TITLE);
+ console.log('PASS: separate server-filtered lists/counts, automatic closing/reopening, shared filters, independent pagination, removed-page recovery, closed deletion, stale request protection, status/popup refresh events and collapsible section markup.');
+})().catch(error=>{console.error(error);process.exitCode=1;});
