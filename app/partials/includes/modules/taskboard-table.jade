@@ -81,51 +81,20 @@ div.taskboard-table(
                                 ng-class='{hidden:!usFolded[us.id]}'
                             )
 
-                        .taskboard-us(tg-card-click="{route: 'project-userstories-detail', project: project.slug, ref: us.ref}")
-                            h3.us-title
-                                a(href="",
-                                tg-nav="project-userstories-detail:project=project.slug,ref=us.ref",
-                                tg-detail-popup-link
-                                tg-nav-get-params="{\"milestone\": {{us.milestone}}}",
-                                tg-bo-title="'#' + us.ref + ' ' + us.subject")
-                                    span.us-ref(tg-bo-ref="us.ref")
-                                    span.us-subject(ng-bind-html="us.subject | emojify")
-                            tg-belong-to-epics(
-                                format="pill"
-                                ng-if="us.epics"
-                                epics="us.epics"
+                        .taskboard-us
+                            tg-card.card.taskboard-story-card(
+                                item="storyCards[us.id]"
+                                project="project"
+                                type="us"
+                                taskboard-story="us"
+                                zoom="ctrl.storyCardZoom"
+                                zoom-level="3"
+                                in-view-port="true"
+                                is-first="true"
+                                on-click-assigned-to="ctrl.changeStoryAssignees(id)"
+                                on-click-edit="ctrl.editStory(id)"
+                                on-click-delete="ctrl.deleteStory(id)"
                             )
-                            div.us-data
-                                p.points-value(data-id="{{us.id}}")
-                                    span.card-estimation(
-                                        ng-if="us.total_points"
-                                        title="{{ 'COMMON.CARD.ESTIMATION' | translate }}"
-                                        translate="COMMON.CARD.PTS"
-                                        translate-values="{ 'pts': us.total_points}"
-                                    )
-
-                                    span.card-estimation.not-estimated(
-                                        ng-if="!us.total_points",
-                                        translate="US.NOT_ESTIMATED"
-                                    )
-
-                                tg-due-date.due-date(
-                                    due-date="us.due_date"
-                                    is-closed="us.is_closed"
-                                    ng-if="us.due_date"
-                                    obj-type="us"
-                                )
-
-                                span.card-lock(ng-if="us.is_blocked")
-                                    tg-svg(svg-icon="icon-lock")
-
-                                div.status-value(
-                                    ng-if="usStatusById[us.status]"
-                                    tg-taskboard-us-status
-                                    ng-model="us"
-                                )
-
-
 
                             .add-new-task
                                 include ../components/addnewtask

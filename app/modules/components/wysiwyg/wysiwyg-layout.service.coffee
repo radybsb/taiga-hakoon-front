@@ -297,6 +297,8 @@ class WysiwygLayoutService
         colorIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M8 2h4l5 13h-3l-1-3H7l-1 3H3zm2 3-2 5h4zM2 17h16v3H2z"/></svg>'
         colorDropdown = createDropdown(colorLabel('TITLE'), colorIcon)
         colorDropdown.bind('isEnabled').to(colorCommand)
+        colorDropdown.buttonView.unbind('isOn')
+        colorDropdown.buttonView.bind('isOn').to(colorCommand, 'value', (value) -> !!value)
         for value in [null].concat(colors)
             do (value) ->
                 swatch = if value then '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/></svg>' else null
@@ -316,7 +318,13 @@ class WysiwygLayoutService
         headingDropdown = Array.from(toolbar.items).find((view) -> view.element?.classList.contains('ck-heading-dropdown'))
         if headingDropdown
             headingDropdown.buttonView.unbind('label')
-            headingDropdown.buttonView.set({label: 'Tt', tooltip: editor.t('Choose heading')})
+            headingCommand = editor.commands.get('heading')
+            headingDropdown.buttonView.bind('label').to(headingCommand, 'value', (value) ->
+                option = editor.config.get('heading.options').find((option) -> option.model == value)
+                tag = if typeof option?.view == 'string' then option.view else option?.view?.name
+                return if /^h[1-6]$/.test(tag || '') then tag.toUpperCase() else 'Tt'
+            )
+            headingDropdown.buttonView.set('tooltip', editor.t('Choose heading'))
 
         listButtons = []
         for name in ['todoList', 'bulletedList', 'numberedList']
@@ -338,6 +346,16 @@ class WysiwygLayoutService
                     listDropdown.isOpen = false
                     editor.editing.view.focus()
             listDropdown.bind('isEnabled').toMany(listButtons.map((entry) -> entry.view), 'isEnabled', (values...) -> values.some(Boolean))
+            listDropdown.buttonView.unbind('isOn')
+            listDropdown.buttonView.bind('isOn').toMany(listButtons.map((entry) -> entry.view), 'isOn', (values...) -> values.some(Boolean))
+            listDropdown.buttonView.bind('icon').toMany(listButtons.map((entry) -> entry.view), 'isOn', (values...) ->
+                active = values.findIndex(Boolean)
+                return if active == -1 then bullet.view.icon else listButtons[active].view.icon
+            )
+            listDropdown.buttonView.bind('label').toMany(listButtons.map((entry) -> entry.view), 'isOn', (values...) ->
+                active = values.findIndex(Boolean)
+                return if active == -1 then bullet.view.label else listButtons[active].view.label
+            )
             toolbar.items.add(listDropdown, listIndex)
             views.push(listDropdown)
 

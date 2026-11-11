@@ -16,7 +16,7 @@ A story's attachment list can include its child tasks' original files. This is a
 - Story detail pages and pop-ups share the combined list and existing image/video preview.
 - Story-owned files appear first and retain their independent ordering. Inherited files can be viewed/downloaded; editing, deleting and ordering stay with the owning task. This restriction applies to list, gallery and preview controls, and is enforced in the attachment service too.
 - Closing a task pop-up refreshes the parent's projected list after its attachment context is restored. Existing board popup/attachment refresh events reload Kanban summaries.
-- Taskboard story headers no longer render slideshows or request the extra story-image data. Task cards and Kanban cards retain their existing carousel behavior.
+- Taskboard story headers display their image/GIF carousel using batched sprint attachment summaries. Task cards and Kanban cards retain their existing carousel behavior.
 
 ## Validation and deployment
 

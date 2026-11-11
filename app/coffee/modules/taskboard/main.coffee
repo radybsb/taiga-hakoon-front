@@ -78,6 +78,9 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         bindMethods(@)
         @taskboardTasksService.reset()
         @scope.userstories = []
+        @scope.userstoryImages = {}
+        @scope.storyCards = {}
+        @storyCardZoom = ['tags', 'assigned_to', 'extra_info', 'card-data', 'attachments']
         @.openFilter = false
         @.filterQ = ''
         @.backToBacklogUrl = @navUrls.resolve('project-backlog', {
@@ -323,6 +326,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         ), => @confirm.notify('error'))
         @scope.$on 'usform:edit:success', (event, us) =>
             @scope.userstories = @scope.userstories.map((item) -> if item.id == us.id then us else item)
+            @.loadUserstoryImages().catch => @confirm.notify('error')
             @.loadSprintStats()
         @scope.$on "taskform:bulk:success", (event, tasks) =>
             @.refreshTagsColors().then () =>
@@ -339,7 +343,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         @scope.$on "taskform:edit:success", (event, task) =>
             @.refreshTagsColors().then () =>
                 # Detail models may omit attachments and board summary fields.
-                @q.all([@.loadTasks(), @.loadSprintStats()])
+                @q.all([@.loadTasks(), @.loadSprintStats(), @.loadUserstoryImages()])
 
         @scope.$on "issueform:new:success", (event, issue) =>
             @.refreshTagsColors().then () =>
@@ -455,11 +459,40 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         return @rs.sprints.get(@scope.projectId, @scope.sprintId).then (sprint) =>
             @scope.sprint = sprint
             @scope.userstories = _.sortBy(sprint.user_stories, "sprint_order")
+            images = @.loadUserstoryImages().catch => @confirm.notify('error')
 
             @taskboardTasksService.setUserstories(@scope.userstories)
 
             @rootscope.$broadcast("taskboard:userstories:loaded", @scope.userstories)
-            return sprint
+            return images.then -> sprint
+
+    loadUserstoryImages: ->
+        # Fetch the sprint's attachment summaries together without changing the
+        # shared story filters used by other pages.
+        @repo.queryMany('userstories', {
+            project: @scope.projectId,
+            milestone: @scope.sprintId,
+            include_attachments: true
+        }).then (stories) =>
+            return if @scope.$$destroyed
+            images = {}
+            @scope.storyCards = {}
+            for story in stories
+                images[story.id] = Immutable.fromJS((story.attachments || []).filter((attachment) -> !!attachment.thumbnail_card_url))
+                model = story.getAttrs()
+                model.watchers ||= []
+                model.assigned_users ||= []
+                assigned = _.compact(model.assigned_users.map((id) => @scope.usersById[id]))
+                @scope.storyCards[story.id] = Immutable.fromJS({
+                    id: story.id
+                    model: model
+                    images: images[story.id]
+                    assigned_to: @scope.usersById[story.assigned_to]
+                    assigned_users: assigned
+                    assigned_users_preview: assigned.slice(0, 3)
+                    colorized_tags: (model.tags || []).map((tag) -> {name: tag[0], color: tag[1]})
+                })
+            @scope.userstoryImages = images
 
     loadIssues: ->
         params = {}
@@ -709,6 +742,41 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
             @taskboardIssuesService.toggleFold(id)
         else if modelName == 'tasks'
             @taskboardTasksService.toggleFold(id)
+
+    changeStoryAssignees: (id) ->
+        return unless @projectService.hasPermission('modify_us')
+        @rs.userstories.get(@scope.projectId, id).then (story) =>
+            @lightboxFactory.create('tg-lb-select-user', {class: 'lightbox lightbox-select-user'}, {
+                currentUsers: _.compact(_.uniq((story.assigned_users || []).concat([story.assigned_to])))
+                activeUsers: @scope.activeUsers
+                lbTitle: @translate.instant('COMMON.ASSIGNED_USERS.ADD')
+                onClose: (users) =>
+                    story.assigned_users = _.uniq(users)
+                    story.assigned_to = if _.includes(users, story.assigned_to) then story.assigned_to else users[0] || null
+                    @repo.save(story).then => @loadUserstoryImages()
+                    .catch => @confirm.notify('error')
+            })
+        .catch => @confirm.notify('error')
+
+    editStory: (id) ->
+        return unless @projectService.hasPermission('modify_us')
+        @rs.userstories.get(@scope.projectId, id).then (story) =>
+            @rs2.attachments.list('us', id, @scope.projectId).then (attachments) =>
+                @rootscope.$broadcast('genericform:edit', {objType: 'us', obj: story, statusList: @scope.usStatusList, attachments: attachments.toJS()})
+        .catch => @confirm.notify('error')
+
+    deleteStory: (id) ->
+        return unless @projectService.hasPermission('delete_us')
+        @rs.userstories.get(@scope.projectId, id).then (story) =>
+            @confirm.askOnDelete(@translate.instant('US.TITLE_DELETE_ACTION'), story.subject).then (response) =>
+                @repo.remove(story).then =>
+                    response.finish()
+                    @loadSprint().then => @loadTasks()
+                    @loadSprintStats()
+                .catch =>
+                    response.finish(false)
+                    @confirm.notify('error')
+        .catch => @confirm.notify('error')
 
     openUsersSelection: (item) ->
         onClose = (assignedUsers) =>

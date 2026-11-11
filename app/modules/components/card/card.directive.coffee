@@ -22,6 +22,7 @@ cardDirective = () ->
             onClickDelete: "&",
             onClickMoveToTop: "&",
             project: "<",
+            taskboardStory: "<?",
             item: "<",
             zoom: "<",
             zoomLevel: "<",

@@ -1282,6 +1282,7 @@ html[data-modern-workspace='taskboard'] {
             .add-new-task svg { fill: var(--workspace-muted); }
         }
         .card { margin: 0 0 .75rem; }
+        .taskboard-us-slideshow .card-slideshow { background: transparent; border-radius: 8px; }
         .row-fold .taskboard-us { margin: 0; padding: .375rem .75rem; }
         .card-placeholder, .card-placeholder p { color: var(--workspace-muted); }
         .card-placeholder .taskboard-empty-icon {
@@ -5221,6 +5222,14 @@ html[data-workspace-appearance] .ticket-estimation .popover.pop-points-open {
     }
 }
 
+// Only replace the selected point's resting fill; preserve default/hover states.
+html[data-modern-workspace='backlog'] .popover.pop-points-open .point.active:not(:hover) {
+    background: color-mix(in srgb, var(--workspace-hover) 92%, black);
+    color: var(--workspace-text);
+
+    .item-text { color: inherit; }
+}
+
 // Story actions also appear on standalone detail pages and in board popups.
 html[data-modern-workspace] .story-sprint-action {
     background: transparent;
@@ -5261,5 +5270,70 @@ html[data-modern-workspace] .story-sprint-action {
     .bulk-back {
         border: 1px solid var(--workspace-border);
         padding: .375rem .625rem;
+    }
+}
+
+// Selection formatting must remain visible in every shared editor toolbar.
+html[data-workspace-appearance] .ck.ck-toolbar .ck.ck-button.ck-on {
+    background: var(--workspace-accent-soft);
+    color: var(--workspace-accent);
+    box-shadow: inset 0 -2px 0 var(--workspace-accent);
+
+    &:hover,
+    &:focus-visible {
+        background: var(--workspace-accent-soft);
+        color: var(--workspace-accent);
+    }
+}
+
+html[data-modern-workspace='taskboard'] .taskboard-us .taskboard-story-card {
+    border: 0;
+    box-shadow: none;
+    display: block;
+    margin: 0 0 .5rem;
+    width: 100%;
+
+    &:hover {
+        border: 0;
+        box-shadow: none;
+    }
+
+    .card-inner { width: 100%; }
+}
+
+html[data-modern-workspace='taskboard'] .taskboard-story-card {
+    .card-inner {
+        border: 0;
+        box-shadow: none;
+    }
+    .wrapper-assigned-to-data {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .375rem;
+        > tg-card-assigned-to { order: 0; }
+        > tg-card-data { flex-basis: 100%; order: 2; }
+        > .taskboard-story-status {
+            margin-left: auto;
+            order: 1;
+        }
+    }
+    .taskboard-story-status .status-value { margin: 0; }
+    .taskboard-story-status .detail-status-inner {
+        max-width: calc(8ch + 2rem);
+        width: calc(8ch + 2rem);
+        > span {
+            min-width: 0;
+            width: 100%;
+            .status-label {
+                flex: 1 1 0;
+                min-width: 0;
+                overflow: hidden;
+                text-align: left;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            tg-svg { flex-shrink: 0; margin-left: auto; }
+        }
     }
 }

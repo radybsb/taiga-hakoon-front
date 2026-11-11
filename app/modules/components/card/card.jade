@@ -15,6 +15,7 @@
     include card-templates/card-tags
 
     tg-card-actions(
+        ng-if="!vm.taskboardStory"
         item="vm.item"
         zoom-level="vm.zoomLevel"
         vm="vm"
@@ -35,6 +36,8 @@
             zoom-level="vm.zoomLevel"
             vm="vm"
         )
+        .taskboard-story-status.us-data(ng-if="vm.taskboardStory")
+            .status-value(tg-taskboard-us-status ng-model="vm.taskboardStory")
     tg-card-slideshow(
         ng-if="vm.isSlideshowVisible()"
         tg-check-permission="view_tasks"

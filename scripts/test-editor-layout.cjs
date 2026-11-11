@@ -53,10 +53,12 @@ const video='<p><a href="/media/attachments/a.mp4#_taiga-width=120">Video</a> </
  assert(removeIndex>1); assert.equal(toolbarItems[removeIndex-2],editor._taigaLayoutViews.join); assert.equal(toolbarItems[removeIndex-1],editor._taigaLayoutViews.gap);
  const toolbarTestData=editor.getData(); editor.setData('<p>List item</p>');
  editor.model.change(writer=>writer.setSelection(editor.model.document.getRoot().getChild(0),0));
- editor.execute('heading',{value:'heading1'}); assert.equal(headingView.buttonView.label,'Tt');
+ editor.execute('heading',{value:'heading1'}); assert.equal(headingView.buttonView.label,'H2');
  listView.buttonView.element.click(); assert(listView.isOpen);
  listView.toolbarView.items.find(view=>view.label==='Bulleted List').element.click(); assert.equal(listView.isOpen,false);
- assert(editor.commands.get('bulletedList').value); editor.execute('undo'); editor.execute('undo'); editor.setData(toolbarTestData);
+ assert.equal(listView.buttonView.icon,listView.toolbarView.items.find(view=>view.label==='Bulleted List').icon);
+ editor.execute('numberedList'); assert.equal(listView.buttonView.icon,listView.toolbarView.items.find(view=>view.label==='Numbered List').icon); assert.equal(listView.buttonView.label,'Numbered List'); editor.execute('undo');
+ assert(editor.commands.get('bulletedList').value); assert.equal(listView.buttonView.isOn,true);  editor.execute('undo'); editor.execute('undo'); editor.setData(toolbarTestData);
  // CKEditor parses icon strings as XML and moves their paths into its SVG view.
  // Paths without the SVG namespace exist in the DOM but do not render.
  const iconViews=editor._taigaLayoutViews;
