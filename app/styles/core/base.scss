@@ -10,11 +10,15 @@
 }
 
 html {
+    color-scheme: light;
     min-height: 100%;
     width: 100%;
+    &[data-workspace-appearance='dark'] { color-scheme: dark; }
 }
 body {
     @include font-type(regular);
+    background: var(--workspace-bg, #{$color-gray100});
+    color: var(--workspace-text, #{$color-black900});
     line-height: 1.25;
     min-height: 100%;
     overflow-x: hidden;

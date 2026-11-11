@@ -22,13 +22,18 @@ class AttachmentsPreviewController
         return @.attachments.find (attachment) =>
             @attachmentsPreviewService.fileId == attachment.getIn(['file', 'id'])
 
+    canManageCurrent: () ->
+        attachment = @getCurrentAttachment()
+        return !!attachment && !attachment.get('inherited')
+
     beginEdit: () ->
         attachment = @.getCurrentAttachment()
-        return unless attachment
+        return unless attachment && !attachment.get('inherited')
         @.editableAttachment = attachment.set('editable', true)
         @.editing = true
 
     updateCurrent: (attachment) ->
+        return if attachment.get('inherited')
         @.editableAttachment = attachment
         @.editing = attachment.get('editable')
         return @.onUpdate({attachment: attachment})

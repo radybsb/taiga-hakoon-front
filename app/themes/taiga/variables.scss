@@ -2,34 +2,38 @@
 //** COLORS
 //************************
 
-$primary: #25A28C;
-$primary-75: #5CBAA9;
-$primary-50: #92D1C5;
-$primary-25: #C9E8E2;
-$primary-10: #E9F6F3;
+@import 'palette';
 
-$secondary: #A7CB23;
-$secondary-75: #BDD65A;
-$secondary-50: #D3E391;
-$secondary-25: #E9F1C8;
+// Compile-time colors remain available to legacy lighten/darken/mix calls.
+$primary: map-get($workspace-palette-light, accent);
+$primary-75: mix($primary, map-get($workspace-palette-light, surface), 75%);
+$primary-50: mix($primary, map-get($workspace-palette-light, surface), 50%);
+$primary-25: mix($primary, map-get($workspace-palette-light, surface), 25%);
+$primary-10: map-get($workspace-palette-light, accent-soft);
 
-$tertiary: #C6C6D4;
+// The legacy secondary palette was used for action fills, not secondary variants.
+$secondary: map-get($workspace-palette-light, button-primary);
+$secondary-75: mix($secondary, map-get($workspace-palette-light, surface), 75%);
+$secondary-50: mix($secondary, map-get($workspace-palette-light, surface), 50%);
+$secondary-25: mix($secondary, map-get($workspace-palette-light, surface), 25%);
+
+$tertiary: map-get($workspace-palette-light, border);
 
 $red:  #FF6363;
 $red-25: #FFA5A5;
 $red-10: #FFE7E7;
 
-$grey-02: #F9F9FB;
-$grey-05: #F1F1F4;
-$grey-10: #E2E3E9;
-$grey-20: #C6C6D4;
-$grey-30: #A9AABC;
-$grey-40: #8D8EA5;
-$grey-50: #70728F;
-$grey-60: #5A5B72;
-$grey-70: #434456;
-$grey-80: #2D2D39;
-$grey-90: #16171D;
+$grey-02: map-get($workspace-palette-light, bg);
+$grey-05: map-get($workspace-palette-light, soft);
+$grey-10: map-get($workspace-palette-light, hover);
+$grey-20: map-get($workspace-palette-light, border);
+$grey-30: mix(map-get($workspace-palette-light, muted), #fff, 45%);
+$grey-40: mix(map-get($workspace-palette-light, muted), #fff, 75%);
+$grey-50: map-get($workspace-palette-light, muted);
+$grey-60: mix($grey-50, map-get($workspace-palette-light, text), 75%);
+$grey-70: mix($grey-50, map-get($workspace-palette-light, text), 40%);
+$grey-80: map-get($workspace-palette-light, text);
+$grey-90: #172033;
 
 
 // Color aliases for retrocompatibility
@@ -46,12 +50,12 @@ $white: #fff;
 // Primary colors
 $primary-light: $primary-75;
 $primary-lighter: $primary-10;
-$primary-dark: $primary-50;
-$primary-background: $primary-25;
+$primary-dark: map-get($workspace-palette-light, button-primary-hover);
+$primary-background: map-get($workspace-palette-light, accent-soft);
 
 // Secondary colors
 $secondary-light: $secondary-50;
-$secondary-dark: #91B011;
+$secondary-dark: map-get($workspace-palette-light, button-primary-hover);
 
 //Status colors
 $green-light: #D1DFC5;
@@ -60,37 +64,37 @@ $my-sin: #fcaf3e;
 $yellow-green: #9dce0a;
 
 //Card color
-$card: #fff8e4;
-$card-hover: #f1e8cd;
-$card-dark: #cfc29b;
+$card: map-get($workspace-palette-light, surface);
+$card-hover: map-get($workspace-palette-light, soft);
+$card-dark: map-get($workspace-palette-light, border);
 
 $tribe-primary: #107a8a;
 $tribe-secondary: darken($tribe-primary, 10%);
 
-$top-icon-color: #11241f;
+$top-icon-color: $grey-90;
 $dropdown-color: rgba(darken($grayer, 20%), 1);
 $code-bg: #272822;
 
-$highlight: #E5F390;
+$highlight: map-get($workspace-palette-light, accent-soft);
 
 // TAIGA 6
 
 // Primary colors
-$color-solid-primary: #83EEDE;
-$color-link-primary: #008AA8;
-$color-link-tertiary: #70728F;
+$color-solid-primary: $primary-50;
+$color-link-primary: $primary;
+$color-link-tertiary: map-get($workspace-palette-light, muted);
 
 // Grayscale
-$color-gray100: #F9F9FB;
-$color-gray200: #ECEFF4;
-$color-gray300: #E5E9F0;
-$color-gray400: #D8DEE9;
-$color-gray800: #505C74;
+$color-gray100: map-get($workspace-palette-light, bg);
+$color-gray200: map-get($workspace-palette-light, soft);
+$color-gray300: map-get($workspace-palette-light, hover);
+$color-gray400: map-get($workspace-palette-light, border);
+$color-gray800: map-get($workspace-palette-light, muted);
 
-$color-black600: #4C566A;
-$color-black700: #434C5E;
-$color-black800: #3B4252;
-$color-black900: #2E3440;
+$color-black600: $grey-50;
+$color-black700: $grey-60;
+$color-black800: $grey-70;
+$color-black900: map-get($workspace-palette-light, text);
 
 // State colors
 $color-link-red: #E44057;
@@ -110,11 +114,11 @@ $color-white: #FFFFFF;
 $color-black: #000000;
 
 //Helpers
-$default-tags: #A9AABC;
+$default-tags: $grey-30;
 
 //Loading colors
-$loading-color-1: #a8e440;
-$loading-color-2: #e4ce40;
-$loading-color-3: #e47c40;
-$loading-color-4: #e44057;
-$loading-color-5: #4056e4;
+$loading-color-1: $primary-25;
+$loading-color-2: $primary-50;
+$loading-color-3: $primary-75;
+$loading-color-4: $secondary;
+$loading-color-5: $secondary-dark;

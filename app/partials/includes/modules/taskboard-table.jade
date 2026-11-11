@@ -125,10 +125,7 @@ div.taskboard-table(
                                     ng-model="us"
                                 )
 
-                            tg-card-slideshow.taskboard-us-slideshow(
-                                ng-if="!usFolded[us.id] && userstoryImages[us.id].size"
-                                images="userstoryImages[us.id]"
-                            )
+
 
                             .add-new-task
                                 include ../components/addnewtask

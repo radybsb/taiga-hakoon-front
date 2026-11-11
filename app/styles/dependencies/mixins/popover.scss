@@ -16,14 +16,34 @@
     $hover-background: $color-gray200,
     $padding: .5rem,
 ) {
+    $popover-background: if(
+        $background-color == $color-white,
+        var(--workspace-surface, #{$background-color}),
+        $background-color
+    );
+    $popover-text: if(
+        $text-color == $color-link-primary,
+        var(--workspace-accent, #{$text-color}),
+        $text-color
+    );
+    $popover-hover-text: if(
+        $hover-text-color == $color-link-tertiary,
+        var(--workspace-muted, #{$hover-text-color}),
+        $hover-text-color
+    );
+    $popover-hover-background: if(
+        $hover-background == $color-gray200,
+        var(--workspace-hover, #{$hover-background}),
+        $hover-background
+    );
     @include font-type(regular);
     @include font-size(small);
-    background: $background-color;
-    border: 1px solid $color-gray400;
+    background: $popover-background;
+    border: 1px solid var(--workspace-border, #{$color-gray400});
     border-radius: 4px;
     bottom: #{$bottom};
-    box-shadow: 4px 4px 8px rgba(46, 52, 64, .1);
-    color: $text-color;
+    box-shadow: var(--workspace-popup-shadow, 4px 4px 8px rgba(46, 52, 64, .1));
+    color: $popover-text;
     display: none;
     left: #{$left};
     list-style-type: none;
@@ -36,7 +56,7 @@
     width: $width;
     z-index: $first-layer;
     &:hover {
-        color: $hover-text-color;
+        color: $popover-hover-text;
     }
     a {
         padding: .25rem;
@@ -49,10 +69,10 @@
 
         }
         &:hover {
-            background: $hover-background;
-            color: $hover-text-color;
+            background: $popover-hover-background;
+            color: $popover-hover-text;
             a {
-                color: $hover-text-color;
+                color: $popover-hover-text;
             }
         }
     }
@@ -70,7 +90,7 @@
         }
         .point {
             align-items: center;
-            color: $text-color;
+            color: $popover-text;
             display: flex;
             height: auto;
             justify-content: flex-start;
@@ -97,7 +117,7 @@
     }
     .point {
         align-items: center;
-        color: $text-color;
+        color: $popover-text;
         display: flex;
         height: 2.5rem;
         justify-content: center;
@@ -113,7 +133,7 @@
     .type,
     .role {
         align-items: center;
-        color: $text-color;
+        color: $popover-text;
         display: flex;
         min-height: 1.5rem;
         overflow: hidden;
@@ -125,7 +145,7 @@
         }
     }
     &::before {
-        background: $background-color;
+        background: $popover-background;
         bottom: #{$arrow-bottom};
         content: '';
         height: #{$arrow-height};

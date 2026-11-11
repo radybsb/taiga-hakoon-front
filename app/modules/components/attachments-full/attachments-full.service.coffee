@@ -34,6 +34,8 @@ class AttachmentsFullService extends taiga.Service
         @.regenerate()
 
     regenerate: () ->
+        # Keep owned files first: their ordering is independent of task files.
+        @._attachments = @._attachments.sortBy((item) -> if item.get('inherited') then 1 else 0)
         @._deprecatedsCount = @._attachments.count (it) -> it.getIn(['file', 'is_deprecated'])
 
         if @._deprecatedsVisible
@@ -83,11 +85,15 @@ class AttachmentsFullService extends taiga.Service
         @attachmentsService.list(type, objId, projectId).then (files) =>
             return unless @_attachmentContext == key && @attachmentLoadVersion == version
             @._attachments = files.map (file) ->
-                return Immutable.Map().merge({loading: false, editable: false, file: file})
+                return Immutable.Map().merge({
+                    loading: false, editable: false, file: file,
+                    inherited: type == 'us' && !!file.get('source_task_id')
+                })
             @regenerate()
             @rootScope.$broadcast("attachments:loaded", @._attachments)
 
     deleteAttachment: (toDeleteAttachment, type) ->
+        return @q.reject(new Error('Manage inherited attachments on their task')) if toDeleteAttachment.get('inherited')
         key = @_attachmentContext
         onSuccess = () =>
             return unless @_attachmentContext == key
@@ -99,14 +105,18 @@ class AttachmentsFullService extends taiga.Service
         return @attachmentsService.delete(type, toDeleteAttachment.getIn(['file', 'id'])).then(onSuccess)
 
     reorderAttachment: (objectId, type, attachment, newIndex) ->
+        return @q.reject(new Error('Task attachments cannot be reordered on a story')) if attachment.get('inherited')
         @invalidatePendingLoads()
-        oldIndex = @.attachments.findIndex (it) -> it == attachment
+        inherited = @attachments.filter((item) -> item.get('inherited'))
+        owned = @attachments.filter((item) -> !item.get('inherited'))
+        oldIndex = owned.findIndex (it) -> it == attachment
+        newIndex = Math.max(0, Math.min(newIndex, owned.size - 1))
 
-        attachments = @.attachments.remove(oldIndex)
+        attachments = owned.remove(oldIndex)
         attachments = attachments.splice(newIndex, 0, attachment)
 
         attachments = attachments.map (x, i) -> x.setIn(['file', 'order'], i + 1)
-        @._attachments = attachments
+        @._attachments = attachments.concat(inherited)
         @.regenerate()
 
         afterAttachmentId = null
@@ -123,6 +133,7 @@ class AttachmentsFullService extends taiga.Service
         )
 
     updateAttachment: (toUpdateAttachment, type) ->
+        return @q.reject(new Error('Manage inherited attachments on their task')) if toUpdateAttachment.get('inherited')
         key = @_attachmentContext
         index = @._attachments.findIndex (attachment) ->
             return attachment.getIn(['file', 'id']) == toUpdateAttachment.getIn(['file', 'id'])

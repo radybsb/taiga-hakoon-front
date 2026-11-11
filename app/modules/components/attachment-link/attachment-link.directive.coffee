@@ -15,7 +15,9 @@ AttachmentLinkDirective = ($parse, attachmentsPreviewService, lightboxService) -
                 event.preventDefault()
 
                 scope.$apply ->
-                    lightboxService.open($('tg-attachments-preview'))
+                    viewer = el.closest('tg-attachments-full').find('tg-attachments-preview')
+                    viewer = $('tg-attachments-preview').not('.description-image-preview') unless viewer.length
+                    lightboxService.open(viewer)
                     attachmentsPreviewService.fileId = attachment.getIn(['file', 'id'])
             else if taiga.isPdf(attachment.getIn(['file', 'name']))
                 event.preventDefault()

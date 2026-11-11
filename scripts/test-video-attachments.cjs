@@ -19,10 +19,15 @@ evaluate('app/coffee/utils.coffee');
 w.eval(fs.readFileSync('node_modules/angular/angular.js', 'utf8'));
 const preview = { fileId: 2 };
 let opened = 0;
+let openedViewer;
 let closed = 0;
 w.angular.module('taigaComponents', [])
   .value('tgAttachmentsPreviewService', preview)
-  .value('lightboxService', { open: () => opened++, close: () => closed++ })
+  .value('$tgResources', {})
+  .value('tgProjectService', {})
+  .value('tgDetailPopup', {})
+  .value('$tgConfirm', {})
+  .value('lightboxService', { open: viewer => { openedViewer = viewer; opened++; }, close: () => closed++ })
   .filter('sizeFormat', () => value => value == null ? '' : value + ' bytes');
 evaluate('app/modules/components/attachments-preview/attachments-preview.controller.coffee');
 evaluate('app/modules/components/attachments-preview/attachments-preview.directive.coffee');
@@ -78,9 +83,15 @@ const link = compile('<a tg-attachment-link="attachment" href="/download" downlo
 w.angular.element(w.document.body).append(link);
 root.$digest();
 const event = new w.MouseEvent('click', {bubbles: true, cancelable: true});
+const attachmentViewer = w.$('<tg-attachments-preview></tg-attachments-preview>').appendTo(w.document.body);
+const descriptionViewer = w.$('<tg-attachments-preview class="description-image-preview"></tg-attachments-preview>').appendTo(w.document.body);
 link[0].dispatchEvent(event);
 assert(event.defaultPrevented);
 assert.equal(opened, 1);
+assert.equal(openedViewer.length, 1);
+assert.equal(openedViewer[0], attachmentViewer[0], 'Attachment links must not open description viewers');
+descriptionViewer.remove();
+attachmentViewer.remove();
 assert.equal(preview.fileId, 2);
 root.$digest();
 const directive = injector.get('tgAttachmentsPreviewDirective')[0];

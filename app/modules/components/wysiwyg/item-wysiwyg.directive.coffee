@@ -7,8 +7,36 @@
 ###
 
 # Used in details descriptions
-ItemWysiwyg = ($modelTransform, $rootscope, $confirm, attachmentsFullService, $translate) ->
+ItemWysiwyg = ($modelTransform, $rootscope, $confirm, attachmentsFullService, $translate, attachmentsPreviewService, lightboxService) ->
     link = ($scope, $el, $attrs) ->
+        $scope.descriptionImages = Immutable.List()
+        imageSelector = '.description-body .wysiwyg img'
+        $el.on 'click.descriptionPreview', imageSelector, (event) ->
+            return if $(event.target).closest('.edit-mode, .editor-wrapper, [contenteditable="true"]').length
+            event.preventDefault()
+            event.stopPropagation()
+            images = $el.find(imageSelector).filter (index, image) ->
+                return !$(image).closest('.edit-mode, .editor-wrapper, [contenteditable="true"]').length
+            selectedIndex = images.index(event.target)
+            return if selectedIndex < 0
+            $scope.$apply ->
+                $scope.descriptionImages = Immutable.fromJS(images.toArray().map (image, index) ->
+                    name = image.alt || image.src.split('/').pop().split(/[?#]/)[0] || 'Image'
+                    name += '.png' unless taiga.isImage(name)
+                    return {
+                        inherited: true
+                        file: {
+                            id: "description-#{$scope.$id}-#{index}"
+                            name: name
+                            url: image.currentSrc || image.src
+                            preview_url: image.currentSrc || image.src
+                        }
+                    }
+                ).slice(selectedIndex, selectedIndex + 1)
+                attachmentsPreviewService.fileId = "description-#{$scope.$id}-#{selectedIndex}"
+                lightboxService.open($el.find('.description-image-preview'))
+        $scope.$on '$destroy', -> $el.off('.descriptionPreview')
+
         $scope.editableDescription = false
         $scope.descriptionState = {editing: false}
         $scope.descriptionCollapsed = false
@@ -108,6 +136,8 @@ ItemWysiwyg = ($modelTransform, $rootscope, $confirm, attachmentsFullService, $t
                 </div>
                 </div>
             </div>
+            <tg-attachments-preview class="description-image-preview lightbox lightbox-block"
+                attachments="descriptionImages"></tg-attachments-preview>
         """
     }
 
@@ -118,4 +148,6 @@ angular.module("taigaComponents")
         "$tgConfirm",
         "tgAttachmentsFullService",
         "$translate",
+        "tgAttachmentsPreviewService",
+        "lightboxService",
         ItemWysiwyg])

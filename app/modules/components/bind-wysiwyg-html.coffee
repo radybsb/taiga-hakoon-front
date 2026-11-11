@@ -6,7 +6,7 @@
 # Copyright (c) 2021-present Kaleidos INC
 ###
 
-BindCode = ($sce, $parse, $compile, wysiwygService) ->
+BindCode = ($sce, $parse, $compile, wysiwygService, attachmentsPreviewService, lightboxService) ->
   return {
     restrict: 'A',
     compile:  (tElement, tAttrs) ->
@@ -43,6 +43,7 @@ BindCode = ($sce, $parse, $compile, wysiwygService) ->
             anchor = element[0].querySelectorAll('a[href^="#"]')
             anchor.forEach (link) =>
                 link.addEventListener 'click', (e) =>
+                    return if $(e.target).closest('img').length
                     e.preventDefault()
                     node = document.querySelector(link.getAttribute('href'))
 
@@ -51,6 +52,45 @@ BindCode = ($sce, $parse, $compile, wysiwygService) ->
 
         return (scope, element, attr) ->
             $compile.$$addBindingInfo(element, attr.tgBindWysiwygHtml);
+
+            # Descriptions already provide their own viewer. Other rendered
+            # content (including wiki pages and comments) uses this local one.
+            previewScope = null
+            viewer = null
+            element.on 'click.wysiwygImages', 'img', (event) ->
+                return if element.closest('tg-item-wysiwyg').length
+                return if $(event.target).closest('.edit-mode, .editor-wrapper, [contenteditable="true"]').length
+                images = element.find('img').toArray()
+                selectedIndex = images.indexOf(event.target)
+                return if selectedIndex < 0
+                event.preventDefault()
+                event.stopPropagation()
+                scope.$apply ->
+                    unless previewScope
+                        previewScope = scope.$new()
+                        viewer = $compile('<tg-attachments-preview class="description-image-preview embedded-image-preview lightbox lightbox-block" attachments="embeddedImages"></tg-attachments-preview>')(previewScope)
+                        $(document.body).append(viewer)
+                    previewScope.embeddedImages = Immutable.fromJS(images.map (image, index) ->
+                        name = image.alt || image.src.split('/').pop().split(/[?#]/)[0] || 'Image'
+                        name += '.png' unless taiga.isImage(name)
+                        return {
+                            inherited: true
+                            file: {
+                                id: "embedded-#{previewScope.$id}-#{index}"
+                                name: name
+                                url: image.currentSrc || image.src
+                                preview_url: image.currentSrc || image.src
+                            }
+                        }
+                    ).slice(selectedIndex, selectedIndex + 1)
+                    attachmentsPreviewService.fileId = "embedded-#{previewScope.$id}-#{selectedIndex}"
+                    lightboxService.open(viewer)
+            scope.$on '$destroy', ->
+                element.off('.wysiwygImages')
+                if viewer
+                    lightboxService.close(viewer) if viewer.hasClass('open')
+                    viewer.remove()
+                previewScope?.$destroy() unless previewScope?.$$destroyed
 
             todoSelector = '.task-list-item input[type="checkbox"], .todo-list input[type="checkbox"]'
             updateTodo = ->
@@ -82,4 +122,6 @@ angular.module("taigaComponents")
         "$parse",
         "$compile",
         "tgWysiwygService",
+        "tgAttachmentsPreviewService",
+        "lightboxService",
         BindCode])

@@ -14,7 +14,8 @@ AttachmentSortableDirective = ($parse) ->
             copySortSource: false,
             copy: false,
             mirrorContainer: el[0],
-            moves: (item) -> return $(item).is('div[tg-bind-scope]')
+            moves: (item) ->
+                return $(item).is('div[tg-bind-scope]') && !$(item).scope().attachment?.get('inherited')
         })
 
         drake.on 'dragend', (item) ->

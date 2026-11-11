@@ -4,10 +4,10 @@
 %button {
     @include font-size(small);
     align-items: center;
-    background-color: $color-solid-primary;
+    background-color: var(--workspace-button-primary, #{$secondary});
     border: 0;
     border-radius: 4px;
-    color: $color-black900;
+    color: var(--workspace-button-primary-text, #{$color-white});
     display: inline-flex;
     justify-content: center;
     line-height: initial;
@@ -18,15 +18,15 @@
     &[variant='secondary']:hover,
     &[variant='destructive']:disabled,
     &:hover {
-        background-color: $color-link-primary;
+        background-color: var(--workspace-button-primary-hover, #{$secondary-dark});
         color: $color-white;
     }
     &[variant='primary']:disabled,
     &[variant='secondary']:disabled,
     &[variant='destructive']:disabled,
     &:disabled {
-        background-color: $color-gray400;
-        color: rgba($color-black900, .5);
+        background-color: var(--workspace-border, #{$color-gray400});
+        color: var(--workspace-muted, #{$color-black600});
     }
     & tg-svg {
         fill: currentColor;
@@ -52,14 +52,18 @@
     @extend %button;
     padding: .45rem 1rem;
     &[variant='primary'] {
-        background-color: $color-solid-primary;
-        color: $color-black900;
+        background-color: var(--workspace-button-primary, #{$secondary});
+        color: var(--workspace-button-primary-text, #{$color-white});
         transition: all .3s linear;
     }
     &[variant='secondary'] {
-        background-color: $color-gray400;
-        color: $color-black600;
+        background-color: var(--workspace-soft, #{$color-gray200});
+        color: var(--workspace-text, #{$color-black900});
         transition: all .3s linear;
+        &:hover:not(:disabled):not(.disabled) {
+            background-color: var(--workspace-hover, #{$color-gray300});
+            color: var(--workspace-text, #{$color-black900});
+        }
     }
     &[variant='destructive'] {
         background-color: $color-link-red;
@@ -79,12 +83,16 @@
     @extend %button;
     padding: .5rem;
     &[variant='primary'] {
-        background-color: $color-solid-primary;
-        color: $color-black900;
+        background-color: var(--workspace-button-primary, #{$secondary});
+        color: var(--workspace-button-primary-text, #{$color-white});
     }
     &[variant='secondary'] {
-        background-color: $color-gray400;
-        color: $color-black600;
+        background-color: var(--workspace-soft, #{$color-gray200});
+        color: var(--workspace-text, #{$color-black900});
+        &:hover:not(:disabled):not(.disabled) {
+            background-color: var(--workspace-hover, #{$color-gray300});
+            color: var(--workspace-text, #{$color-black900});
+        }
     }
     &[variant='destructive'] {
         background-color: $color-link-red;
@@ -101,7 +109,7 @@
     @include font-size(small);
     appearance: none;
     background: none;
-    color: $color-link-tertiary;
+    color: var(--workspace-muted, #{$color-link-tertiary});
     display: flex;
     justify-content: center;
     padding: .25rem;
@@ -113,7 +121,7 @@
         color: var(--workspace-accent);
         &:hover {
             background: none;
-            color: $color-link-tertiary;
+            color: var(--workspace-muted, #{$color-link-tertiary});
             & > tg-svg {
                 fill: currentColor;
             }
@@ -137,7 +145,7 @@
     color: var(--workspace-accent);
     padding: .25rem;
     &:hover {
-        background: $color-gray400;
+        background: var(--workspace-hover, #{$color-gray300});
     }
     & tg-svg {
         fill: currentColor;
@@ -149,13 +157,13 @@
 
 .btn-filter {
     @extend %button;
-    background-color: $color-gray100;
+    background-color: var(--workspace-soft, #{$color-gray200});
     color: var(--workspace-accent);
     padding: .5rem .5rem;
     text-transform: none;
     &.active,
     &:hover {
-        background-color: $color-gray400;
+        background-color: var(--workspace-border, #{$color-gray400});
         color: var(--workspace-accent);
     }
     & tg-svg {
@@ -182,7 +190,7 @@
 .btn-board {
     @extend %button;
     background-color: transparent;
-    color: $color-link-tertiary;
+    color: var(--workspace-muted, #{$color-link-tertiary});
     padding: .25rem;
     & tg-svg {
         fill: currentColor;

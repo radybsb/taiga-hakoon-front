@@ -1,0 +1,48 @@
+/* stylelint-disable color-no-hex */
+// Hex literals are intentional in the palette definition; components use tokens.
+// Canonical UI palettes. Sass aliases and runtime themes share these values.
+// Action fills stay saturated in both modes; accent text is lighter in dark mode.
+$workspace-palette-light: (
+    bg: #f4f6fa,
+    surface: #fff,
+    soft: #edf1f7,
+    hover: #e5eaf3,
+    text: #243047,
+    muted: #637189,
+    border: #dce3ee,
+    accent: #4e56d9,
+    accent-soft: #eeedff,
+    button-primary: #535bdc,
+    button-primary-hover: #444bc2,
+    button-primary-text: #fff,
+    drop-bg: rgba(238, 237, 255, .75),
+    total-bg: #e2e8f0,
+    shadow: 0 2px 8px rgba(30, 42, 70, .05),
+    popup-shadow: 0 24px 90px rgba(12, 20, 40, .24)
+);
+
+$workspace-palette-dark: (
+    bg: #111722,
+    surface: #1b2331,
+    soft: #151d2a,
+    hover: #29354a,
+    text: #e6ecf5,
+    muted: #a2b0c6,
+    border: #334158,
+    accent: #b2b5ff,
+    accent-soft: #303356,
+    button-primary: #535bdc,
+    button-primary-hover: #444bc2,
+    button-primary-text: #fff,
+    drop-bg: rgba(48, 51, 86, .75),
+    total-bg: #2b3649,
+    shadow: 0 2px 8px rgba(0, 0, 0, .14),
+    popup-shadow: 0 24px 90px rgba(0, 0, 0, .5)
+);
+
+@mixin workspace-palette($appearance) {
+    $palette: if($appearance == dark, $workspace-palette-dark, $workspace-palette-light);
+    @each $name, $value in $palette {
+        --workspace-#{$name}: #{$value};
+    }
+}

@@ -493,6 +493,7 @@
     }
 }
 
+.story-sprint-action,
 .backlog-bulk-options {
     align-items: center;
     display: none;
@@ -573,5 +574,14 @@
             line-height: 1.5;
             padding: .5rem .625rem;
         }
+    }
+}
+
+.story-sprint-action {
+    display: inline-flex;
+
+    .backlog-bulk-popup {
+        left: 0;
+        right: auto;
     }
 }

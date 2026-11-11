@@ -11,7 +11,7 @@ bindOnce = @.taiga.bindOnce
 AttachmentsFullDirective = () ->
     link = (scope, el, attrs, ctrl) ->
         scope.displayAttachmentInput = (event) ->
-            angular.element('#add-attach').click();
+            el[0].querySelector('input[type="file"]').click()
             return false;
 
     return {

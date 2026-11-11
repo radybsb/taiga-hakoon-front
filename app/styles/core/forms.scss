@@ -14,21 +14,21 @@ input[type='date'],
 input[type='search'],
 select,
 textarea {
-    background: $color-white;
-    border: 2px solid $color-gray400;
+    background: var(--workspace-surface, #{$color-white});
+    border: 2px solid var(--workspace-border, #{$color-gray400});
     border-radius: 3px;
-    color: $color-black600;
+    color: var(--workspace-text, #{$color-black900});
     margin: 0;
     padding: .3rem 1rem .3rem .95rem;
     width: 100%;
 
     @include placeholder {
         @include font-size(small);
-        color: rgba($color-black600, .5);
+        color: var(--workspace-muted, #{$color-black600});
     }
 
     &:focus {
-        border: 2px solid $color-link-primary;
+        border: 2px solid var(--workspace-accent, #{$color-link-primary});
         outline: none;
         transition: border .2s linear;
     }

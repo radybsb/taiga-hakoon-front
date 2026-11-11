@@ -39,7 +39,7 @@
         a.icon-delete(
             href=""
             title="{{'COMMON.DELETE' | translate}}"
-            ng-if="!vm.attachment.get('editable')"
+            ng-if="!vm.attachment.get('editable') && !vm.attachment.get('inherited')"
             tg-check-permission="modify_{{vm.type}}"
             ng-click="vm.delete()"
         )

@@ -35,7 +35,7 @@ h3,
 h4,
 h5,
 h6 {
-    color: $color-black900;
+    color: var(--workspace-text, #{$color-black900});
     font-weight: normal;
     line-height: 1.5;
 
@@ -100,14 +100,14 @@ a:visited {
     text-decoration: none;
 
     &:hover {
-        color: $color-black600;
+        color: var(--workspace-muted, #{$color-black600});
         transition: color .3s linear;
     }
 }
 
 a.secondary,
 a.secondary:visited {
-    color: $color-black600;
+    color: var(--workspace-muted, #{$color-black600});
     text-decoration: none;
 
     &:hover {

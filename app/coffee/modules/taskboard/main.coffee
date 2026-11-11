@@ -78,7 +78,6 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         bindMethods(@)
         @taskboardTasksService.reset()
         @scope.userstories = []
-        @scope.userstoryImages = {}
         @.openFilter = false
         @.filterQ = ''
         @.backToBacklogUrl = @navUrls.resolve('project-backlog', {
@@ -324,7 +323,6 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         ), => @confirm.notify('error'))
         @scope.$on 'usform:edit:success', (event, us) =>
             @scope.userstories = @scope.userstories.map((item) -> if item.id == us.id then us else item)
-            @.loadUserstoryImages().catch => @confirm.notify('error')
             @.loadSprintStats()
         @scope.$on "taskform:bulk:success", (event, tasks) =>
             @.refreshTagsColors().then () =>
@@ -457,26 +455,11 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         return @rs.sprints.get(@scope.projectId, @scope.sprintId).then (sprint) =>
             @scope.sprint = sprint
             @scope.userstories = _.sortBy(sprint.user_stories, "sprint_order")
-            images = @.loadUserstoryImages().catch => @confirm.notify('error')
 
             @taskboardTasksService.setUserstories(@scope.userstories)
 
             @rootscope.$broadcast("taskboard:userstories:loaded", @scope.userstories)
-            return images.then -> sprint
-
-    loadUserstoryImages: ->
-        # Fetch the sprint's attachment summaries together without changing the
-        # shared story filters used by other pages.
-        @repo.queryMany('userstories', {
-            project: @scope.projectId,
-            milestone: @scope.sprintId,
-            include_attachments: true
-        }).then (stories) =>
-            return if @scope.$$destroyed
-            images = {}
-            for story in stories
-                images[story.id] = Immutable.fromJS((story.attachments || []).filter((attachment) -> !!attachment.thumbnail_card_url))
-            @scope.userstoryImages = images
+            return sprint
 
     loadIssues: ->
         params = {}

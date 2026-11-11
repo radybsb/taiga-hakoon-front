@@ -6,7 +6,7 @@
     background: transparent;
     border: 0;
     border-radius: 4px;
-    color: $color-black600;
+    color: var(--workspace-text, #{$color-black900});
     cursor: pointer;
     display: inline-flex;
     justify-content: center;
@@ -53,39 +53,44 @@
 
 .button-green {
     @extend %button;
-    background: $secondary;
+    background: var(--workspace-button-primary, #{$secondary});
+    color: var(--workspace-button-primary-text, #{$white});
     &:hover,
     &.active,
     &:visited:hover {
-        background: lighten($secondary, 5%);
+        background: var(--workspace-button-primary-hover, #{$secondary-dark});
     }
 }
 
 .button-gray {
     @extend %button;
     background: $grey-50;
+    color: $white;
     &:hover,
     &.active,
     &:visited:hover {
-        background: lighten($grey-50, 5%);
+        background: darken($grey-50, 8%);
     }
 }
 .button-gray-light {
     @extend %button;
-    background: $grey-20;
+    background: var(--workspace-soft, #{$color-gray200});
+    color: var(--workspace-text, #{$color-black900});
     &:hover,
     &.active,
     &:visited:hover {
-        background: lighten($grey-20, 5%);
+        background: var(--workspace-hover, #{$color-gray300});
     }
 }
 .button-red {
     @extend %button;
     background: $red;
+    color: $color-black900;
 }
 .button-red-light {
     @extend %button;
     background: $red-light;
+    color: $color-black900;
 }
 
 .button-red,
@@ -99,33 +104,33 @@
 
 .trans-button {
     @extend %button;
-    background-color: $grey-02;
+    background-color: var(--workspace-soft, #{$color-gray200});
     span,
     .icon {
-        color: $blackish;
+        color: var(--workspace-text, #{$color-black900});
         transition: color .2s linear;
     }
     .icon {
         margin-right: .5rem;
     }
     &:visited {
-        color: $blackish;
+        color: var(--workspace-text, #{$color-black900});
     }
 }
 
 .menu-button {
     @extend %button;
     border-radius: 0;
-    color: $blackish;
+    color: var(--workspace-text, #{$color-black900});
     &:hover {
-        background: $whitish;
-        color: $gray;
+        background: var(--workspace-hover, #{$color-gray300});
+        color: var(--workspace-muted, #{$color-link-tertiary});
     }
     &:visited {
-        color: $blackish;
+        color: var(--workspace-text, #{$color-black900});
     }
     span {
-        color: $blackish;
+        color: var(--workspace-text, #{$color-black900});
     }
 }
 
@@ -152,6 +157,7 @@
     @extend %button;
     @include font-type(regular);
     background: $grayer;
+    color: $white;
     display: flex;
     width: 100%;
     .icon,
@@ -170,6 +176,7 @@
     @extend %button;
     align-items: center;
     background: $tribe-primary;
+    color: $white;
     display: flex;
     padding: .4rem;
     padding-left: 1.5rem;
@@ -254,28 +261,30 @@
 
 .button-primary {
     @extend %button;
-    background: $color-solid-primary;
+    background: var(--workspace-button-primary, #{$secondary});
+    color: var(--workspace-button-primary-text, #{$white});
     padding: .25rem;
 
     &:hover {
-        background: $color-link-primary;
-        color: $color-white;
+        background: var(--workspace-button-primary-hover, #{$secondary-dark});
+        color: var(--workspace-button-primary-text, #{$white});
     }
 }
 
 .button-secondary {
     @extend %button;
-    background: $color-gray400;
-    color: $color-black600;
+    background: var(--workspace-soft, #{$color-gray200});
+    color: var(--workspace-text, #{$color-black900});
+    &:hover { background: var(--workspace-hover, #{$color-gray300}); }
 }
 
 .icon-button-primary {
     @extend %button;
-    background: $color-solid-primary;
+    background: var(--workspace-button-primary, #{$secondary});
+    color: var(--workspace-button-primary-text, #{$white});
 
-    span {
-        color: $color-black900;
-    }
+    span { color: currentColor; }
+    &:hover { background: var(--workspace-button-primary-hover, #{$secondary-dark}); }
 }
 
 .form-button {

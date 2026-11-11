@@ -6,11 +6,24 @@
 # Copyright (c) 2021-present Kaleidos INC
 ###
 
-AttachmentPreviewLightboxDirective = (lightboxService, attachmentsPreviewService) ->
+AttachmentPreviewLightboxDirective = (lightboxService, attachmentsPreviewService, resources, projectService, detailPopup, confirm) ->
     link = ($scope, el, attrs, ctrl) ->
+        ctrl.openSourceTask = ->
+            attachment = ctrl.getCurrentAttachment()
+            taskId = attachment?.getIn(['file', 'source_task_id'])
+            return unless attachment?.get('inherited') && taskId && !ctrl.openingSourceTask
+            project = projectService.project
+            ctrl.openingSourceTask = true
+            resources.tasks.get(project.get('id'), taskId).then (task) ->
+                return if $scope.$$destroyed
+                lightboxService.close(el)
+                detailPopup.open('project-tasks-detail', {project: project.get('slug'), ref: task.ref})
+            .catch(-> confirm.notify('error'))
+            .finally -> ctrl.openingSourceTask = false
+
         ctrl.deleteCurrent = ->
             attachment = ctrl.getCurrentAttachment()
-            return unless attachment
+            return unless attachment && !attachment.get('inherited')
             ctrl.onDelete({attachment: attachment})
 
         isTopmost = ->
@@ -90,4 +103,8 @@ AttachmentPreviewLightboxDirective = (lightboxService, attachmentsPreviewService
 angular.module('taigaComponents').directive("tgAttachmentsPreview", [
     "lightboxService",
     "tgAttachmentsPreviewService",
+    "$tgResources",
+    "tgProjectService",
+    "tgDetailPopup",
+    "$tgConfirm",
     AttachmentPreviewLightboxDirective])

@@ -49,11 +49,14 @@
             a.attachment-preview-action(href="{{vm.current.get('url')}}" download="{{vm.current.get('name')}}")
                 tg-svg(svg-icon="icon-download")
                 span Download
-            button.attachment-preview-action(type="button" ng-click="vm.beginEdit()" tg-check-permission="modify_{{vm.type}}")
+            button.attachment-preview-action(type="button" ng-if="vm.getCurrentAttachment().get('inherited') && vm.current.get('source_task_id')" ng-click="vm.openSourceTask()" ng-disabled="vm.openingSourceTask")
+                tg-svg(svg-icon="icon-arrow-right")
+                span Open task
+            button.attachment-preview-action(type="button" ng-if="vm.canManageCurrent()" ng-click="vm.beginEdit()" tg-check-permission="modify_{{vm.type}}")
                 tg-svg(svg-icon="icon-edit")
                 span Edit
-            button.attachment-preview-action(type="button" ng-click="vm.deleteCurrent()" tg-check-permission="modify_{{vm.type}}")
+            button.attachment-preview-action(type="button" ng-if="vm.canManageCurrent()" ng-click="vm.deleteCurrent()" tg-check-permission="modify_{{vm.type}}")
                 tg-svg(svg-icon="icon-trash")
                 span Delete
-        .attachment-preview-editor(ng-if="vm.editing" tg-check-permission="modify_{{vm.type}}")
+        .attachment-preview-editor(ng-if="vm.editing && vm.canManageCurrent()" tg-check-permission="modify_{{vm.type}}")
             tg-attachment(attachment="vm.editableAttachment" on-update="vm.updateCurrent(attachment)" type="vm.type")

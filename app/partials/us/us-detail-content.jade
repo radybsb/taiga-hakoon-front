@@ -28,6 +28,20 @@ include us-metadata
                         )
 
                 .story-context-actions
+                    .story-sprint-action.story-context-settings(ng-if="project.is_backlog_activated && us" tg-check-permission="modify_us")
+                        button.btn-icon(type="button" variant="secondary" ng-click="ctrl.toggleSprintPicker()" ng-disabled="sprintMoveBusy" title="{{'BACKLOG.BULK.MOVE_TO_SPRINT' | translate}}" aria-label="{{'BACKLOG.BULK.MOVE_TO_SPRINT' | translate}}" aria-haspopup="true" aria-expanded="{{!!sprintPickerOpen}}")
+                            tg-svg(svg-icon="icon-add-to-sprint")
+                        .backlog-bulk-popup(ng-if="sprintPickerOpen" aria-busy="{{sprintsLoading || sprintMoveBusy}}" ng-keydown="$event.keyCode == 27 && !sprintMoveBusy && ctrl.toggleSprintPicker()")
+                            button.bulk-back(type="button" ng-click="ctrl.toggleSprintPicker()" ng-disabled="sprintMoveBusy" translate="COMMON.CLOSE")
+                            .bulk-sprints
+                                p(ng-if="sprintsLoading" translate="BACKLOG.BULK.LOADING")
+                                p(ng-if="sprintMoveBusy" translate="BACKLOG.BULK.WORKING" role="status")
+                                p(ng-if="!sprintsLoading && !sprintChoices.length" translate="BACKLOG.BULK.NO_SPRINTS")
+                                ul.pop-status.bulk-sprint-list(ng-if="!sprintsLoading")
+                                    li(ng-repeat="sprint in sprintChoices track by sprint.id")
+                                        button(type="button" ng-disabled="sprintMoveBusy" ng-click="sprintMove.targetId = sprint.id; ctrl.moveToSprint()")
+                                            span.item-text {{sprint.name}}
+                                            small {{sprint.estimated_start}}
                     //- User Story relate to Epic
                     .relate-to-epic(
                         ng-if="project.is_epics_activated",

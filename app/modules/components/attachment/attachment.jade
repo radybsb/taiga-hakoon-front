@@ -70,7 +70,7 @@ form.single-attachment(
                 tg-svg(svg-icon="icon-close")
 
     .attachment-settings(
-        ng-if="!vm.attachment.get('editable')"
+        ng-if="!vm.attachment.get('editable') && !vm.attachment.get('inherited')"
         tg-check-permission="modify_{{vm.type}}"
     )
         a.settings.e2e-edit(

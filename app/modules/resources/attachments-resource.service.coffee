@@ -16,6 +16,7 @@ Resource = (urlsService, http, config, $rootScope, $q, storage) ->
         urlname = "attachments/#{type}"
 
         params = {object_id: objectId, project: projectId}
+        params.include_task_attachments = 1 if type == 'us'
         httpOptions = {
             headers: {
                 "x-disable-pagination": "1"

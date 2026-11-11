@@ -70,6 +70,30 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         # On Error
         promise.then null, @.onInitialDataError.bind(@)
 
+    toggleSprintPicker: ->
+        return unless @projectService.hasPermission('modify_us')
+        @scope.sprintPickerOpen = !@scope.sprintPickerOpen
+        return unless @scope.sprintPickerOpen
+        @scope.sprintChoices = []
+        @scope.sprintMove = {targetId: null}
+        @scope.sprintsLoading = true
+        @rs.sprints.list(@scope.project.id, {closed: false}).then (data) =>
+            @scope.sprintChoices = _.filter(data.milestones, (sprint) => sprint.id != @scope.us.milestone)
+        .catch(=> @confirm.notify('error'))
+        .finally => @scope.sprintsLoading = false
+
+    moveToSprint: ->
+        return unless @projectService.hasPermission('modify_us') && @scope.sprintMove.targetId && !@scope.sprintMoveBusy
+        return unless _.some(@scope.sprintChoices, (sprint) => sprint.id == @scope.sprintMove.targetId)
+        @scope.sprintMoveBusy = true
+        @rs.userstories.bulkUpdateMilestone(@scope.project.id, @scope.sprintMove.targetId, [{us_id: @scope.us.id, order: @scope.us.sprint_order}]).then =>
+            @scope.sprintPickerOpen = false
+            @loadUs().then =>
+                @rootscope.$broadcast('usform:edit:success', @scope.us)
+                @q.all([@loadSprint(), @loadTasks()])
+        .catch(=> @confirm.notify('error'))
+        .finally => @scope.sprintMoveBusy = false
+
     _setMeta: ->
         return if @scope.detailPopup
         totalTasks = @scope.tasks.length
@@ -104,6 +128,8 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
 
         @scope.$on "related-tasks:update", =>
             @.loadTasks()
+            key = @attachmentsFullService.contextKey('us', @scope.usId, @scope.projectId)
+            @loadAttachments() if @attachmentsFullService._attachmentContext == key
             @scope.tasks = _.clone(@scope.tasks, false)
             allClosed = _.every @scope.tasks, (task) -> return task.is_closed
 
