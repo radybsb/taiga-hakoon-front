@@ -5400,3 +5400,35 @@ html[data-modern-workspace='taskboard'] .taskboard-story-card .card-inner {
     }
     > .card-tags { order: -1; }
 }
+
+// Wiki content scrolls with the document; retain the global navigation above it.
+html[data-modern-workspace='wiki'] {
+    body { padding-top: var(--workspace-navigation-height, 48px); }
+    [tg-navigation-bar] {
+        display: block;
+        inset: 0 0 auto;
+        max-width: 100vw;
+        position: fixed;
+        width: 100%;
+        z-index: 50;
+    }
+}
+
+@media (min-width: 1200px) {
+    html[data-modern-workspace='wiki'] .wrapper > tg-project-menu {
+        align-self: flex-start;
+        height: calc(100vh - var(--workspace-navigation-height, 48px));
+        height: calc(100dvh - var(--workspace-navigation-height, 48px));
+        position: sticky;
+        top: var(--workspace-navigation-height, 48px);
+
+        .sticky-project-menu {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior-y: contain;
+            position: relative;
+            top: auto;
+        }
+    }
+}
