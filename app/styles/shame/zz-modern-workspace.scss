@@ -5359,3 +5359,44 @@ html[data-modern-workspace] .bulk-task-header {
     .title { flex: 1; margin: 0; min-width: 0; text-align: left; }
     .bulk-assign-button { flex-shrink: 0; }
 }
+
+// Keep Wiki navigation available while long page content scrolls beside it.
+html[data-modern-workspace='wiki'] .menu-secondary.wiki-nav {
+    align-self: flex-start;
+    height: calc(100vh - var(--workspace-navigation-height, 48px));
+    height: calc(100dvh - var(--workspace-navigation-height, 48px));
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+    position: sticky;
+    scrollbar-gutter: stable;
+    top: var(--workspace-navigation-height, 48px);
+
+    @media (max-width: 767px) {
+        align-self: stretch;
+        height: auto;
+        max-height: 40vh;
+        max-height: 40dvh;
+        position: relative;
+        top: auto;
+    }
+}
+
+html[data-modern-workspace='taskboard'] .taskboard-story-card .card-inner {
+    display: flex;
+    flex-direction: column;
+    padding-top: 0;
+
+    > .card-title {
+        display: block;
+        margin: 0 0 .5rem;
+        min-height: 2rem;
+        order: -2;
+        padding-right: 3.5rem;
+        a { align-items: baseline; display: flex; gap: .25rem; }
+        .card-ref { flex-shrink: 0; }
+        .card-subject { min-width: 0; overflow-wrap: anywhere; }
+    }
+    > .card-tags { order: -1; }
+}

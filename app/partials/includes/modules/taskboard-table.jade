@@ -83,6 +83,7 @@ div.taskboard-table(
 
                         .taskboard-us
                             tg-card.card.taskboard-story-card(
+                                ng-if="storyCards[us.id]"
                                 item="storyCards[us.id]"
                                 project="project"
                                 type="us"

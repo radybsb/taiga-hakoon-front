@@ -80,7 +80,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         @scope.userstories = []
         @scope.userstoryImages = {}
         @scope.storyCards = {}
-        @storyCardZoom = ['tags', 'assigned_to', 'extra_info', 'card-data', 'attachments']
+        @storyCardZoom = ['ref', 'subject', 'tags', 'assigned_to', 'extra_info', 'card-data', 'attachments']
         @.openFilter = false
         @.filterQ = ''
         @.backToBacklogUrl = @navUrls.resolve('project-backlog', {
