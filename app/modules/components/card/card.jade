@@ -21,7 +21,7 @@
         vm="vm"
     )
 
-    div(ng-if="vm.zoomLevel > 0")
+    .card-epics-wrapper(ng-if="vm.zoomLevel > 0")
         include card-templates/card-epics
     include card-templates/card-title
     .wrapper-assigned-to-data
