@@ -355,10 +355,18 @@ module.directive("tgBlockingMessageInput", ["$log", "$tgTemplate", "$compile", B
 ## Creare Bulk Userstories Lightbox Directive
 #############################################################################
 
-CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $loading, $model, $timeout, $confirm, $translate) ->
+CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $loading, $model, $timeout, $confirm, $translate, lightboxFactory) ->
     link = ($scope, $el, attrs) ->
         form = null
         $scope.displayStatusSelector = false
+        $scope.assignBulkStories = ->
+            $scope.displayStatusSelector = false
+            lightboxFactory.create('tg-lb-select-user', {class: 'lightbox lightbox-select-user'}, {
+                currentUsers: $scope.new.assignedUsers
+                activeUsers: $scope.activeUsers
+                lbTitle: $translate.instant('COMMON.ASSIGNED_USERS.ADD')
+                onClose: (users) -> $scope.new.assignedUsers = _.uniq(users)
+            })
 
         getCurrentStatus = () =>
             $scope.currentStatus = $scope.project.us_statuses.filter((status) ->
@@ -389,6 +397,7 @@ CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $load
                 bulk: ""
                 swimlaneId: swimlaneId
                 us_position: 'bottom'
+                assignedUsers: []
             }
             getCurrentStatus()
             lightboxService.open($el)
@@ -411,7 +420,7 @@ CreateBulkUserstoriesDirective = ($repo, $rs, $rootscope, lightboxService, $load
                 .target(submitButton)
                 .start()
 
-            promise = $rs.userstories.bulkCreate($scope.new.projectId, $scope.new.statusId, $scope.new.bulk, swimlaneId)
+            promise = $rs.userstories.bulkCreate($scope.new.projectId, $scope.new.statusId, $scope.new.bulk, swimlaneId, $scope.new.assignedUsers)
             promise.then (result) ->
                 result =  _.map(result.data, (x) => $model.make_model('userstories', x))
                 currentLoading.finish()
@@ -459,6 +468,7 @@ module.directive("tgLbCreateBulkUserstories", [
     "$timeout",
     "$tgConfirm",
     "$translate",
+    "tgLightboxFactory",
     CreateBulkUserstoriesDirective
 ])
 

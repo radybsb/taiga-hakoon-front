@@ -5337,3 +5337,25 @@ html[data-modern-workspace='taskboard'] .taskboard-story-card {
         }
     }
 }
+
+html[data-modern-workspace] .bulk-status-selector-wrapper {
+    align-items: center;
+    display: flex;
+    gap: .75rem;
+    .bulk-status-selector { min-width: 0; width: 65%; }
+    .bulk-assign-button {
+        background: var(--workspace-soft);
+        border: 1px solid var(--workspace-border);
+        border-radius: 8px;
+        color: var(--workspace-text);
+        margin-left: auto;
+        &:hover { background: var(--workspace-hover); }
+        svg { fill: currentColor; }
+    }
+}
+
+html[data-modern-workspace] .bulk-task-header {
+    margin-bottom: 1.5rem;
+    .title { flex: 1; margin: 0; min-width: 0; text-align: left; }
+    .bulk-assign-button { flex-shrink: 0; }
+}

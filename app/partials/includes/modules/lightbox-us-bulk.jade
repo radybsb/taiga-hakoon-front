@@ -19,6 +19,9 @@ form
             )
                 span {{ currentStatus.name }}
                 tg-svg(svg-icon="icon-arrow-down")
+            button.btn-icon.compact-add-user.bulk-assign-button(type="button" ng-click="assignBulkStories()" title="{{'COMMON.ASSIGNED_USERS.ADD_ASSIGNED' | translate}}" aria-label="{{'COMMON.ASSIGNED_USERS.ADD_ASSIGNED' | translate}}")
+                tg-svg(svg-icon="icon-user-plus")
+                span(ng-if="new.assignedUsers.length") {{new.assignedUsers.length}}
             .bulk-status-option-wrapper(
                 ng-show="displayStatusSelector"
             )

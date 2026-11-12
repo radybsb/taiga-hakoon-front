@@ -46,9 +46,9 @@ resourceProvider = ($repo, $http, $urls, $storage) ->
         service.storeQueryParams(projectId, params)
         return $repo.queryMany("tasks", params)
 
-    service.bulkCreate = (projectId, sprintId, usId, data) ->
+    service.bulkCreate = (projectId, sprintId, usId, data, assignedUsers = []) ->
         url = $urls.resolve("bulk-create-tasks")
-        params = {project_id: projectId, milestone_id: sprintId, us_id: usId, bulk_tasks: data}
+        params = {project_id: projectId, milestone_id: sprintId, us_id: usId, bulk_tasks: data, assigned_users: assignedUsers}
         return $http.post(url, params).then (result) ->
             return result.data
 

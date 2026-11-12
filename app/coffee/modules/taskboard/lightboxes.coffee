@@ -15,9 +15,16 @@ trim = @.taiga.trim
 module = angular.module("taigaTaskboard")
 
 
-CreateBulkTasksDirective = ($repo, $rs, $rootscope, $loading, lightboxService, $model) ->
+CreateBulkTasksDirective = ($repo, $rs, $rootscope, $loading, lightboxService, $model, lightboxFactory, $translate) ->
     link = ($scope, $el, attrs) ->
-        $scope.form = {data: "", usId: null}
+        $scope.form = {data: "", usId: null, assignedUsers: []}
+        $scope.assignBulkTasks = ->
+            lightboxFactory.create('tg-lb-select-user', {class: 'lightbox lightbox-select-user'}, {
+                currentUsers: $scope.form.assignedUsers
+                activeUsers: $scope.activeUsers
+                lbTitle: $translate.instant('COMMON.ASSIGNED_USERS.ADD')
+                onClose: (users) -> $scope.form.assignedUsers = _.uniq(users)
+            })
 
         submit = debounce 2000, (event) =>
             event.preventDefault()
@@ -35,7 +42,7 @@ CreateBulkTasksDirective = ($repo, $rs, $rootscope, $loading, lightboxService, $
             sprintId = $scope.form.sprintId
             usId = $scope.form.usId
 
-            promise = $rs.tasks.bulkCreate(projectId, sprintId, usId, data)
+            promise = $rs.tasks.bulkCreate(projectId, sprintId, usId, data, $scope.form.assignedUsers)
             promise.then (result) ->
                 result =  _.map(result, (x) => $model.make_model('tasks', x))
                 currentLoading.finish()
@@ -48,7 +55,7 @@ CreateBulkTasksDirective = ($repo, $rs, $rootscope, $loading, lightboxService, $
 
         $scope.$on "taskform:bulk", (ctx, sprintId, usId)->
             lightboxService.open($el)
-            $scope.form = {data: "", sprintId: sprintId, usId: usId}
+            $scope.form = {data: "", sprintId: sprintId, usId: usId, assignedUsers: []}
 
         submitButton = $el.find(".submit-button")
 
@@ -66,5 +73,7 @@ module.directive("tgLbCreateBulkTasks", [
     "$tgLoading",
     "lightboxService",
     "$tgModel",
+    "tgLightboxFactory",
+    "$translate",
     CreateBulkTasksDirective
 ])

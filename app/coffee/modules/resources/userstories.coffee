@@ -61,11 +61,12 @@ resourceProvider = ($repo, $http, $urls, $storage, $q) ->
 
         return $repo.queryMany("userstories", params)
 
-    service.bulkCreate = (projectId, status, bulk, swimlane) ->
+    service.bulkCreate = (projectId, status, bulk, swimlane, assignedUsers = []) ->
         data = {
             project_id: projectId
             status_id: status
             bulk_stories: bulk
+            assigned_users: assignedUsers
             swimlane_id: swimlane
         }
 
