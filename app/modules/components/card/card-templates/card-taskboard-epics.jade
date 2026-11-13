@@ -1,0 +1,32 @@
+//- Board epic links retain their source colors and detail popups.
+.card-epics.taskboard-epics(ng-if="(vm.taskboardStory || (vm.kanbanStory && vm.zoomLevel > 1)) && vm.item.getIn(['model', 'epics']).size")
+    a.card-epic(
+        ng-if="$index < 3"
+        tg-repeat="epic in vm.item.getIn(['model', 'epics']) track by epic.get('id')"
+        href=""
+        tg-nav="project-epics-detail:project=vm.project.slug,ref=epic.get('ref')"
+        tg-detail-popup-link
+        ng-attr-title="{{ epic.get('subject') }}"
+        ng-attr-aria-label="{{ epic.get('subject') }}"
+    )
+        span.epic-color(ng-style="{'background-color': epic.get('color')}")
+    button.card-overflow-button(
+        type="button"
+        ng-if="vm.item.getIn(['model', 'epics']).size > 3"
+        ng-click="vm.showTaskboardEpics = !vm.showTaskboardEpics; $event.stopPropagation()"
+        ng-attr-aria-expanded="{{ !!vm.showTaskboardEpics }}"
+        aria-label="{{ 'EPICS.SECTION_NAME' | translate }}"
+    ) +{{ vm.item.getIn(['model', 'epics']).size - 3 }}
+    .card-collection-popover(
+        ng-if="vm.showTaskboardEpics"
+        ng-click="$event.stopPropagation()"
+    )
+        a.card-epic(
+            tg-repeat="epic in vm.item.getIn(['model', 'epics']) track by epic.get('id')"
+            href=""
+            tg-nav="project-epics-detail:project=vm.project.slug,ref=epic.get('ref')"
+            tg-detail-popup-link
+            ng-attr-title="{{ epic.get('subject') }}"
+        )
+            span.epic-color(ng-style="{'background-color': epic.get('color')}")
+            span.epic-name(ng-bind-html="epic.get('subject') | emojify")

@@ -10,7 +10,7 @@
     class!="<%= emptyTask() ? 'empty-tasks': '' %>"
 )
     .card-statistics-init
-        <% if (vm.type == 'us') { %>
+        <% if (vm.type == 'us' && !vm.kanbanStory) { %>
         span
             <% if (vm.item.getIn(['model', 'total_points'])) { %>
             span.card-estimation(
@@ -48,21 +48,21 @@
         .statistic.card-attachments(
             title!="<%= translate('ATTACHMENT.SECTION_NAME') %>"
         )
-            <%= svg({svgIcon: "icon-paperclip" }) %>
+            <%= svg({svgIcon: (vm.taskboardStory || vm.taskboardTask || vm.kanbanStory) ? "icon-story-paperclip" : "icon-paperclip" }) %>
             span <%= totalAttachments() %>
         <% } %>
         <% if (vm.item.getIn(['model', 'watchers']).size) { %>
         .statistic.card-watchers(
             title!="<%= translate('COMMON.WATCHERS.WATCHERS') %>"
         )
-            <%= svg({svgIcon: "icon-eye" }) %>
+            <%= svg({svgIcon: (vm.taskboardStory || vm.taskboardTask || vm.kanbanStory) ? "icon-story-eye" : "icon-eye" }) %>
             span <%= vm.item.getIn(['model', 'watchers']).size %>
         <% } %>
         <% if (vm.item.getIn(['model', 'total_comments'])) { %>
         .statistic.card-comments(
             title!="<%= translate('COMMENTS.TITLE') %>"
         )
-            <%= svg({svgIcon: "icon-message-square" }) %>
+            <%= svg({svgIcon: (vm.taskboardStory || vm.taskboardTask || vm.kanbanStory) ? "icon-story-comment" : "icon-message-square" }) %>
             span <%= vm.item.getIn(['model', 'total_comments']) %>
         <% } %>
         <% if (vm.item.getIn(['model', 'tasks']) && vm.item.getIn(['model', 'tasks']).size) { %>

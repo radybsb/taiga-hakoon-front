@@ -10,9 +10,13 @@
     ng-if="vm.isRelatedTasksVisible()"
 )
     ul
-        li.card-task(tg-repeat="task in vm.item.getIn(['model', 'tasks'])")
+        li.card-task(
+            tg-repeat="task in vm.item.getIn(['model', 'tasks'])"
+            ng-if="!vm.kanbanStory || $index < 2 || vm.showAllKanbanTasks"
+        )
             a(
                 href="#"
+                ng-attr-title="{{ task.get('subject') }}"
                 tg-nav="project-tasks-detail:project=vm.project.slug,ref=task.get('ref')",
                 tg-detail-popup-link
                 ng-class="{'closed-task': task.get('is_closed'), 'blocked-task': task.get('is_blocked')}"
@@ -20,3 +24,11 @@
                 span.card-task-ref {{::"#" + task.get('ref')}}
                 span.card-task-subject(ng-bind-html="task.get('subject') | emojify")
 
+
+    button.card-tasks-more(
+        type="button"
+        ng-if="vm.kanbanStory && vm.item.getIn(['model', 'tasks']).size > 2"
+        ng-click="vm.showAllKanbanTasks = !vm.showAllKanbanTasks; $event.stopPropagation()"
+        ng-attr-aria-expanded="{{ !!vm.showAllKanbanTasks }}"
+        ng-attr-aria-label="{{ 'COMMON.CARD.TASKS' | translate:{completed: vm.getClosedTasks().size, total: vm.item.getIn(['model', 'tasks']).size} }}"
+    ) {{ vm.showAllKanbanTasks ? '−' : '+' + (vm.item.getIn(['model', 'tasks']).size - 2) }}

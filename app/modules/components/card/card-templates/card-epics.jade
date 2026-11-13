@@ -5,7 +5,7 @@
 //-
 //- Copyright (c) 2021-present Kaleidos INC
 
-.card-epics(ng-if="::vm.item.getIn(['model', 'epics']).size")
+.card-epics(ng-if="!vm.taskboardStory && (!vm.kanbanStory || vm.zoomLevel < 2) && vm.item.getIn(['model', 'epics']).size")
     a.card-epic(
         tg-repeat="epic in ::vm.item.getIn(['model', 'epics']) track by epic.get('id')"
         tg-nav="project-epics-detail:project=vm.item.getIn(['model', 'project_extra_info', 'slug']),ref=epic.get('ref')"

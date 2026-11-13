@@ -23,6 +23,8 @@ cardDirective = () ->
             onClickMoveToTop: "&",
             project: "<",
             taskboardStory: "<?",
+            taskboardTask: "<?",
+            kanbanStory: "<?",
             item: "<",
             zoom: "<",
             zoomLevel: "<",

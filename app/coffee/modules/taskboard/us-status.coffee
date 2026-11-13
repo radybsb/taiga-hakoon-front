@@ -18,6 +18,7 @@ TaskboardUsStatus = ($repo, $confirm, $template, $compile, $rootScope) ->
             trigger = el.find('.js-edit-status')
             button = $('<button type="button" class="detail-status-inner js-edit-status">')
             button.attr('aria-haspopup', 'true').attr('aria-expanded', 'false')
+            button[0].style.setProperty('--story-status-color', status.color)
             button.prop('disabled', busy || !editable()).append(trigger.contents())
             trigger.replaceWith(button)
             $compile(el.contents())(scope)

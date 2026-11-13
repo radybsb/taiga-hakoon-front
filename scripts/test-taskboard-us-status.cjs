@@ -30,6 +30,7 @@ const el = injector.get('$compile')('<div tg-taskboard-us-status ng-model="us"><
 w.$('body').append(el); scope.$digest();
 const click = selector => {el.find(selector).trigger('click'); scope.$digest();};
 assert.equal(el.find('button').text().trim(), 'New');
+assert.equal(el.find('button')[0].style.getPropertyValue('--story-status-color'), '#123');
 click('button'); assert.equal(el.find('button').attr('aria-expanded'), 'true');
 click('[data-status-id="2"]');
 assert.equal(saves, 1); assert.equal(scope.us.status, 2); assert.equal(scope.us.version, 10); assert.equal(scope.us.is_closed, true);

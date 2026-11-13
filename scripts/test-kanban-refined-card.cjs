@@ -1,0 +1,40 @@
+// Exercise the production Kanban templates, including bounded tasks and points.
+const fs=require('fs'),path=require('path'),assert=require('assert');
+process.chdir(path.resolve(__dirname,'..'));
+const {JSDOM}=require('jsdom'),jade=require('jade'),coffee=require('coffeescript'),_=require('lodash');
+const dom=new JSDOM('<body></body>',{runScripts:'outside-only',url:'http://localhost/'}),w=dom.window;
+w.$=require('jquery')(w);w._=_;w.Immutable=require('immutable');
+w.taiga={Service:class{},trim:(v,c)=>_.trim(v,c),bindOnce:(s,a,cb)=>cb(s.$eval(a))};
+w.eval(fs.readFileSync('node_modules/angular/angular.js','utf8'));w.eval(fs.readFileSync('app/js/tg-repeat.js','utf8'));
+const app=w.angular.module('taigaBase',['tgRepeat']);let opened=[];
+app.factory('$exceptionHandler',()=>e=>{throw e;});app.filter('translate',()=>x=>x);app.filter('emojify',['$sce',sce=>x=>sce.trustAsHtml(x)]);
+app.value('$tgAuth',{getUser:()=>null});app.value('$tgLocation',{url:()=>{throw Error('Unexpected routing');}});app.value('lightboxService',{closeAll:()=>{}});app.value('$tgSections',{});app.value('tgDetailPopup',{open:(route,args)=>opened.push([route,args])});
+w.eval(coffee.compile(fs.readFileSync('app/coffee/modules/base/navurls.coffee','utf8')));
+const injector=w.angular.injector(['ng','taigaBase']),root=injector.get('$rootScope'),scope=root.$new();
+injector.get('$tgNavUrls').update({'project-tasks-detail':'/project/:project/task/:ref','project-epics-detail':'/project/:project/epic/:ref'});
+const tasks=Array.from({length:5},(_,i)=>({id:i+1,ref:37+i,subject:'Task '+i+' with a long name',is_closed:i<2}));
+scope.vm={kanbanStory:true,type:'us',project:{slug:'demo'},zoomLevel:3,visible:()=>true,getTagColor:c=>c,isRelatedTasksVisible:()=>true,item:w.Immutable.fromJS({model:{id:24,ref:24,total_points:3,watchers:[1],total_comments:3,tasks},colorized_tags:Array.from({length:8},(_,i)=>({name:'Tag '+i,color:'#e44057'}))})};
+scope.vm.getClosedTasks=()=>scope.vm.item.getIn(['model','tasks']).filter(t=>t.get('is_closed'));
+const mount=file=>{const el=w.angular.element('<div>'+jade.renderFile('app/modules/components/card/card-templates/'+file+'.jade')+'</div>');injector.get('$compile')(el)(scope);w.$('body').append(el);root.$digest();return el;};
+(async()=>{try{
+ const tags=mount('card-taskboard-tags');assert.equal(tags.find('.card-tag').length,3);assert.equal(tags.find('button').text().trim(),'+5');assert.equal(tags.find('.card-tag')[0].style.backgroundColor,'rgb(228, 64, 87)');
+ const list=mount('card-tasks');assert.equal(list.find('.card-task').length,2);assert.equal(list.find('.closed-task').length,2);assert.equal(list.find('.card-tasks-more').text().trim(),'+3');
+ list.find('.card-tasks-more').trigger('click');root.$digest();assert.equal(list.find('.card-task').length,5);
+ const last=list.find('a').last();assert.equal(last.attr('title'),tasks[4].subject);last.trigger('pointerenter');for(let i=0;i<5;i++){root.$digest();await Promise.resolve();}last.trigger('click');root.$digest();assert.equal(opened[0][0],'project-tasks-detail');assert.equal(opened[0][1].ref,41);
+ list.find('.card-tasks-more').trigger('click');root.$digest();assert.equal(list.find('.card-task').length,2);
+ const renderData=()=>_.template(jade.renderFile('app/modules/components/card/card-templates/card-data.jade'))({vm:scope.vm,emptyTask:()=>false,totalAttachments:()=>5,translate:k=>k,svg:d=>'<svg data-icon="'+d.svgIcon+'"></svg>'});
+ let data=w.$('<div>'+renderData()+'</div>');assert.equal(data.find('.card-estimation').length,0);assert.equal(data.find('.card-completed-tasks').text().trim(),'2 / 5');assert.equal(data.find('[data-icon="icon-story-comment"]').length,1);
+ const card=w.$('<div>'+jade.renderFile('app/modules/components/card/card.jade')+'</div>');const points=w.angular.element('<div>'+card.find('.kanban-card-points')[0].outerHTML+'</div>');injector.get('$compile')(points)(scope);w.$('body').append(points);root.$digest();assert.equal(points.find('.card-estimation').length,1);assert.equal(points.find('.card-estimation').attr('data-id'),'24');
+
+ Object.assign(scope.vm,{inViewPort:true,canOpenTitlePopup:()=>true,getTitleUrl:()=>'/project/demo/us/24',openTitle:()=>opened.push(['story-header']),hasTasks:()=>false,hasVisibleAttachments:()=>false,isSlideshowVisible:()=>false,isRelatedTasksVisible:()=>false});
+ const full=w.angular.element('<div>'+jade.renderFile('app/modules/components/card/card.jade')+'</div>');injector.get('$compile')(full)(scope);w.$('body').append(full);root.$digest();
+ assert.equal(full.find('.story-card-reference').text().trim(),'#24');
+ assert.equal(full.find('.card-epics-wrapper').length,0,'A story without epics must not create an epic row');
+ full.find('.story-card-reference').trigger('click');root.$digest();assert.equal(opened.at(-1)[0],'story-header');
+ scope.vm.item=scope.vm.item.setIn(['model','epics'],w.Immutable.fromJS([{id:1,ref:1,subject:'Epic 1',color:'#cad746'}]));root.$digest();assert.equal(full.find('.card-epics-wrapper').length,1);
+ scope.vm.item=scope.vm.item.setIn(['model','epics'],w.Immutable.List());root.$digest();assert.equal(full.find('.card-epics-wrapper').length,0);
+ scope.vm.taskboardStory={id:24};scope.vm.kanbanStory=false;root.$digest();assert.equal(full.find('.story-card-reference').text().trim(),'#24');assert.equal(full.find('.card-epics-wrapper').length,0,'Taskboard must collapse the same optional row');
+ scope.vm.taskboardStory=null;scope.vm.kanbanStory=true;scope.vm.isRelatedTasksVisible=()=>true;root.$digest();
+ scope.vm.kanbanStory=false;root.$digest();assert.equal(tags.find('.taskboard-tags').length,0);assert.equal(list.find('.card-task').length,5);data=w.$('<div>'+renderData()+'</div>');assert.equal(data.find('.card-estimation').length,1,'Other cards retain their estimation row');
+ console.log('PASS: optional epic rows appear/disappear on both boards, header IDs open stories, Kanban-only tags preserve colors, task previews expand/collapse, task links open existing popups, completed/total counts stay beside comments, points render once in the header, other cards keep their layout');
+}finally{root.$destroy();dom.window.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

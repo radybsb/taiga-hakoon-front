@@ -13,6 +13,7 @@
     ng-class="{'card-blocked': vm.item.getIn(['model', 'is_blocked']), 'archived': vm.archived, 'with-assigned-user': vm.item.get('assigned_users').size, 'with-fold-action': vm.visible('unfold') && (vm.hasTasks() || vm.hasVisibleAttachments())}"
 )
     include card-templates/card-tags
+    include card-templates/card-taskboard-tags
 
     tg-card-actions(
         ng-if="!vm.taskboardStory"
@@ -21,8 +22,23 @@
         vm="vm"
     )
 
-    .card-epics-wrapper(ng-if="vm.zoomLevel > 0")
+    a.story-card-reference(
+        ng-if="(vm.taskboardStory || vm.kanbanStory) && vm.zoomLevel > 1 && vm.visible('ref')"
+        ng-href="{{ vm.getTitleUrl() }}"
+        ng-click="vm.openTitle($event)"
+    ) {{ '#' + vm.item.getIn(['model', 'ref']) }}
+    .kanban-card-points(ng-if="vm.kanbanStory && vm.zoomLevel > 1 && vm.visible('extra_info')")
+        span.card-estimation(
+            ng-if="vm.item.getIn(['model', 'total_points'])"
+            title="{{ 'COMMON.CARD.ESTIMATION' | translate }}"
+            data-id="{{ vm.item.getIn(['model', 'id']) }}"
+            translate="COMMON.CARD.PTS"
+            translate-values="{pts: vm.item.getIn(['model', 'total_points'])}"
+        )
+        span.card-estimation(ng-if="!vm.item.getIn(['model', 'total_points'])" translate="COMMON.CARD.NO_PTS")
+    .card-epics-wrapper(ng-if="vm.zoomLevel > 0 && (!((vm.taskboardStory || vm.kanbanStory) && vm.zoomLevel > 1) || vm.item.getIn(['model', 'epics']).size)")
         include card-templates/card-epics
+        include card-templates/card-taskboard-epics
     include card-templates/card-title
     .wrapper-assigned-to-data
         tg-card-assigned-to(

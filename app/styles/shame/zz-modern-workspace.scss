@@ -5476,3 +5476,685 @@ html[data-modern-workspace='taskboard'] .row-fold .taskboard-us {
     }
     .add-new-task { top: .375rem; }
 }
+
+// Refined classic: preserve card width while allowing short/empty content to collapse.
+html[data-modern-workspace='taskboard'] .taskboard-us:has(.taskboard-story-card) {
+    box-sizing: border-box;
+    height: auto;
+    padding: 16px;
+    border-radius: 14px;
+
+    .taskboard-story-card {
+        background: transparent;
+        contain: none;
+        margin: 0;
+        overflow: visible;
+    }
+    .taskboard-story-card .card-inner {
+        background: transparent;
+        border-radius: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0;
+        position: relative;
+
+        > .card-epics-wrapper {
+            align-self: stretch;
+            flex: 0 0 28px;
+            inset: auto;
+            padding-right: 68px;
+            position: relative;
+        }
+        > .card-title {
+            margin: 0;
+            min-height: 0;
+            order: 1;
+            padding: 0;
+            a { display: block; font-size: 15px; line-height: 20px; }
+            .card-ref { color: var(--workspace-muted); display: block; font-size: 12px; line-height: 18px; padding: 0; }
+            .card-subject {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                font-weight: 600;
+                overflow: hidden;
+                padding: 0;
+            }
+        }
+        > .card-tags { order: 2; }
+        > .wrapper-assigned-to-data {
+            order: 3;
+            display: grid;
+            gap: 8px 6px;
+            grid-template-columns: minmax(0, 1fr) 122px;
+            grid-template-rows: 28px 22px;
+            min-width: 0;
+            > tg-card-assigned-to { grid-column: 1; grid-row: 1; min-width: 0; }
+            > .taskboard-story-status { grid-column: 2; grid-row: 1; margin: 0; min-width: 0; }
+            > tg-card-data { grid-column: 1 / -1; grid-row: 2; min-width: 0; }
+        }
+        > tg-card-slideshow { min-width: 0; order: 4; }
+        > .loading-extra { order: 5; }
+        > .loading-extra:not(.loading) { display: none; }
+        > .card-tasks, > .card-unfold { display: none; }
+    }
+    .card-assigned-to {
+        margin: 0;
+        padding: 0;
+        .card-user-avatar { margin: 0; }
+        .card-user-avatar + .card-user-avatar { margin-left: -6px; }
+        img, .extra-assigned {
+            border: 2px solid var(--workspace-surface);
+            border-radius: 50%;
+            box-sizing: border-box;
+            height: 26px;
+            width: 26px;
+        }
+        .extra-assigned { background: var(--workspace-soft); color: var(--workspace-muted); font-size: 11px; }
+    }
+    .taskboard-story-status .status-value { width: 100%; text-transform: none; }
+    .taskboard-story-status .detail-status-inner {
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 11px;
+        height: 28px;
+        max-width: 100%;
+        min-width: 0;
+        padding: 3px 6px;
+        width: 100%;
+        color: var(--workspace-text);
+        > span {
+            background: transparent !important;
+            color: inherit;
+            gap: 5px;
+            min-height: 20px;
+            padding: 0;
+            &::before {
+                background: var(--story-status-color);
+                border-radius: 50%;
+                content: '';
+                flex: 0 0 6px;
+                height: 6px;
+                width: 6px;
+            }
+        }
+        .status-label { color: inherit; line-height: 20px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    }
+    .card-data {
+        font-size: 11px;
+        gap: 6px;
+        justify-content: space-between;
+        margin: 0;
+        min-width: 0;
+        padding: 0;
+        .card-estimation { background: transparent; font-size: 11px; padding: 0; white-space: nowrap; }
+        .card-statistics-init { min-width: 0; }
+        .card-statistics { font-size: 11px; margin: 0 0 0 auto; }
+        .statistic { align-items: center; margin-left: 8px; }
+        .card-completed-tasks { display: none; }
+        svg { color: var(--workspace-muted); height: 13px; width: 13px; }
+    }
+    .taskboard-epics {
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 8px;
+        padding: 0;
+        .card-epic { align-items: center; contain: none; display: flex; flex: 0 0 auto; margin: 0; min-height: 24px; }
+        .epic-color { border: 0; border-radius: 50%; flex: 0 0 9px; height: 9px; width: 9px; }
+    }
+    .taskboard-tags {
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        margin: 0;
+        min-width: 0;
+        padding: 0;
+        position: relative;
+        .card-tag {
+            border-radius: 5px;
+            flex: 0 1 auto;
+            font-size: 11px;
+            line-height: 18px;
+            margin: 0;
+            max-width: 90px;
+            min-height: 0;
+            min-width: 0;
+            padding: 2px 6px;
+        }
+    }
+    .card-overflow-button {
+        background: var(--workspace-soft);
+        border: 0;
+        border-radius: 5px;
+        color: var(--workspace-muted);
+        cursor: pointer;
+        flex: 0 0 auto;
+        font-size: 11px;
+        line-height: 22px;
+        padding: 0 5px;
+        &:hover, &[aria-expanded='true'] { background: var(--workspace-hover); color: var(--workspace-text); }
+    }
+    .card-collection-popover {
+        background: var(--workspace-surface);
+        border: 1px solid var(--workspace-border);
+        border-radius: 10px;
+        box-shadow: var(--workspace-popup-shadow);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        left: 0;
+        max-height: 220px;
+        min-width: 150px;
+        overflow: auto;
+        padding: 12px;
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 20;
+        .card-epic { flex: 1 0 100%; gap: 8px; }
+        .epic-name { color: var(--workspace-text); display: block; font-size: 12px; margin: 0; max-width: none; white-space: normal; }
+        .card-tag { max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+    }
+    .card-slideshow { border-radius: 8px; margin: 0; overflow: hidden; }
+    .card-slideshow-wrapper, .card-slideshow img:not(.loading-spinner) { height: 146px; }
+    .card-slideshow .slideshow-icon { z-index: 1; }
+    .add-new-task {
+        gap: 6px;
+        right: 16px;
+        top: 16px;
+        .btn-board {
+            align-items: center;
+            background: var(--workspace-surface);
+            border: 1px solid var(--workspace-border);
+            border-radius: 7px;
+            color: var(--workspace-muted);
+            display: flex;
+            height: 28px;
+            justify-content: center;
+            margin: 0;
+            padding: 5px;
+            width: 28px;
+            &:hover { background: var(--workspace-hover); color: var(--workspace-accent); }
+            tg-svg { color: inherit; position: static; }
+            svg { color: inherit; height: 16px; width: 16px; }
+        }
+    }
+}
+
+html[data-modern-workspace='taskboard'] .row-fold .taskboard-us:has(.taskboard-story-card) {
+    height: auto;
+    padding: 6px 12px;
+    .taskboard-story-card .card-inner {
+        display: block;
+        > .card-epics-wrapper, > .card-tags, > .wrapper-assigned-to-data, > tg-card-slideshow { display: none; }
+        > .card-title { min-height: 40px; padding-right: 68px; a { display: flex; } }
+    }
+    .add-new-task { right: 8px; top: 6px; }
+}
+
+// The storyless row uses the same keyboard-accessible task creation buttons.
+html[data-modern-workspace='taskboard'] .taskboard-us:not(:has(.taskboard-story-card)) .add-new-task .btn-board {
+    background: transparent;
+    border: 0;
+    color: var(--workspace-muted);
+    cursor: pointer;
+    padding: 3px;
+    svg { color: inherit; height: 18px; width: 18px; }
+}
+
+// Refined classic task cards; keep compact zoom modes and all existing handlers.
+html[data-modern-workspace='taskboard'] .taskboard-task-card {
+    border-radius: 13px;
+    contain: none;
+    overflow: visible;
+    position: relative;
+
+    .card-inner:is(.zoom-2, .zoom-3) {
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px;
+        position: relative;
+        > .card-title {
+            margin: 0;
+            min-height: 0;
+            order: 0;
+            padding: 0 36px 0 0;
+            a { display: block; font-size: 15px; line-height: 20px; }
+            .card-ref { color: var(--workspace-muted); display: block; font-size: 11px; line-height: 18px; padding: 0; }
+            .card-subject {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                font-weight: 600;
+                overflow: hidden;
+                padding: 0;
+            }
+        }
+        > tg-card-actions { display: contents; }
+        > .card-epics-wrapper { display: none; }
+        > .card-tags { order: 1; }
+        > .wrapper-assigned-to-data {
+            align-items: center;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 7px;
+            justify-content: space-between;
+            margin: 0;
+            min-width: 0;
+            order: 2;
+            > tg-card-assigned-to { flex: 0 0 auto; margin: 0; }
+            > tg-card-data { flex: 0 1 auto; min-width: 0; }
+        }
+        > tg-card-slideshow { min-width: 0; order: 3; }
+        > .card-unfold { height: 18px; margin: -3px 0 -6px; order: 4; }
+        > .loading-extra { order: 5; }
+        > .loading-extra:not(.loading) { display: none; }
+        .card-actions {
+            right: 14px;
+            top: 14px;
+            button {
+                align-items: center;
+                border: 1px solid var(--workspace-border);
+                border-radius: 7px;
+                color: var(--workspace-muted);
+                display: flex;
+                height: 27px;
+                justify-content: center;
+                padding: 5px;
+                width: 27px;
+                &:hover, &.popover-open { background: var(--workspace-hover); color: var(--workspace-accent); }
+                svg { fill: currentColor; height: 15px; width: 15px; }
+            }
+        }
+        .taskboard-tags {
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 5px;
+            min-width: 0;
+            padding: 0;
+            position: relative;
+            .card-tag {
+                border-radius: 5px;
+                flex: 0 1 auto;
+                font-size: 11px;
+                line-height: 18px;
+                margin: 0;
+                max-width: 74px;
+                min-height: 0;
+                min-width: 0;
+                padding: 1px 6px;
+            }
+        }
+        .card-overflow-button {
+            background: var(--workspace-soft);
+            border: 0;
+            border-radius: 5px;
+            color: var(--workspace-muted);
+            cursor: pointer;
+            flex: 0 0 auto;
+            font-size: 11px;
+            line-height: 20px;
+            padding: 0 5px;
+            &:hover, &[aria-expanded='true'] { background: var(--workspace-hover); color: var(--workspace-text); }
+        }
+        .card-collection-popover {
+            background: var(--workspace-surface);
+            border: 1px solid var(--workspace-border);
+            border-radius: 10px;
+            box-shadow: var(--workspace-popup-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            left: 0;
+            max-height: 220px;
+            overflow: auto;
+            padding: 12px;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            z-index: 20;
+            .card-tag { max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+        }
+        .card-assigned-to {
+            margin: 0;
+            padding: 0;
+            position: static;
+            .card-user-avatar { margin: 0; }
+            .card-user-avatar + .card-user-avatar { margin-left: -6px; }
+            .card-not-assigned-title { display: none; }
+            img, .extra-assigned {
+                border: 2px solid var(--workspace-surface);
+                border-radius: 50%;
+                box-sizing: border-box;
+                height: 26px;
+                width: 26px;
+            }
+            &.is_iocaine img { border-color: #b400d1; }
+            .extra-assigned { background: var(--workspace-soft); color: var(--workspace-muted); font-size: 11px; }
+        }
+        .card-data {
+            color: var(--workspace-muted);
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            .card-statistics-init:not(:has(*)) { display: none; }
+            .card-statistics { flex-wrap: wrap; font-size: 11px; gap: 4px 9px; justify-content: flex-end; margin: 0; }
+            .statistic { align-items: center; color: var(--workspace-muted); margin: 0; }
+            svg { color: var(--workspace-muted); height: 13px; width: 13px; }
+        }
+        .card-slideshow { border-radius: 8px; margin: 0; overflow: hidden; }
+        .card-slideshow-wrapper, .card-slideshow img:not(.loading-spinner) { height: 146px; }
+        .card-slideshow .slideshow-icon { z-index: 1; }
+        .card-unfold svg { fill: var(--workspace-muted); height: 12px; width: 12px; }
+    }
+}
+
+// Kanban refined classic: column counts belong to the header, beside creation.
+html[data-modern-workspace='kanban'] {
+    .kanban-table-header { flex-basis: 54px; min-height: 54px; }
+    .kanban-table-header .task-colum-name {
+        gap: 7px;
+        height: 53px;
+        max-height: 53px;
+        padding: 12px;
+        transition: flex-basis .15s ease, width .15s ease, min-width .15s ease, max-width .15s ease;
+        .deco-square { flex: 0 0 8px; height: 8px; max-width: 8px; width: 8px; }
+        .title { flex: 1 1 auto; margin: 0; min-width: 0; width: auto; }
+        .title .name { font-size: 14px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .options { align-items: center; flex: 0 0 auto; gap: 5px; }
+        .option {
+            align-items: center;
+            background: transparent;
+            border: 1px solid var(--workspace-border);
+            border-radius: 7px;
+            color: var(--workspace-muted);
+            display: flex;
+            height: 27px;
+            justify-content: center;
+            margin: 0;
+            padding: 5px;
+            width: 27px;
+            &:hover { background: var(--workspace-hover); color: var(--workspace-accent); }
+            svg { color: inherit; fill: currentColor; height: 15px; width: 15px; }
+        }
+    }
+    .kanban-column-count {
+        background: var(--workspace-soft);
+        border-radius: 7px;
+        color: var(--workspace-muted);
+        flex: 0 0 auto;
+        font-size: 11px;
+        min-width: 32px;
+        padding: 5px 6px;
+        &:has(.wip-amount) { min-width: 72px; }
+        .animated-counter-inner { line-height: 14px; }
+        .wip-amount { color: var(--workspace-text); }
+        .wip-amount.limit-over { color: var(--workspace-danger, #e76f80); }
+    }
+    .kanban-table-body .taskboard-column {
+        transition: flex-basis .15s ease, width .15s ease, min-width .15s ease, max-width .15s ease;
+    }
+    // Width contracts toward the left; retain the full column height.
+    .kanban-table .task-colum-name.vfold,
+    .kanban-table .taskboard-column.vfold {
+        flex-basis: 40px;
+        max-width: 40px;
+        min-width: 40px;
+        width: 40px;
+    }
+    .kanban-table-header .task-colum-name.vfold {
+        padding: 12px 6px;
+        .options { gap: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .kanban-table-header .task-colum-name,
+        .kanban-table-body .taskboard-column { transition: none; }
+    }
+}
+
+html[data-modern-workspace='kanban'] .kanban-story-card {
+    border-radius: 12px;
+    contain: none;
+    overflow: visible;
+    position: relative;
+
+    .card-inner:is(.zoom-2, .zoom-3) {
+        border-radius: 11px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 13px;
+        position: relative;
+        > tg-card-actions { display: contents; }
+        > .card-epics-wrapper {
+            flex: 0 0 27px;
+            margin-right: 100px;
+            min-width: 0;
+            order: 0;
+            position: relative;
+        }
+        > .kanban-card-points {
+            align-items: center;
+            color: var(--workspace-muted);
+            display: flex;
+            font-size: 11px;
+            height: 27px;
+            max-width: 65px;
+            position: absolute;
+            right: 49px;
+            top: 13px;
+            .card-estimation { background: transparent; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        }
+        > .card-title {
+            margin: 0;
+            min-height: 0;
+            order: 1;
+            padding: 0;
+            a { display: block; font-size: 15px; line-height: 20px; }
+            .card-ref { color: var(--workspace-muted); display: block; font-size: 11px; line-height: 18px; padding: 0; }
+            .card-subject {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                font-weight: 600;
+                overflow: hidden;
+                padding: 0;
+            }
+        }
+        > .card-tags { order: 2; }
+        > .wrapper-assigned-to-data {
+            align-items: center;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 7px;
+            justify-content: space-between;
+            margin: 0;
+            min-width: 0;
+            order: 3;
+            > tg-card-assigned-to { flex: 0 0 auto; margin: 0; }
+            > tg-card-data { flex: 0 1 auto; min-width: 0; }
+        }
+        > tg-card-slideshow { min-width: 0; order: 4; }
+        > .card-tasks { order: 5; }
+        > .card-unfold { height: 18px; margin: -3px 0 -5px; order: 6; }
+        > .loading-extra { order: 7; }
+        > .loading-extra:not(.loading) { display: none; }
+        .card-actions {
+            right: 13px;
+            top: 13px;
+            button {
+                align-items: center;
+                border: 1px solid var(--workspace-border);
+                border-radius: 7px;
+                color: var(--workspace-muted);
+                display: flex;
+                height: 27px;
+                justify-content: center;
+                padding: 5px;
+                width: 27px;
+                &:hover, &.popover-open { background: var(--workspace-hover); color: var(--workspace-accent); }
+                svg { fill: currentColor; height: 15px; width: 15px; }
+            }
+        }
+        .taskboard-epics {
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 8px;
+            padding: 0;
+            .card-epic { align-items: center; contain: none; display: flex; flex: 0 0 auto; margin: 0; min-height: 27px; }
+            .epic-color { border: 0; border-radius: 50%; flex: 0 0 9px; height: 9px; width: 9px; }
+        }
+        .taskboard-tags {
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 5px;
+            min-width: 0;
+            padding: 0;
+            position: relative;
+            .card-tag {
+                border-radius: 5px;
+                flex: 0 1 auto;
+                font-size: 11px;
+                line-height: 18px;
+                margin: 0;
+                max-width: 78px;
+                min-height: 0;
+                min-width: 0;
+                padding: 1px 5px;
+            }
+        }
+        .card-overflow-button, .card-tasks-more {
+            background: var(--workspace-soft);
+            border: 0;
+            border-radius: 5px;
+            color: var(--workspace-muted);
+            cursor: pointer;
+            flex: 0 0 auto;
+            font-size: 11px;
+            line-height: 20px;
+            padding: 0 5px;
+            &:hover, &[aria-expanded='true'] { background: var(--workspace-hover); color: var(--workspace-text); }
+        }
+        .card-collection-popover {
+            background: var(--workspace-surface);
+            border: 1px solid var(--workspace-border);
+            border-radius: 10px;
+            box-shadow: var(--workspace-popup-shadow);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            left: 0;
+            max-height: 220px;
+            min-width: 150px;
+            overflow: auto;
+            padding: 12px;
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            z-index: 20;
+            .card-epic { flex: 1 0 100%; gap: 8px; }
+            .epic-name { color: var(--workspace-text); display: block; font-size: 12px; margin: 0; max-width: none; white-space: normal; }
+            .card-tag { max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+        }
+        .card-assigned-to {
+            margin: 0;
+            padding: 0;
+            position: static;
+            .card-user-avatar { margin: 0; }
+            .card-user-avatar + .card-user-avatar { margin-left: -6px; }
+            .card-not-assigned-title { display: none; }
+            img, .extra-assigned {
+                border: 2px solid var(--workspace-surface);
+                border-radius: 50%;
+                box-sizing: border-box;
+                height: 26px;
+                width: 26px;
+            }
+            &.is_iocaine img { border-color: #b400d1; }
+            .extra-assigned { background: var(--workspace-soft); color: var(--workspace-muted); font-size: 11px; }
+        }
+        .card-data {
+            color: var(--workspace-muted);
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            .card-statistics-init:not(:has(*)) { display: none; }
+            .card-statistics { flex-wrap: wrap; font-size: 11px; gap: 4px 7px; justify-content: flex-end; margin: 0; }
+            .statistic { align-items: center; color: var(--workspace-muted); margin: 0; }
+            .card-completed-tasks { background: var(--workspace-soft); border-radius: 5px; color: var(--workspace-text); padding: 2px 5px; }
+            .card-completed-tasks.completed { color: var(--workspace-accent); }
+            svg { color: var(--workspace-muted); height: 12px; width: 12px; }
+        }
+        .card-slideshow { border-radius: 8px; margin: 0; overflow: hidden; }
+        .card-slideshow-wrapper, .card-slideshow img:not(.loading-spinner) { height: 146px; }
+        .card-slideshow .slideshow-icon { z-index: 1; }
+        .card-tasks {
+            border-top: 1px solid var(--workspace-border);
+            padding: 8px 0 0;
+            ul { background: transparent; border: 0; display: flex; flex-direction: column; gap: 6px; }
+            .card-task { font-size: 12px; min-width: 0; padding: 0; }
+            .card-task a { align-items: center; gap: 5px; min-width: 0; }
+            .card-task-ref { flex: 0 0 auto; margin: 0; }
+            .card-task-subject {
+                display: block;
+                -webkit-line-clamp: unset;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .closed-task { opacity: .75; }
+            .card-tasks-more { margin-top: 7px; }
+        }
+        .card-unfold svg { fill: var(--workspace-muted); height: 12px; width: 12px; }
+    }
+}
+
+// Story IDs take the top row; optional epics sit directly above the subject.
+html[data-modern-workspace='taskboard'] .taskboard-us:has(.taskboard-story-card) .taskboard-story-card .card-inner,
+html[data-modern-workspace='kanban'] .kanban-story-card .card-inner:is(.zoom-2, .zoom-3) {
+    > .story-card-reference {
+        align-items: center;
+        color: var(--workspace-muted);
+        display: flex;
+        flex: 0 0 28px;
+        font-size: 12px;
+        font-weight: 500;
+        min-width: 0;
+        order: 0;
+        padding-right: 100px;
+        &:hover { color: var(--workspace-accent); }
+    }
+    > .card-epics-wrapper {
+        align-self: stretch;
+        flex: 0 0 auto;
+        margin: 0 0 -8px;
+        min-height: 0;
+        order: 1;
+        padding-right: 0;
+        .card-epics { padding: 0; }
+        .card-epic { min-height: 18px; }
+    }
+    > .card-title { order: 2; .card-ref { display: none; } }
+    > .card-tags { order: 3; }
+    > .wrapper-assigned-to-data { order: 4; }
+    > tg-card-slideshow { order: 5; }
+    > .card-tasks { order: 6; }
+    > .card-unfold { order: 7; }
+    > .loading-extra { order: 8; }
+}
+
+// A folded Taskboard row already shows its ID in the compact title.
+html[data-modern-workspace='taskboard'] .row-fold .taskboard-us:has(.taskboard-story-card) {
+    .taskboard-story-card .card-inner > .story-card-reference { display: none; }
+    .taskboard-story-card .card-inner > .card-title .card-ref { display: block; }
+}
+
+// Collapsed column labels follow the active workspace theme as well.
+html[data-modern-workspace='kanban'] .placeholder-collapsed {
+    .text-holder, .name { color: var(--workspace-text); }
+    .archived, .ammount { color: var(--workspace-muted); }
+}
