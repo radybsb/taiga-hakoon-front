@@ -23,12 +23,13 @@ class DetailPopupService
         project = if current?.get('slug') == options.project then @q.when(current) else @projects.getProjectBySlug(options.project)
         return project.then (project) =>
             return unless generation == @generation
-            # Detail navigation replaces the current item; media previews retain
-            # their own overlay behavior and close with the outgoing detail.
-            for detail in @document.find('.lightbox-task-detail').get().reverse()
-                for preview in $(detail).find('.lightbox.open').get().reverse()
-                    @lightboxService.close($(preview))
-                @lightboxService.close($(detail))
+            # Wiki navigation keeps one work-item dialog; other pages allow
+            # nested details so closing the top item returns to its parent.
+            if @document[0].documentElement.getAttribute('data-modern-workspace') == 'wiki'
+                for detail in @document.find('.lightbox-task-detail').get().reverse()
+                    for preview in $(detail).find('.lightbox.open').get().reverse()
+                        @lightboxService.close($(preview))
+                    @lightboxService.close($(detail))
             @factory.create('tg-detail-popup', {'class': 'lightbox lightbox-task-detail', 'tg-detail-popup-refresh': true}, {
                 popupType: type, popupRef: options.ref, popupProject: project
             })

@@ -1499,7 +1499,7 @@ tg-attachments-preview.lightbox.lightbox-dialog {
     .detail-header {
         display: grid;
         gap: 1rem 1.5rem;
-        grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+        grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
         min-width: 0;
         > tg-detail-header,
         > .subheader {

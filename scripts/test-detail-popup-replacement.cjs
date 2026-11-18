@@ -14,7 +14,7 @@ app.filter('translate',()=>key=>key);app.filter('emojify',['$sce',sce=>text=>sce
 const originalProject=w.Immutable.fromJS({id:1,slug:'demo',members:[],roles:[],points:[],my_permissions:[],us_statuses:[],task_statuses:[],issue_statuses:[],epic_statuses:[],issue_types:[],severities:[],priorities:[]});
 const project={_project:originalProject,_activeMembers:w.Immutable.List()};Object.defineProperty(project,'project',{get(){return this._project;}});
 const transform={scope:null,prop:null,setObject(scope,prop){this.scope=scope;this.prop=prop;}};
-const originalAttachments=w.Immutable.List(['original']);const attachments={_attachments:originalAttachments};
+const originalAttachments=w.Immutable.List(['original']);const attachments={_attachments:originalAttachments,contextKey:(type,id,project)=>`${project}:${type}:${id}`};
 let opened=0;const created=[];
 app.value('tgProjectService',project);app.value('$tgQueueModelTransformation',transform);app.value('tgAttachmentsFullService',attachments);
 app.value('lightboxService',{open:()=>opened++});app.value('$tgConfirm',{notify:()=>{throw Error('Unexpected API failure');}});
@@ -52,6 +52,20 @@ injector.get('tgLightboxFactory').create=(name,attrs,data)=>{
  compile(el)(scope);w.$('body').append(el);
 };
 const active=()=>w.$('.lightbox-task-detail');
+w.document.documentElement.setAttribute('data-modern-workspace','detail');
+for(const type of ['userstories','tasks','issues','epics']){
+ const previous=active().last()[0];
+ service.open('project-'+type+'-detail',{project:'demo',ref:12});root.$digest();
+ if(previous)assert(w.document.body.contains(previous),'Parent detail must stay open');
+}
+assert.equal(active().length,4);assert.equal(lightbox.opened.length,4);
+for(let remaining=3;remaining>=0;remaining--){
+ lightbox.close(active().last());root.$digest();assert.equal(active().length,remaining);
+ if(remaining)assert.equal(transform.scope,active().last().data('scope'));
+}
+assert.equal(transform.scope,null);assert.equal(project.project,originalProject);assert.equal(attachments._attachments,originalAttachments);
+w.document.documentElement.setAttribute('data-modern-workspace','wiki');
+
 for(const type of ['userstories','epics','userstories','tasks','userstories','epics']){
  const old=active()[0];
  service.open('project-'+type+'-detail',{project:'demo',ref:12});root.$digest();
@@ -78,4 +92,4 @@ w.$('body').append(legacy);lightbox.open(legacy);root.$digest();
 service.open('project-userstories-detail',{project:'demo',ref:12});root.$digest();
 assert(legacyScope.$$destroyed);assert.equal(active().length,1);
 lightbox.close(active());root.$digest();
-dom.window.close();console.log('PASS: real detail controllers and lightbox lifecycle; story/epic/task loops replace dialogs; previews, rapid requests, original task dialogs and context cleanup');
+dom.window.close();console.log('PASS: real detail controllers and lightbox lifecycle; work-item stacks restore parent context; Wiki loops replace dialogs; previews, rapid requests, original task dialogs and context cleanup');

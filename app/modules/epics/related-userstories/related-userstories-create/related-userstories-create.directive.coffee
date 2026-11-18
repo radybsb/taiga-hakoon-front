@@ -32,7 +32,7 @@ RelatedUserstoriesCreateDirective = (@lightboxService) ->
                 lightboxService.open(el.find(".lightbox-create-related-user-stories"))
 
         scope.closeLightbox = () ->
-            scope.selectedUserstory = null
+            scope.selectedUserstory = []
             scope.searchUserstory = ""
             scope.relatedUserstoriesText = ""
             lightboxService.close(el.find(".lightbox-create-related-user-stories"))
@@ -42,12 +42,12 @@ RelatedUserstoriesCreateDirective = (@lightboxService) ->
               scope.selectedProject = project.get('id')
 
         scope.selectProject = (selectedProjectId) ->
-            scope.selectedUserstory = null
+            scope.selectedUserstory = []
             scope.searchUserstory = ""
             ctrl.filterUss(selectedProjectId, scope.searchUserstory)
 
         scope.onUpdateSearchUserstory = debounceLeading 300, () ->
-            scope.selectedUserstory = null
+            scope.selectedUserstory = []
             ctrl.filterUss(scope.selectedProject, scope.searchUserstory)
 
     return {

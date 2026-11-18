@@ -54,14 +54,14 @@ SprintChartDirective = ($translate)->
                 mode: "time"
                 daysNames: days
                 axisLabel: $translate.instant("TASKBOARD.CHARTS.XAXIS_LABEL")
-                axisLabelUseCanvas: true
+                axisLabelUseCanvas: false
                 axisLabelFontSizePixels: 12
                 axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif'
                 axisLabelPadding: 5
             yaxis:
                 min: 0
                 axisLabel: $translate.instant("TASKBOARD.CHARTS.YAXIS_LABEL")
-                axisLabelUseCanvas: true
+                axisLabelUseCanvas: false
                 axisLabelFontSizePixels: 12
                 axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif'
                 axisLabelPadding: 5
@@ -81,6 +81,8 @@ SprintChartDirective = ($translate)->
             ]
             tooltip: true
             tooltipOpts:
+                cssClass: "taskboard-burndown-tooltip"
+                defaultTheme: false
                 content: (label, xval, yval, flotItem) ->
                     formattedDate = moment(xval).format($translate.instant("TASKBOARD.CHARTS.DATE"))
                     roundedValue = Math.round(yval * 10) / 10

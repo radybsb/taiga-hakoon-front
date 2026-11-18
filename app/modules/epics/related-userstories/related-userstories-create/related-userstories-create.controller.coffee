@@ -13,10 +13,11 @@ class RelatedUserstoriesCreateController
         "tgCurrentUserService",
         "tgResources",
         "$tgConfirm",
-        "$tgAnalytics"
+        "$tgAnalytics",
+        "$q"
     ]
 
-    constructor: (@currentUserService, @rs, @confirm, @analytics) ->
+    constructor: (@currentUserService, @rs, @confirm, @analytics, @q) ->
         @.projects = null
         @.projectUserstories = Immutable.List()
         @.loading = false
@@ -32,29 +33,31 @@ class RelatedUserstoriesCreateController
             @.projectUserstories = filteredData
         promise
 
-    saveRelatedUserStory: (selectedUserstoryId, onSavedRelatedUserstory) ->
-        # This method assumes the following methods are binded to the controller:
-        # - validateExistingUserstoryForm
-        # - setExistingUserstoryFormErrors
-        # - loadRelatedUserstories
-        return if not @.validateExistingUserstoryForm()
-
-        @.loading = true
-
-        onError = (data) =>
-            @.loading = false
-            @confirm.notify("error")
-            @.setExistingUserstoryFormErrors(data)
-
-        onSuccess = () =>
-            @analytics.trackEvent("epic related user story", "create", "create related user story on epic", 1)
-            @.loading = false
-            if onSavedRelatedUserstory
-                onSavedRelatedUserstory()
-            @.loadRelatedUserstories()
-
-        epicId = @.epic.get('id')
-        @rs.epics.addRelatedUserstory(epicId, selectedUserstoryId).then(onSuccess, onError)
+    saveRelatedUserStory: (selectedUserstoryIds, onSavedRelatedUserstory) ->
+        return if @loading || !@validateExistingUserstoryForm()
+        ids = _.uniq(if _.isArray(selectedUserstoryIds) then selectedUserstoryIds.slice() else [selectedUserstoryIds]).filter(Boolean)
+        return unless ids.length
+        @loading = true
+        failed = false
+        chain = @q.when()
+        for id in ids
+            do (id) =>
+                chain = chain.then =>
+                    @rs.epics.addRelatedUserstory(@epic.get('id'), id).then =>
+                        if _.isArray(selectedUserstoryIds)
+                            index = selectedUserstoryIds.indexOf(id)
+                            selectedUserstoryIds.splice(index, 1) if index != -1
+                        @analytics.trackEvent('epic related user story', 'create', 'create related user story on epic', 1)
+                    , (data) =>
+                        failed = true
+                        @setExistingUserstoryFormErrors(data)
+        return chain.then =>
+            @loadRelatedUserstories()
+            if failed
+                @confirm.notify('error')
+            else
+                onSavedRelatedUserstory?()
+        .finally => @loading = false
 
     bulkCreateRelatedUserStories: (selectedProjectId, userstoriesText, onCreatedRelatedUserstory) ->
         # This method assumes the following methods are binded to the controller:

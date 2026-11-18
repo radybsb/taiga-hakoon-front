@@ -133,16 +133,16 @@ button.btn-icon.add-button.e2e-add-userstory-button(
                 ng-change="onUpdateSearchUserstory()"
             )
 
+            p(ng-if="relatedWithSelector=='existing-user-story' && vm.projectUserstories.size") Select multiple stories with Ctrl/Command-click, or Shift-click for a range.
             form.existing-user-story-form(ng-show="relatedWithSelector=='existing-user-story' && vm.projectUserstories.size")
                 select.userstory.e2e-userstories-select(
-                    size="5"
+                    size="8"
+                    multiple
+                    ng-disabled="vm.loading"
                     ng-model="selectedUserstory"
                     data-required="true"
                 )
                     - var hash = "#";
-                    option.hidden(
-                        value=""
-                    )
                     option(
                         ng-repeat="us in vm.projectUserstories | toMutable track by us.id"
                         value="{{ ::us.id }}"
@@ -156,6 +156,7 @@ button.btn-icon.add-button.e2e-add-userstory-button(
             button.btn-big.e2e-select-related-userstory-button(
                 href=""
                 ng-click="vm.saveRelatedUserStory(selectedUserstory, closeLightbox)"
+                ng-disabled="vm.loading || !selectedUserstory.length"
                 tg-loading="vm.loading"
                 translate="COMMON.SAVE"
             )

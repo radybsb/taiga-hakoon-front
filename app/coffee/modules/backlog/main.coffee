@@ -229,7 +229,10 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
             @.resetFirstStoryIndicator()
             @rootscope.$broadcast("filters:update")
 
-        @scope.$on("backlog:load-closed-sprints", @.loadClosedSprints)
+        @scope.$on("backlog:load-closed-sprints", =>
+            @closedSprintsVisible = true
+            @loadClosedSprints()
+        )
         @scope.$on("backlog:unload-closed-sprints", @.unloadClosedSprints)
 
     initializeSubscription: ->
@@ -286,13 +289,19 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 @.milestonesOrder[sprint.id][it.id] = it.sprint_order
 
     unloadClosedSprints: ->
+        @closedSprintsVisible = false
+        @closedSprintsRequest = (@closedSprintsRequest || 0) + 1
         @scope.$apply =>
             @scope.closedSprints =  []
+            @scope.closedSprintsById = {}
             @rootscope.$broadcast("closed-sprints:reloaded", [])
 
     loadClosedSprints: ->
+        return @q.when([]) unless @closedSprintsVisible
+        request = @closedSprintsRequest = (@closedSprintsRequest || 0) + 1
         params = {closed: true}
         return @rs.sprints.list(@scope.projectId, params).then (result) =>
+            return [] unless @closedSprintsVisible && request == @closedSprintsRequest
             sprints = result.milestones
 
             @.setMilestonesOrder(sprints)
