@@ -6245,3 +6245,9 @@ html[data-modern-workspace='taskboard'] .taskboard-filter-targets {
         top: -1rem;
     }
 }
+
+// An open row menu must sit above sticky Backlog column headers.
+html[data-modern-workspace='backlog'] .backlog-table-body .us-item-row:has(.pop-status.active, .pop-status.popover-opening) {
+    position: relative;
+    z-index: 4;
+}

@@ -676,11 +676,11 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
     ## Template actions
 
     updateUserStoryStatus: () ->
-        @.generateFilters().then () =>
-            @rootscope.$broadcast("filters:update")
-            @.loadProjectStats()
-            if @.isFilterDataTypeSelected('status')
-                @.filtersReloadContent()
+        @generateFilters().then =>
+            @rootscope.$broadcast('filters:update')
+            # Reload both active and archived lists even without a status filter.
+            stories = if @scope.userstories.length then @loadAllPaginatedUserstories() else @loadUserstories(true)
+            @q.all([stories, @loadProjectStats()])
 
     editUserStory: (projectId, ref, $event) ->
         return @rs.userstories.getByRef(projectId, ref).then (us) =>

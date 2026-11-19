@@ -212,6 +212,7 @@ $.fn.popover = () ->
         $el.fadeOut () =>
             $el
                 .removeClass("active")
+                .removeClass("popover-opening")
                 .removeClass("fix")
 
         $el.off("popup:close")
@@ -230,7 +231,9 @@ $.fn.popover = () ->
             if !isVisible()
                 $el.addClass("fix")
 
+            $el.addClass("popover-opening")
             $el.fadeIn () =>
+                $el.removeClass("popover-opening")
                 $el.addClass("active")
                 $(document.body).off("popover")
 
