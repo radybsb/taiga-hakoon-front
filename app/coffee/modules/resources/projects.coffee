@@ -13,6 +13,10 @@ sizeFormat = @.taiga.sizeFormat
 resourceProvider = ($config, $repo, $http, $urls, $auth, $q, $translate) ->
     service = {}
 
+    service.saveTaskboardOptions = (projectId, options) ->
+        url = "#{$urls.resolve('projects')}/#{projectId}"
+        return $http.patch(url, {taskboard_options: options})
+
     service.get = (projectId) ->
         return $repo.queryOne("projects", projectId)
 

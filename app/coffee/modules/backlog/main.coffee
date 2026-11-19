@@ -370,6 +370,8 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         if resetPagination
             @.page = 1
 
+        params.status__is_archived = false
+        @loadArchivedUserstories() if resetPagination || !@scope.archivedUserstories
         params.page = @.page
         params.q = @.filterQ
 
@@ -392,6 +394,15 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
                 @.preloadUsIds()
 
             return uss
+
+    loadArchivedUserstories: (page = 1) ->
+        params = _.pick(_.clone(@location.search()), @.validQueryParams)
+        params = _.extend({}, params, {status__is_archived: true, page: page, q: @filterQ})
+        @rs.userstories.listUnassigned(@scope.projectId, params, undefined, false).then (result) =>
+            @scope.archivedUserstories = result[0]
+            @scope.archivedStoriesCount = result[1]('x-pagination-count') || result[0].length
+            @archivedPage = page
+            @archivedHasNext = !!result[1]('x-pagination-next')
 
     parseLoadUserstoriesResponse: (userstories, header) ->
         # NOTE: Fix order of USs because the filter orderBy does not work propertly in the partials files
@@ -688,6 +699,9 @@ class BacklogController extends mixOf(taiga.Controller, taiga.PageMixin, taiga.F
         @confirm.askOnDelete(title, message, '').then (askResponse) =>
             # We modify the userstories in scope so the user doesn't see the removed US for a while
             @scope.userstories = _.without(@scope.userstories, us)
+            if _.includes(@scope.archivedUserstories || [], us)
+                @scope.archivedUserstories = _.without(@scope.archivedUserstories, us)
+                @scope.archivedStoriesCount--
             promise = @.repo.remove(us)
             promise.then =>
                 askResponse.finish()

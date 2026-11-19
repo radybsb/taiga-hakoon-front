@@ -248,7 +248,9 @@ class UserStoryDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
     loadInitialData: ->
         project = @.loadProject()
         @.fillUsersAndRoles(project.members, project.roles)
-        @.loadUs().then(=> @q.all([@.loadSprint(), @.loadTasks()]))
+        primaryLoad = @.loadUs()
+        @scope.detailContentLoad = primaryLoad if @scope.detailPopup
+        return primaryLoad.then(=> @q.all([@.loadSprint(), @.loadTasks()]))
 
     ###
     # Note: This methods (onUpvote() and onDownvote()) are related to tg-vote-button.

@@ -161,7 +161,9 @@ class TaskDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         project = @.loadProject()
 
         @.fillUsersAndRoles(project.members, project.roles)
-        return @.loadTask().then(=> @q.all([@.loadSprint(), @.loadUserStory()]))
+        primaryLoad = @.loadTask()
+        @scope.detailContentLoad = primaryLoad if @scope.detailPopup
+        return primaryLoad.then(=> @q.all([@.loadSprint(), @.loadUserStory()]))
 
     ###
     # Note: This methods (onUpvote() and onDownvote()) are related to tg-vote-button.

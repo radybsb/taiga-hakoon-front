@@ -14,11 +14,13 @@ w.taiga={Controller:class{},PageMixin:class{},FiltersMixin:class{},UsFiltersMixi
   host.confirm={notify:()=>{throw Error('Unexpected failure');}};
   const methodNames=folder==='taskboard'?['loadSprint','loadTasks','loadSprintStats','refreshTagsColors']:['loadAllPaginatedUserstories','loadUserstories','loadSprints','loadProjectStats','loadClosedSprints','generateFilters'];
   for(const method of methodNames)host[method]=async()=>{calls.push(method);};
+  host.loadUserstoryImages=async()=>{};
   host.initializeEventHandlers();await refresh();
   for(const method of methodNames)if(method!=='loadUserstories')assert(calls.includes(method),folder+' refreshes '+method);
   if(folder==='taskboard'){
    assert(calls.indexOf('loadSprint')<calls.indexOf('loadTasks'),'Sprint membership must be refreshed before fetching task cards');
    calls.length=0;await events['taskform:edit:success']({},{});assert(calls.includes('loadTasks'),'Task edits must refetch full board models instead of copying stale detail attachments');
+   host.scope.project={taskboard_options:{automatic_status:true}};host.loadTaskboard=async()=>calls.push('loadTaskboard');calls.length=0;await events['taskform:edit:success']({},{});assert(calls.includes('loadTaskboard'),'Automatic status updates must refresh stories as well as tasks');
   }else assert(!calls.includes('loadUserstories'),'Already loaded backlog pagination must be preserved');
  }
  dom.window.close();console.log('PASS: taskboard refetches sprint membership, tasks and stats; backlog refreshes loaded pages and open/closed sprints; task edits avoid stale attachment models');

@@ -167,6 +167,27 @@ div.wrapper(tg-modern-workspace="backlog", tg-backlog, ng-controller="BacklogCon
                                     translate="BACKLOG.MOVE_US_TO_CURRENT_SPRINT"
                                 )
 
+                    section.closed-issues-section.archived-stories-section
+                        button.closed-issues-toggle(
+                            type="button"
+                            ng-click="ctrl.archivedExpanded = !ctrl.archivedExpanded"
+                            aria-expanded="{{!!ctrl.archivedExpanded}}"
+                            aria-controls="archived-stories-content"
+                        )
+                            tg-svg(svg-icon="icon-arrow-down" ng-class="{collapsed: !ctrl.archivedExpanded}")
+                            span(translate="BACKLOG.ARCHIVED_SECTION.TITLE")
+                            span.closed-issues-count {{archivedStoriesCount || 0}}
+                        #archived-stories-content(ng-if="ctrl.archivedExpanded")
+                            .backlog-table
+                                include ../includes/modules/backlog-table-header
+                                .backlog-table-body(ng-class="{'show-tags': ctrl.showTags}")
+                                    - var backlogRowRepeat = "us in archivedUserstories track by us.ref";
+                                    include ../includes/components/backlog-row
+                                    - backlogRowRepeat = null;
+                            p.closed-issues-empty(ng-if="archivedUserstories && !archivedUserstories.length" translate="BACKLOG.ARCHIVED_SECTION.EMPTY")
+                            button.btn-small(type="button" ng-if="ctrl.archivedPage > 1" ng-click="ctrl.loadArchivedUserstories(ctrl.archivedPage - 1)" translate="COMMON.PREVIOUS")
+                            button.btn-small(type="button" ng-if="ctrl.archivedHasNext" ng-click="ctrl.loadArchivedUserstories(ctrl.archivedPage + 1)" translate="COMMON.NEXT")
+
                     .empty-backlog.js-empty-backlog(ng-class="{'hidden': userstories === undefined || userstories.length || !ctrl.filterQ.length }")
                         p.no-match {{ 'BACKLOG.NO_MATCH' | translate:ctrl.translationData }}
                         p.no-match-help {{ 'BACKLOG.NO_MATCH_HELP' | translate }}

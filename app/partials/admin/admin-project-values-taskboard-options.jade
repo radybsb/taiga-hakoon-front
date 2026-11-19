@@ -1,0 +1,40 @@
+doctype html
+
+div.wrapper(tg-modern-workspace="settings" ng-controller="ProjectValuesSectionController" ng-init="sectionName='Taskboard options'")
+    tg-project-menu
+    sidebar.menu-secondary.sidebar.settings-nav(tg-admin-navigation="project-values")
+        include ../includes/modules/admin-menu
+    sidebar.menu-tertiary.sidebar(tg-admin-navigation="values-taskboard-options")
+        include ../includes/modules/admin-submenu-project-values
+    section.main.admin-common.admin-attributes
+        include ../includes/components/mainTitle
+        form.taskboard-options(ng-controller="TaskboardOptionsController as optionsCtrl" ng-submit="optionsCtrl.save()")
+            fieldset
+                label
+                    input(type="checkbox" ng-model="optionsCtrl.options.story_filters")
+                    span User story / Kanban filter
+                p Enable filtering user stories and tasks together. When off, filters apply only to tasks.
+            fieldset
+                label
+                    input(type="checkbox" ng-model="optionsCtrl.options.automatic_status")
+                    span Automatic user story status update
+                p Close a story when all its tasks have a selected closed status. Reopen it when an unfinished task is added or reopened.
+            div(ng-if="optionsCtrl.options.automatic_status")
+                fieldset
+                    legend Closed task statuses
+                    label(ng-repeat="status in optionsCtrl.closedTasks")
+                        input(type="checkbox" ng-checked="optionsCtrl.options.closed_task_statuses.indexOf(status.id) >= 0" ng-click="optionsCtrl.toggleTask(status.id)")
+                        span {{status.name}}
+                    p(ng-if="!optionsCtrl.closedTasks.length") Define at least one closed task status in Statuses first.
+                fieldset
+                    label(for="taskboard-closed-story") Closed user story status
+                    select#taskboard-closed-story(ng-model="optionsCtrl.options.closed_story_status" ng-options="status.id as status.name for status in optionsCtrl.closedStories")
+                        option(value="") Select a closed status
+                fieldset
+                    label(for="taskboard-opened-story") Opened user story status
+                    select#taskboard-opened-story(ng-model="optionsCtrl.options.opened_story_status" ng-options="status.id as status.name for status in optionsCtrl.openedStories")
+                        option(value="") Select an opened status
+                p Stories without tasks keep their current status. Changes apply when tasks are created, updated, moved, or deleted.
+            button.btn-small(type="submit" variant="primary" ng-disabled="optionsCtrl.saving || !optionsCtrl.valid()") Save
+            p(role="status" ng-if="optionsCtrl.saved") Taskboard options saved.
+            p.error-text(role="alert" ng-if="optionsCtrl.error") {{optionsCtrl.error}}

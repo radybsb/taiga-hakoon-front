@@ -71,3 +71,29 @@
         }
     }
 }
+
+.taskboard-options {
+    max-width: 52rem;
+    fieldset {
+        margin-bottom: 1.5rem;
+    }
+    label {
+        align-items: center;
+        display: flex;
+        gap: .65rem;
+        margin-bottom: .75rem;
+    }
+    input[type='checkbox'] {
+        flex: 0 0 auto;
+        width: auto;
+    }
+    select {
+        max-width: 30rem;
+    }
+    p {
+        margin-top: .5rem;
+    }
+    legend {
+        margin-bottom: .75rem;
+    }
+}

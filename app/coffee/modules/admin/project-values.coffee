@@ -1474,3 +1474,36 @@ ProjectSwimlanesWipDirective = () ->
     }
 
 module.directive("tgProjectSwimlanesWip", ProjectSwimlanesWipDirective)
+
+class TaskboardOptionsController
+    @.$inject = ["$scope", "$tgResources", "tgProjectService"]
+    constructor: (@scope, @rs, @projectService) ->
+        @options = _.assign({story_filters: true, automatic_status: false, closed_task_statuses: [], closed_story_status: null, opened_story_status: null}, angular.copy(@scope.project.taskboard_options || {}))
+        @closedTasks = @scope.project.task_statuses.filter((status) -> status.is_closed)
+        @closedStories = @scope.project.us_statuses.filter((status) -> status.is_closed)
+        @openedStories = @scope.project.us_statuses.filter((status) -> !status.is_closed)
+
+    toggleTask: (id) ->
+        if _.includes(@options.closed_task_statuses, id)
+            @options.closed_task_statuses = @options.closed_task_statuses.filter((value) -> value != id)
+        else
+            @options.closed_task_statuses.push(id)
+
+    valid: ->
+        return !@options.automatic_status || (@options.closed_task_statuses.length && @options.closed_story_status && @options.opened_story_status)
+
+    save: ->
+        return if @saving || !@valid()
+        @saving = true
+        @saved = false
+        @error = null
+        @rs.projects.saveTaskboardOptions(@scope.projectId, @options).then =>
+            @projectService.fetchProject().then =>
+                @scope.project.taskboard_options = angular.copy(@options)
+                @saved = true
+        .catch (response) =>
+            @error = "Unable to save taskboard options. Check the selected statuses and try again."
+        .finally =>
+            @saving = false
+
+module.controller("TaskboardOptionsController", TaskboardOptionsController)

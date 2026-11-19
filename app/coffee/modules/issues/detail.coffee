@@ -167,7 +167,9 @@ class IssueDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
 
         @.fillUsersAndRoles(project.members, project.roles)
 
-        return @.loadIssue().then( =>
+        primaryLoad = @.loadIssue()
+        @scope.detailContentLoad = primaryLoad if @scope.detailPopup
+        return primaryLoad.then( =>
             if @scope.project.my_permissions.indexOf("view_milestones") != -1
                 @.loadSprint()
         )

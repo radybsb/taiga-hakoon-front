@@ -96,6 +96,7 @@ urls = {
     "project-admin-project-values-custom-fields": "/project/:project/admin/project-values/custom-fields"
     "project-admin-project-values-tags": "/project/:project/admin/project-values/tags"
     "project-admin-project-values-due-dates": "/project/:project/admin/project-values/due-dates"
+    "project-admin-project-values-taskboard-options": "/project/:project/admin/project-values/taskboard-options"
     "project-admin-project-values-kanban-power-ups": "/project/:project/admin/project-values/kanban-power-ups"
 
     "project-admin-memberships": "/project/:project/admin/memberships"

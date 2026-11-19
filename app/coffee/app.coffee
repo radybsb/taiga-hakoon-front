@@ -398,6 +398,12 @@ configure = ($routeProvider, $locationProvider, $httpProvider, $provide, $tgEven
             section: "admin"
         }
     )
+    $routeProvider.when("/project/:pslug/admin/project-values/taskboard-options",
+        {
+            templateUrl: "admin/admin-project-values-taskboard-options.html",
+            section: "admin"
+        }
+    )
     $routeProvider.when("/project/:pslug/admin/memberships",
         {
             templateUrl: "admin/admin-memberships.html",

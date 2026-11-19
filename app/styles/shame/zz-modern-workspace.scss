@@ -6226,3 +6226,22 @@ html[data-modern-workspace='backlog'] {
         }
     }
 }
+
+html[data-modern-workspace='taskboard'] .taskboard-filter-targets {
+    border-top: 1px solid var(--workspace-border);
+    color: var(--workspace-text);
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: .75rem;
+    padding-top: .75rem;
+    label { align-items: center; display: flex; gap: .375rem; cursor: pointer; }
+    input { accent-color: var(--workspace-accent); }
+}
+
+// Hide the final sliver of the creation buttons behind the fixed navbar.
+@media (min-width: 1001px) {
+    html[data-modern-workspace='backlog'] .backlog-top {
+        top: -1rem;
+    }
+}

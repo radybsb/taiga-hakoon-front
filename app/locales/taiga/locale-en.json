@@ -26,7 +26,6 @@
         "COPY_TO_CLIPBOARD": "Copy to clipboard",
         "COPIED_TO_CLIPBOARD": "Text has been copied to clipboard",
         "MOVE_TO_TOP": "Move to top",
-        "MOVE_TO_TOP": "Move to top",
         "EDIT": "Edit",
         "DRAG": "Drag",
         "TAG_LINE": "Your agile, free, and open source project management tool",
@@ -272,7 +271,15 @@
             }
         },
         "WYSIWYG": {
-            "TEXT_COLOR": {"TITLE": "Text color", "AUTOMATIC": "Automatic", "RED": "Red", "ORANGE": "Orange", "GREEN": "Green", "BLUE": "Blue", "PURPLE": "Purple"},
+            "TEXT_COLOR": {
+                "TITLE": "Text color",
+                "AUTOMATIC": "Automatic",
+                "RED": "Red",
+                "ORANGE": "Orange",
+                "GREEN": "Green",
+                "BLUE": "Blue",
+                "PURPLE": "Purple"
+            },
             "LAYOUT": {
                 "TITLE": "Text and media layout",
                 "LEFT": "Left",
@@ -1524,6 +1531,10 @@
             "TEXT_ACTION_NEW_SPRINT": "You may want to create a new sprint in your project",
             "ACTION_SHOW_CLOSED_SPRINTS": "Show closed sprints",
             "ACTION_HIDE_CLOSED_SPRINTS": "Hide closed sprints"
+        },
+        "ARCHIVED_SECTION": {
+            "TITLE": "Archived user stories",
+            "EMPTY": "No archived user stories"
         }
     },
     "ERROR": {

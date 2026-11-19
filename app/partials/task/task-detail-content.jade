@@ -73,7 +73,7 @@ div.main.detail
                 )
                 tg-created-by-display.ticket-created-by(ng-model="task")
 
-    .detail-content(ng-if="attachmentsReady")
+    .detail-content(ng-if="detailPopup || attachmentsReady")
         section.duty-content
             tg-item-wysiwyg(
                 type="task",
@@ -89,7 +89,9 @@ div.main.detail
             required-edition-perm="modify_task"
         )
 
+        p(ng-if="detailPopup && !attachmentsReady && !loadFailed" translate="COMMON.LOADING" role="status")
         tg-attachments-full(
+            ng-if="attachmentsReady"
             obj-id="task.id"
             type="task"
             project-id="projectId"

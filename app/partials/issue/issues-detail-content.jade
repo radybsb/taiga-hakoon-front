@@ -72,7 +72,7 @@ div.main.detail
                 tg-created-by-display.ticket-created-by(ng-model="issue")
 
 
-    .detail-content(ng-if="attachmentsReady")
+    .detail-content(ng-if="detailPopup || attachmentsReady")
         section.duty-content
             tg-item-wysiwyg(
                 type="issue",
@@ -88,7 +88,9 @@ div.main.detail
             required-edition-perm="modify_issue"
         )
 
+        p(ng-if="detailPopup && !attachmentsReady && !loadFailed" translate="COMMON.LOADING" role="status")
         tg-attachments-full(
+            ng-if="attachmentsReady"
             obj-id="issue.id"
             type="issue",
             project-id="projectId"

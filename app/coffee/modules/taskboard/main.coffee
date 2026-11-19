@@ -60,6 +60,8 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
     ]
 
     validQueryParams: [
+        'filter_scope',
+        'exclude_tags',
         'exclude_status',
         'status',
         'exclude_assigned_to',
@@ -182,6 +184,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
     saveCustomFilter: (name) ->
         filters = {}
+        filters.filter_scope = @getQueryParams().filter_scope || 'task'
         urlfilters = @.getQueryParams()
         for key in @.filterCategories
             excludeKey = @.excludePrefix.concat(key)
@@ -193,8 +196,46 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
             @filterRemoteStorageService.storeFilters(@scope.projectId, userFilters, 'tasks-custom-filters').then(@.generateFilters)
 
+    storyFiltersEnabled: ->
+        return @scope.project?.taskboard_options?.story_filters != false
+
+    filterTargets: ->
+        return ['task'] unless @storyFiltersEnabled()
+        value = @getQueryParams().filter_scope
+        return (value || 'task').split(',')
+
+    setFilterTargets: ->
+        targets = []
+        targets.push('story') if @filterStories
+        targets.push('task') if @filterTasks
+        @location.noreload(@scope).search('filter_scope', if targets.length then targets.join(',') else 'none')
+        @loadTasks()
+        @generateFilters()
+
+    itemFilterParams: (kind, values = @getQueryParams(), force = false) ->
+        return {} unless force || _.includes(@filterTargets(), kind)
+        params = _.pick(values, ['assigned_to', 'exclude_assigned_to', 'role', 'exclude_role', 'owner', 'exclude_owner', 'tags', 'exclude_tags'])
+        statuses = if kind == 'story' then @scope.project.us_statuses else @scope.project.task_statuses
+        for key in ['status', 'exclude_status']
+            continue unless values[key]
+            names = String(values[key]).split(',').map (value) =>
+                if value.indexOf('name:') == 0 then decodeURIComponent(value.slice(5)) else _.find(@scope.project.task_statuses, (status) -> String(status.id) == value)?.name
+            ids = statuses.filter((status) -> _.includes(names, status.name)).map((status) -> status.id)
+            params[key] = if ids.length then ids.join(',') else '-1'
+        return params
+
     generateFilters: ->
         urlfilters = @.getQueryParams()
+        for key in ['status', 'exclude_status']
+            if urlfilters[key]
+                normalized = String(urlfilters[key]).split(',').map (value) =>
+                    return value if value.indexOf('name:') == 0
+                    status = _.find(@scope.project.task_statuses, (status) -> String(status.id) == value)
+                    return if status then 'name:' + encodeURIComponent(status.name) else value
+                urlfilters[key] = _.uniq(normalized).join(',')
+                @location.noreload(@scope).search(key, urlfilters[key])
+        @filterStories = _.includes(@filterTargets(), 'story')
+        @filterTasks = _.includes(@filterTargets(), 'task')
         @.storeFilters(@params.pslug, urlfilters, "tasks-filters")
 
         loadFilters = {}
@@ -207,17 +248,30 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
             loadFilters[excludeKey] = urlfilters[excludeKey]
 
         return @q.all([
-            @rs.tasks.filtersData(loadFilters),
-            @filterRemoteStorageService.getFilters(@scope.projectId, 'tasks-custom-filters')
+            @rs.tasks.filtersData(_.assign({project: @scope.projectId, milestone: @scope.sprintId}, @itemFilterParams('task', urlfilters, true))),
+            @filterRemoteStorageService.getFilters(@scope.projectId, 'tasks-custom-filters'),
+            if @storyFiltersEnabled() then @rs.userstories.filtersData(_.assign({project: @scope.projectId, milestone: @scope.sprintId}, @itemFilterParams('story', urlfilters, true))) else @q.when({})
         ]).then (result) =>
             data = result[0]
             customFiltersRaw = result[1]
             dataCollection = {}
+            storyData = result[2]
+            for field in ['tags', 'assigned_to', 'roles', 'owners']
+                combined = {}
+                for value in (data[field] || []).concat(storyData[field] || [])
+                    key = if field == 'tags' then value.name else String(value.id)
+                    if combined[key]
+                        combined[key].count = (combined[key].count || 0) + (value.count || 0)
+                    else
+                        combined[key] = _.assign({}, value)
+                data[field] = _.values(combined)
 
-            dataCollection.status = _.map data.statuses, (it) ->
-                it.id = it.id.toString()
 
-                return it
+            statusNames = {}
+            storyStatuses = if @storyFiltersEnabled() then (@scope.project.us_statuses || []) else []
+            for status in (@scope.project.task_statuses || []).concat(storyStatuses)
+                statusNames[status.name] ||= {id: 'name:' + encodeURIComponent(status.name), name: status.name, color: status.color}
+            dataCollection.status = _.values(statusNames)
             dataCollection.tags = _.map data.tags, (it) ->
                 it.id = it.name
 
@@ -331,17 +385,20 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         @scope.$on "taskform:bulk:success", (event, tasks) =>
             @.refreshTagsColors().then () =>
                 @taskboardTasksService.add(tasks)
+                @loadTaskboard() if @scope.project?.taskboard_options?.automatic_status
 
             @analytics.trackEvent("task", "create", "bulk create task on taskboard", 1)
 
         @scope.$on "taskform:new:success", (event, task) =>
             @.refreshTagsColors().then () =>
                 @taskboardTasksService.add(task)
+                @loadTaskboard() if @scope.project?.taskboard_options?.automatic_status
 
             @analytics.trackEvent("task", "create", "create task on taskboard", 1)
 
         @scope.$on "taskform:edit:success", (event, task) =>
             @.refreshTagsColors().then () =>
+                return @loadTaskboard() if @scope.project?.taskboard_options?.automatic_status
                 # Detail models may omit attachments and board summary fields.
                 @q.all([@.loadTasks(), @.loadSprintStats(), @.loadUserstoryImages()])
 
@@ -360,7 +417,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
                 @taskboardIssuesService.replaceModel(issue)
 
         @scope.$on "taskboard:task:deleted", (event, task) =>
-            @.loadTasks()
+            if @scope.project?.taskboard_options?.automatic_status then @loadTaskboard() else @loadTasks()
 
         @scope.$on "taskboard:issue:deleted", (event, issue) =>
             @.loadIssues()
@@ -406,7 +463,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         @events.subscribe @scope, routingKey1, (message) =>
             @.refreshTagsColors()
             @.loadSprintStats()
-            @.loadSprint()
+            @.loadSprint().then => @loadTasks()
 
     loadProject: ->
         return @rs.projects.get(@scope.projectId).then (project) =>
@@ -458,7 +515,8 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
     loadSprint: ->
         return @rs.sprints.get(@scope.projectId, @scope.sprintId).then (sprint) =>
             @scope.sprint = sprint
-            @scope.userstories = _.sortBy(sprint.user_stories, "sprint_order")
+            @scope.allUserstories = _.sortBy(sprint.user_stories, "sprint_order")
+            @scope.userstories = @scope.allUserstories
             images = @.loadUserstoryImages().catch => @confirm.notify('error')
 
             @taskboardTasksService.setUserstories(@scope.userstories)
@@ -500,7 +558,7 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         if @.zoomLevel > 1
             params.include_attachments = 1
 
-        locationParams = @.getQueryParams()
+        locationParams = @itemFilterParams('task')
         params = _.merge params, locationParams
 
         return @rs.issues.listInProject(@scope.projectId, @scope.sprintId, params).then (issues) =>
@@ -514,11 +572,22 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
         if @.zoomLevel > 1
             params.include_attachments = 1
 
-        locationParams = @.getQueryParams()
+        locationParams = @itemFilterParams('task')
         params = _.merge params, locationParams
-        params.q = @.filterQ
+        params.q = @.filterQ if _.includes(@filterTargets(), 'task')
 
-        return @rs.tasks.list(@scope.projectId, @scope.sprintId, null, params).then (tasks) =>
+        request = @taskFilterRequest = (@taskFilterRequest || 0) + 1
+        storyParams = _.assign({project: @scope.projectId, milestone: @scope.sprintId}, @itemFilterParams('story'))
+        stories = if _.includes(@filterTargets(), 'story') then @repo.queryMany('userstories', storyParams) else @q.when(null)
+        return @q.all([@rs.tasks.list(@scope.projectId, @scope.sprintId, null, params), stories]).then (result) =>
+            return if request != @taskFilterRequest || @scope.$$destroyed
+            tasks = result[0]
+            allStories = @scope.allUserstories || @scope.sprint?.user_stories || []
+            @scope.userstories = if result[1] then allStories.filter((story) -> result[1].some((match) -> match.id == story.id)) else allStories
+            if result[1]
+                visibleIds = @scope.userstories.map((story) -> story.id)
+                tasks = tasks.filter((task) -> _.includes(visibleIds, task.user_story))
+            @taskboardTasksService.setUserstories(@scope.userstories)
             @.notFoundTasks = false
 
             if !tasks.length && ((@.filterQ && @.filterQ.length) || Object.keys(locationParams).length)
@@ -704,12 +773,14 @@ class TaskboardController extends mixOf(taiga.Controller, taiga.PageMixin, taiga
 
             @.loadSprintStats()
             @.generateFilters()
+            return @loadTaskboard() if @scope.project?.taskboard_options?.automatic_status
             if @.isFilterDataTypeSelected('status')
                 @.loadTasks()
 
     reloadUserStory: (userStoryId) ->
         @rs.userstories.get(@scope.project.id, userStoryId).then (us) =>
             @scope.userstories = _.map(@scope.userstories, (x) -> if x.id == us.id then us else x)
+            @scope.allUserstories = _.map(@scope.allUserstories, (x) -> if x.id == us.id then us else x)
 
     ## Template actions
     addNewTask: (type, us) ->

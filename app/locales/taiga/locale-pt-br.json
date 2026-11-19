@@ -271,7 +271,15 @@
             }
         },
         "WYSIWYG": {
-            "TEXT_COLOR": {"TITLE": "Cor do texto", "AUTOMATIC": "Automática", "RED": "Vermelho", "ORANGE": "Laranja", "GREEN": "Verde", "BLUE": "Azul", "PURPLE": "Roxo"},
+            "TEXT_COLOR": {
+                "TITLE": "Cor do texto",
+                "AUTOMATIC": "Automática",
+                "RED": "Vermelho",
+                "ORANGE": "Laranja",
+                "GREEN": "Verde",
+                "BLUE": "Azul",
+                "PURPLE": "Roxo"
+            },
             "LAYOUT": {
                 "TITLE": "Alinhamento de texto e mídias",
                 "LEFT": "Esquerda",
@@ -1526,6 +1534,10 @@
             "TEXT_ACTION_NEW_SPRINT": "Você poderá querer criar uma nova sprint em seu projeto",
             "ACTION_SHOW_CLOSED_SPRINTS": "Mostrar sprints fechadas",
             "ACTION_HIDE_CLOSED_SPRINTS": "Esconder sprints fechadas"
+        },
+        "ARCHIVED_SECTION": {
+            "TITLE": "Histórias de usuário arquivadas",
+            "EMPTY": "Nenhuma história de usuário arquivada"
         }
     },
     "ERROR": {

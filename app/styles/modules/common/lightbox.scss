@@ -1314,6 +1314,11 @@
     background: rgba($color-black900, .45);
     padding: 1rem;
 
+    // Keep a brief opening fade for work-item details.
+    &.lightbox-task-detail.open:not(.close) {
+        transition-duration: .1s;
+    }
+
     .lightbox-panel {
         background: $white;
         border-radius: .5rem;

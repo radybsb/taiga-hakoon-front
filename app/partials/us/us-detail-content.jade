@@ -109,7 +109,7 @@ include us-metadata
                 )
                 tg-created-by-display.ticket-created-by(ng-model="us")
 
-    .detail-content(ng-if="attachmentsReady")
+    .detail-content(ng-if="detailPopup || attachmentsReady")
         section.duty-content
             tg-item-wysiwyg(
                 type="us",
@@ -125,7 +125,9 @@ include us-metadata
             required-edition-perm="modify_us"
         )
 
+        p(ng-if="detailPopup && !attachmentsReady && !loadFailed" translate="COMMON.LOADING" role="status")
         tg-attachments-full(
+            ng-if="attachmentsReady"
             obj-id="us.id"
             type="us",
             project-id="projectId"

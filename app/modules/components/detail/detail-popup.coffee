@@ -69,6 +69,9 @@ DetailPopupDirective = ($controller, $rs, $rootScope, $q, projectService, transf
             $scope: scope, $routeParams: params, $tgResources: localResources,
             tgProjectService: localProject, tgAttachmentsFullService: localAttachments
         })
+        (scope.detailContentLoad || scope.detailLoad).then ->
+            scope.detailContentReady = true unless scope.$$destroyed
+        .catch -> scope.loadFailed = true unless scope.$$destroyed
         scope.detailLoad.then ->
             scope.detailReady = true unless scope.$$destroyed
         .catch -> scope.loadFailed = true unless scope.$$destroyed

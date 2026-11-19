@@ -141,7 +141,9 @@ class EpicDetailController extends mixOf(taiga.Controller, taiga.PageMixin)
         project = @.loadProject()
 
         @.fillUsersAndRoles(project.members, project.roles)
-        @.loadEpic().then(=> @.loadUserstories())
+        primaryLoad = @.loadEpic()
+        @scope.detailContentLoad = primaryLoad if @scope.detailPopup
+        return primaryLoad.then(=> @.loadUserstories())
 
     ###
     # Note: This methods (onUpvote() and onDownvote()) are related to tg-vote-button.

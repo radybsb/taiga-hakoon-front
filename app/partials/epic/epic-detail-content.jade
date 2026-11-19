@@ -42,7 +42,7 @@ div.main.detail
                 tg-created-by-display.ticket-created-by(ng-model="epic")
 
 
-    .detail-content(ng-if="attachmentsReady")
+    .detail-content(ng-if="detailPopup || attachmentsReady")
         section.duty-content
             tg-item-wysiwyg(
                 type="epic",
@@ -58,7 +58,9 @@ div.main.detail
             required-edition-perm="modify_epic"
         )
 
+        p(ng-if="detailPopup && !attachmentsReady && !loadFailed" translate="COMMON.LOADING" role="status")
         tg-attachments-full(
+            ng-if="attachmentsReady"
             obj-id="epic.id"
             type="epic",
             project-id="projectId"
@@ -66,6 +68,7 @@ div.main.detail
         )
 
         tg-related-userstories(
+            ng-if="!detailPopup || detailReady"
             project="immutableProject"
             userstories="userstories"
             epic="immutableEpic"

@@ -79,6 +79,13 @@ div.wrapper(
                         on-remove-filter="ctrl.removeFilter(filter)"
                         on-change-q="ctrl.changeQ(q)"
                     )
+                        .taskboard-filter-targets(ng-if="ctrl.storyFiltersEnabled()")
+                            label
+                                input(type="checkbox" ng-model="ctrl.filterStories" ng-change="ctrl.setFilterTargets()")
+                                span User story
+                            label
+                                input(type="checkbox" ng-model="ctrl.filterTasks" ng-change="ctrl.setFilterTargets()")
+                                span Task
                 include ../includes/modules/taskboard-table
 
     div.lightbox.lightbox-generic-form.lightbox-create-edit(tg-lb-create-edit)

@@ -54,6 +54,7 @@ FilterDirective = () ->
             customFilters: "<"
             selectedFilters: "<"
         },
+        transclude: true,
         bindToController: true,
         controller: "Filter",
         controllerAs: "vm",

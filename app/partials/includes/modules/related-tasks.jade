@@ -7,6 +7,7 @@
 
 section.related-tasks(
     tg-related-tasks
+    ng-if="!detailPopup || detailReady"
     ng-show="showRelatedTasks()"
 )
     .related-tasks-header

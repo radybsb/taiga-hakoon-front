@@ -1501,6 +1501,10 @@
             "TEXT_ACTION_NEW_SPRINT": "Es posible que desees crear un nuevo sprint para tu proyecto",
             "ACTION_SHOW_CLOSED_SPRINTS": "Mostrar sprints cerrados",
             "ACTION_HIDE_CLOSED_SPRINTS": "Ocultar sprints cerrados"
+        },
+        "ARCHIVED_SECTION": {
+            "TITLE": "Historias de usuario archivadas",
+            "EMPTY": "No hay historias de usuario archivadas"
         }
     },
     "ERROR": {
